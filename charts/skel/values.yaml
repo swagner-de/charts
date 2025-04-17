@@ -1,0 +1,12 @@
+persistence:
+  data:
+    enabled: true
+    size: 10Gi
+    # storageClass: "gp2"
+    accessMode: ReadWriteOnce
+
+config: |
+  skel
+
+secrets: |
+  skel
