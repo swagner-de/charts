@@ -1,0 +1,118 @@
+{{- define "hardcoded" -}}
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1883
+
+# Configure options applied to all pods
+controllers:
+  main:
+    initContainers:
+      init:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: alpine
+          tag: {{ .Chart.AppVersion | quote }}
+        command:  ["/bin/sh", "-c"]
+        args:
+        - echo "init container"
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: alpine
+          tag: {{ .Chart.AppVersion | quote }}
+        command:  ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "main container"
+          while true
+          do
+            echo $(date)
+            sleep 2
+          done
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        probes:
+          liveness: &probe
+            enabled: false
+          readiness: *probe
+          startup: *probe
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      mqtt:
+        port: 8888
+        protocol: TCP
+
+ingress:
+  main:
+    enabled: false
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      skel.conf: |
+{{ .Values.config | indent 8 }}
+
+secrets:
+  skel:
+    enabled: true
+    stringData:
+      skel.conf: |
+{{.Values.secrets | indent 8 }}
+
+persistence:
+  data:
+    advancedMounts:
+      main:
+        main:
+        - path: /data
+
+  init:
+    type: secret
+    identifier: skel
+    defaultMode: 0755
+    advancedMounts:
+      main:
+        init:
+        - path: /init/
+
+  config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        main:
+        - path: /config
+
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
