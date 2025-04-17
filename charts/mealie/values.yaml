@@ -1,0 +1,110 @@
+persistence:
+  data:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteOnce
+
+ingress:
+  main:
+    enabled: false
+
+config:
+  # see https://docs.mealie.io/documentation/getting-started/installation/
+  ALLOW_SIGNUP: "false"
+  # PUID:
+  # PGID:
+  # DEFAULT_GROUP:
+  # DEFAULT_HOUSEHOLD:
+  # BASE_URL:
+  # TOKEN_TIME:
+  # API_PORT:
+  # API_DOCS:
+  # TZ:
+  # ALLOW_SIGNUP:
+  # LOG_CONFIG_OVERRIDE:
+  # LOG_LEVEL:
+  # DAILY_SCHEDULE_TIME:
+
+db:
+  POSTGRES_USER: &postgresUser mealie
+  POSTGRES_PASSWORD: &postgresPassword mealie
+  POSTGRES_DB: &postgresDB mealie
+
+# See https://docs.mealie.io/documentation/getting-started/installation/backend-config/#email
+mail: {}
+  # SMTP_HOST: None
+  # SMTP_PORT: 587
+  # SMTP_FROM_NAME: Mealie
+  # SMTP_AUTH_STRATEGY: TLS
+  # SMTP_FROM_EMAIL: None
+  # SMTP_USER: None
+  # SMTP_PASSWORD: None
+
+# See https://docs.mealie.io/documentation/getting-started/installation/backend-config/#oidc
+oidc:
+  # OIDC_AUTH_ENABLED: true
+  # OIDC_SIGNUP_ENABLED: True
+  # OIDC_CONFIGURATION_URL: None
+  # OIDC_CLIENT_ID: None
+  # OIDC_CLIENT_SECRET: None
+  # OIDC_USER_GROUP: None
+  # OIDC_ADMIN_GROUP: None
+  # OIDC_AUTO_REDIRECT: False
+  # OIDC_PROVIDER_NAME: OAuth
+  # OIDC_REMEMBER_ME: False
+  # OIDC_SIGNING_ALGORITHM: RS256
+  # OIDC_USER_CLAIM: email
+  # OIDC_NAME_CLAIM: name
+  # OIDC_GROUPS_CLAIM: groups
+  # OIDC_SCOPES_OVERRIDE: None
+  # OIDC_TLS_CACERTFILE: None
+
+openai: {}
+  # OPENAI_BASE_URL: None
+  # OPENAI_API_KEY: None
+  # OPENAI_MODEL: gpt-4o
+  # OPENAI_CUSTOM_HEADERS: None
+  # OPENAI_CUSTOM_PARAMS: None
+  # OPENAI_ENABLE_IMAGE_SERVICES: True
+  # OPENAI_WORKERS: 2
+  # OPENAI_SEND_DATABASE_DATA: True
+  # OPENAI_REQUEST_TIMEOUT: 60
+
+postgresql:
+  enabled: true
+  global:
+    postgresql:
+      auth:
+        username: *postgresUser
+        database: *postgresDB
+        password: *postgresPassword
+  primary:
+    persistence:
+      enabled: true
+      size: 2Gi
+      accessMode: ReadWriteOnce
+
+
+cnpg:
+  # In case CNPG operator is used, provide the cluster definition via additionalObjects
+  # and set the postgresql.enabled to false
+  # The cluster name must be provided for the database to be auto-configured
+  enabled: false
+  clusterName: mealie-db
+
+# In case of CNPG
+# rawResources:
+#   db:
+#     enabled: true
+#     apiVersion: postgresql.cnpg.io/v1
+#     kind: Cluster
+#     spec:
+#       spec:
+#         instances: 1
+#         imageCatalogRef:
+#           apiGroup: postgresql.cnpg.io
+#           kind: ClusterImageCatalog
+#           name: postgresql
+#           major: 16
+#         storage:
+#           size: 5Gi
