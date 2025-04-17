@@ -1,0 +1,167 @@
+{{- define "hardcoded" -}}
+
+{{ if and .Values.cnpg.enabled .Values.postgresql.enabled }}
+{{ fail "postgres cannot be used via bitnami chart and CNPG"}}
+{{- end }}
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 911
+    runAsGroup: 911
+    fsGroup: 911
+    fsGroupChangePolicy: OnRootMismatch
+
+# Configure options applied to all pods
+controllers:
+  main:
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+
+        image:
+          repository: ghcr.io/mealie-recipes/mealie
+          tag: {{ .Chart.AppVersion | quote }}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 500Mi
+{{ if .Values.postgresql.enabled }}
+        env:
+          DB_ENGINE: postgres
+          POSTGRES_SERVER: {{ printf "%s-postgresql" .Release.Name | quote }}
+          POSTGRES_PORT: "5432"
+{{ end }}
+{{ if .Values.cnpg.enabled }}
+        env:
+          DB_ENGINE: postgres
+          POSTGRES_SERVER:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                key: host
+          POSTGRES_DB:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                key: dbname
+          POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                key: user
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                key: password
+{{- end }}
+        envFrom:
+          - configMapRef:
+              identifier: config
+{{ if and (.Values.db | empty | not) .Values.postgresql.enabled }}
+          - secretRef:
+              identifier: db
+{{- end }}
+{{if .Values.mail | empty | not }}
+          - secretRef:
+              identifier: mail
+{{- end }}
+{{ if .Values.oidc | empty | not }}
+          - secretRef:
+              identifier: oidc
+{{- end }}
+{{ if .Values.openai | empty | not }}
+          - secretRef:
+              identifier: openai
+{{- end }}
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec: &probeSpec
+              httpGet:
+                path: /api/app/about
+                port: 9000
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+          readiness: *probe
+          startup: 
+            enabled: true
+            custom: true
+            spec:
+              <<: *probeSpec
+              initialDelaySeconds: 15
+
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 9000
+        protocol: TCP
+
+
+configMaps:
+  config:
+    enabled: true
+    data: {{ toYaml .Values.config | nindent 6 }}
+
+secrets:
+  dummy:
+    enabled: false
+{{ if and (.Values.db | empty | not) .Values.postgresql.enabled }}
+  db:
+    enabled: true
+    stringData: {{ toYaml .Values.db | nindent 6 }}
+{{- end }}
+{{if .Values.mail | empty | not }}
+  mail:
+    enabled: true
+    stringData: {{ toYaml .Values.mail | nindent 6 }}
+{{- end }}
+{{ if .Values.oidc | empty | not }}
+  oidc:
+    enabled: true
+    stringData: {{ toYaml .Values.oidc | nindent 6 }}
+{{- end }}
+{{if .Values.openai | empty | not }}
+  openai:
+    enabled: true
+    stringData: {{ toYaml .Values.openai | nindent 6 }}
+{{- end }}
+
+persistence:
+  data:
+    advancedMounts:
+      main:
+        main:
+        - path: /app/data
+  nltk-data:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /app/nltk_data
+
+
+{{ end }}
+
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
