@@ -1,0 +1,74 @@
+# This workflow builds and pushes an OCI Helm chart release for the chart changed in the commit.
+# It tags the release with the chart version from Chart.yaml.
+
+name: Helm Chart OCI Release
+
+on:
+  push:
+    # paths:
+    #   - 'charts/**'
+    branches:
+      - main
+
+jobs:
+  check-oci-release:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.charts.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+      - name: Install tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y skopeo yq
+      - name: Find charts that need to be pushed (OCI version check)
+        id: charts
+        run: |
+          set -e
+          CHART_DIRS=$(find charts/ -mindepth 1 -maxdepth 1 -type d)
+          matrix_json="[]"
+          for chart in $CHART_DIRS; do
+            chart_name=$(basename "$chart")
+            version=$(yq '.version' "$chart/Chart.yaml")
+            # Get all tags/versions from OCI registry using skopeo
+            repo_url="$HELM_REGISTRY/$chart_name"
+            oci_versions=$(skopeo list-tags docker://$repo_url 2>/dev/null | jq -r '.Tags[]?')
+            if [ -z "$oci_versions" ]; then
+              # Chart does not exist in registry, needs to be pushed
+              matrix_json=$(echo "$matrix_json" | jq ". += [{\"chart_path\": \"$chart\", \"chart_name\": \"$chart_name\", \"version\": $version}]")
+            else
+              if ! echo "$oci_versions" | grep -qx "$version"; then
+                matrix_json=$(echo "$matrix_json" | jq ". += [{\"chart_path\": \"$chart\", \"chart_name\": \"$chart_name\", \"version\": $version}]")
+              fi
+            fi
+          done
+          echo $matrix_json | jq
+          echo "matrix=\'$matrix_json\'" >> "$GITHUB_OUTPUT"
+  release:
+    needs: check-oci-release
+    runs-on: ubuntu-latest
+    if: ${{ needs.check-oci-release.outputs.matrix != '[]' }}
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.check-oci-release.outputs.matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Release Helm chart to OCI
+        uses: appany/helm-oci-chart-releaser@v0.3.0
+        with:
+          name: ${{ matrix.chart_name }}
+          repository: ${{ matrix.chart_path }}
+          registry: ghcr.io
+          registry_username: ${{ github.actor }}
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ matrix.version }}
