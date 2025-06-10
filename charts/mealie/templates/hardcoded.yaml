@@ -14,7 +14,7 @@ defaultPodOptions:
 
 # Configure options applied to all pods
 controllers:
-  main:
+  server:
     containers:
       main:
         enabled: true
@@ -156,7 +156,12 @@ persistence:
       main:
         main:
         - path: /app/nltk_data
-
+  temp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /tmp/
 
 {{ end }}
 

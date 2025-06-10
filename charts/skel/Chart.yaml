@@ -12,7 +12,7 @@ appVersion: "latest"
 dependencies:
   - name: common
     version: 3.7.3
-    repository: https://bjw-s.github.io/helm-charts/
+    repository: https://bjw-s-labs.github.io/helm-charts/
 maintainers:
   - name: swagner-de
     email: swagner-de@users.noreply.github.com
