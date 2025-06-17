@@ -1,0 +1,85 @@
+persistence:
+  config:
+    accessMode: ReadWriteOnce
+    size: 5Gi
+
+controllers:
+  main:
+    containers:
+      ldap:
+        enabled: false
+        image:
+          tag: v0.3.0
+      main:
+        env:
+        - name: TZ
+          value: Europe/Berlin
+
+# ldap:
+#   HA_LDAP_HOST: "ldap.mydomain.com"
+#   HA_LDAP_BIND_DN: "cn=ldapservice,ou=users,dc=ldap,dc=goauthentik,dc=io"
+#   HA_LDAP_BIND_DN_PASSWORD: "mysupersecretpassword"
+#   HA_LDAP_BASE_DN: "DC=ldap,DC=goauthentik,DC=io"
+#   HA_LDAP_ADMIN_FILTER: "(&(objectClass=person)(cn={username})(memberOf=cn=homeassistantAdmins,ou=groups,dc=ldap,dc=goauthentik,dc=io))"
+#   HA_LDAP_USER_FILTER: "(&(objectClass=person)(cn={username})(memberOf=cn=homeassistantUsers,ou=groups,dc=ldap,dc=goauthentik,dc=io))"
+#   HA_LDAP_SSL: "true"
+
+
+ingress:
+  main:
+    enabled: false
+    # annotations:
+    # hosts:
+    #   - host: homeassistant.my-domain.com
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         service:
+    #           identifier: main
+    #           port: http
+
+    # tls:
+    #   - secretName: homeassistant-tls
+    #     hosts:
+    #       - homeassistant.my-domain.com
+
+cnpg:
+  # In case CNPG operator is used, provide the cluster definition via additionalObjects
+  # and set the postgresql.enabled to false
+  # The cluster name must be provided for the database to be auto-configured
+  enabled: false
+  clusterName: homeassistant-db
+
+
+# rawResources:
+#   db:
+#     enabled: true
+#     apiVersion: postgresql.cnpg.io/v1
+#     kind: Cluster
+#     spec:
+#       spec:
+#         instances: 1
+#         imageCatalogRef:
+#           apiGroup: postgresql.cnpg.io
+#           kind: ClusterImageCatalog
+#           name: postgresql
+#           major: 17
+#         storage:
+#           size: 5Gi
+#           storageClassName: "standard"
+
+# serviceMonitor:
+#   main:
+#     enabled: true
+#     serviceName: homeassistant
+#     endpoints:
+#       - port: http
+#         scheme: http
+#         path: /api/prometheus
+#         interval: 1m
+#         scrapeTimeout: 10s
+#         authorization:
+#           type: Bearer
+#           credentials:
+#             name: home-assistant-prometheus
+#             key: token
