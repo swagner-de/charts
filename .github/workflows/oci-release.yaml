@@ -22,39 +22,45 @@ jobs:
         uses: azure/setup-helm@v4
         with:
           version: v3.14.0
-      - name: Install tools
-        run: |
-          sudo apt-get update && sudo apt-get install -y skopeo yq
       - name: Find charts that need to be pushed (OCI version check)
         id: charts
         run: |
-          set -e
           CHART_DIRS=$(find charts/ -mindepth 1 -maxdepth 1 -type d)
           matrix_json="[]"
           for chart in $CHART_DIRS; do
             chart_name=$(basename "$chart")
-            version=$(yq '.version' "$chart/Chart.yaml")
-            # Get all tags/versions from OCI registry using skopeo
-            repo_url="$HELM_REGISTRY/$chart_name"
-            oci_versions=$(skopeo list-tags docker://$repo_url 2>/dev/null | jq -r '.Tags[]?')
+            version=$(grep -E '^version: ' "$chart/Chart.yaml" | sed s/'version: '//)
+            # Get all tags/versions from GitHub Container Registry API
+            api_url="https://api.github.com/user/packages/container/${REPO_NAME}%2F${chart_name}/versions"
+            response=$(curl -s -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              "$api_url")
+            if echo "$response" | jq -e 'type == "array" and length > 0' >/dev/null; then
+              oci_versions=$(echo "$response" | jq -r '.[].metadata.container.tags[]?')
+            else
+              oci_versions=""
+            fi
             if [ -z "$oci_versions" ]; then
-              # Chart does not exist in registry, needs to be pushed
-              matrix_json=$(echo "$matrix_json" | jq ". += [{\"chart_path\": \"$chart\", \"chart_name\": \"$chart_name\", \"version\": $version}]")
+              matrix_json=$(echo "$matrix_json" | jq ". += [{\"chart_path\": \"$chart\", \"chart_name\": \"$chart_name\", \"version\": \"$version\"}]")
             else
               if ! echo "$oci_versions" | grep -qx "$version"; then
-                matrix_json=$(echo "$matrix_json" | jq ". += [{\"chart_path\": \"$chart\", \"chart_name\": \"$chart_name\", \"version\": $version}]")
+                matrix_json=$(echo "$matrix_json" | jq ". += [{\"chart_path\": \"$chart\", \"chart_name\": \"$chart_name\", \"version\": \"$version\"}]")
               fi
             fi
           done
-          echo $matrix_json | jq
-          echo "matrix=\'$matrix_json\'" >> "$GITHUB_OUTPUT"
+          echo "$matrix_json" | jq
+          echo matrix="$matrix_json" >> $GITHUB_OUTPUT
+    env:
+      REPO_NAME: charts
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   release:
     needs: check-oci-release
     runs-on: ubuntu-latest
     if: ${{ needs.check-oci-release.outputs.matrix != '[]' }}
     strategy:
       matrix:
-        include: ${{ fromJson(needs.check-oci-release.outputs.matrix) }}
+        charts: ${{ fromJson(needs.check-oci-release.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -63,12 +69,18 @@ jobs:
         with:
           version: v3.14.0
 
+      - name: Build chart dependencies
+        run: |
+          helm dependency update
+        working-directory: ${{ matrix.charts.chart_path }}
+
       - name: Release Helm chart to OCI
         uses: appany/helm-oci-chart-releaser@v0.3.0
         with:
-          name: ${{ matrix.chart_name }}
-          repository: ${{ matrix.chart_path }}
+          name: ${{ matrix.charts.chart_name }}
+          repository: swagner-de/charts/
           registry: ghcr.io
+          path: ${{ matrix.charts.chart_path }}
           registry_username: ${{ github.actor }}
           registry_password: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ matrix.version }}
+          tag: ${{ matrix.charts.version }}
