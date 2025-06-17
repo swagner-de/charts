@@ -1,0 +1,137 @@
+{{- define "hardcoded" -}}
+
+defaultPodOptions:
+  securityContext:
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    initContainers:
+      init:
+        enabled: {{ .Values.cnpg.enabled }}
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: alpine
+          tag: latest
+        command: ["sh"]
+        envFrom:
+          - secret: {{ .Values.cnpg.clusterName }}-app
+        args:
+        - -c
+        - |
+            if [ -f /config/configuration.yaml ]; then
+              sed -i "/db_url:/c\  db_url: postgresql://$username:$password@$host/$dbname?sslmode=verify-full&sslrootcert=/certs/ca.crt" /config/configuration.yaml
+            fi
+    containers:
+      ldap:
+        name: ldap
+        image:
+          repository: ghcr.io/swagner-de/home-assistant-ldap-helper
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        envFrom:
+        - secretRef:
+            identifier: ldap
+        args:
+        - run-server
+      main:
+        name: homeassistant
+        image:
+          repository: ghcr.io/home-operations/home-assistant
+          tag: {{ .Chart.AppVersion | quote }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 500m
+            memory: 400Mi
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                port: 8123
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probe
+          startup: *probe
+
+
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+        init:
+          - path: /config
+
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /tmp
+{{ if .Values.cnpg.enabled }}
+  certs:
+    type: secret
+    name: {{ .Values.cnpg.clusterName }}-ca
+    advancedMounts:
+      main:
+        main:
+        - path: /certs/ca.crt
+          subPath: ca.crt
+{{ end }}
+
+
+secrets:
+
+  ldap:
+    enabled: {{ .Values.controllers.main.containers.ldap.enabled }}
+    stringData: {{ toYaml .Values.ldap  | nindent 6 }}
+
+
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 8123
+        protocol: TCP
+
+
+
+rbac:
+  roles: {}
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
