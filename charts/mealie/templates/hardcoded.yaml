@@ -14,7 +14,7 @@ defaultPodOptions:
 
 # Configure options applied to all pods
 controllers:
-  server:
+  main:
     containers:
       main:
         enabled: true
