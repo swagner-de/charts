@@ -1,0 +1,18 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "automerge": false,
+  "semanticCommits": "enabled",
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "matchManagers": ["helm-values", "helmfile", "helmv3"],
+      "enabled": true
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "branch"
+    }
+  ]
+}
