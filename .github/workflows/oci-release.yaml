@@ -49,7 +49,9 @@ jobs:
             fi
           done
           echo "$matrix_json" | jq
-          echo matrix="$matrix_json" >> $GITHUB_OUTPUT
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$matrix_json" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
     env:
       REPO_NAME: charts
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
