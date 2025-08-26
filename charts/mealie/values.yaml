@@ -30,23 +30,39 @@ db:
   POSTGRES_PASSWORD: &postgresPassword mealie
   POSTGRES_DB: &postgresDB mealie
 
+envFromSecrets:
+# Example:
+# - name: my-secret
+
+secrets:
+  mail:
+    enabled: false
+    stringData:
+      # SMTP_FROM_EMAIL: None
+      # SMTP_USER: None
+      # SMTP_PASSWORD: None
+  oidc:
+    enabled: false
+    stringData:
+      # OIDC_CLIENT_ID: None
+      # OIDC_CONFIGURATION_URL: None
+      # OIDC_CLIENT_SECRET: None
+  openai:
+    enabled: false
+    stringData:
+      # OPENAI_API_KEY: None
+
 # See https://docs.mealie.io/documentation/getting-started/installation/backend-config/#email
-mail: {}
-  # SMTP_HOST: None
+mail:
+  SMTP_HOST: None
   # SMTP_PORT: 587
   # SMTP_FROM_NAME: Mealie
   # SMTP_AUTH_STRATEGY: TLS
-  # SMTP_FROM_EMAIL: None
-  # SMTP_USER: None
-  # SMTP_PASSWORD: None
 
 # See https://docs.mealie.io/documentation/getting-started/installation/backend-config/#oidc
 oidc:
   # OIDC_AUTH_ENABLED: true
   # OIDC_SIGNUP_ENABLED: True
-  # OIDC_CONFIGURATION_URL: None
-  # OIDC_CLIENT_ID: None
-  # OIDC_CLIENT_SECRET: None
   # OIDC_USER_GROUP: None
   # OIDC_ADMIN_GROUP: None
   # OIDC_AUTO_REDIRECT: False
@@ -61,7 +77,6 @@ oidc:
 
 openai: {}
   # OPENAI_BASE_URL: None
-  # OPENAI_API_KEY: None
   # OPENAI_MODEL: gpt-4o
   # OPENAI_CUSTOM_HEADERS: None
   # OPENAI_CUSTOM_PARAMS: None
@@ -69,11 +84,6 @@ openai: {}
   # OPENAI_WORKERS: 2
   # OPENAI_SEND_DATABASE_DATA: True
   # OPENAI_REQUEST_TIMEOUT: 60
-
-envFromSecrets: []
-# Example:
-#  - name: my-secret
-
 
 postgresql:
   enabled: true

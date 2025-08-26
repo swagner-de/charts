@@ -72,20 +72,44 @@ controllers:
               identifier: db
 {{- end }}
 {{if .Values.mail | empty | not }}
-          - secretRef:
+          - configMapRef:
               identifier: mail
 {{- end }}
 {{ if .Values.oidc | empty | not }}
-          - secretRef:
+          - configMapRef:
               identifier: oidc
 {{- end }}
 {{ if .Values.openai | empty | not }}
-          - secretRef:
+          - configMapRef:
               identifier: openai
+{{- end }}
+{{- range $name, $value := .Values.secrets }}
+{{- if $value.enabled }}
+          - secretRef:
+              name: {{ $name }}
+{{- end }}
 {{- end }}
 {{- range .Values.envFromSecrets }}
           - secretRef:
-              name: {{ .name | quote }}
+              name: {{ .name }}
+{{- end }}
+        volumeMounts:
+          - name: data
+            mountPath: /app/data
+          - name: nltk-data
+            mountPath: /app/nltk_data
+          - name: temp
+            mountPath: /tmp/
+{{ if .Values.ingress.main.enabled }}
+    ingress:
+      main:
+        enabled: true
+        className: {{ .Values.ingress.main.className | quote }}
+        annotations: {{ toYaml .Values.ingress.main.annotations | nindent 10 }}
+        hosts:
+          - host: {{ .Values.ingress.main.host | quote }}
+            paths:
+
 {{- end }}
         probes:
           liveness: &probe
@@ -123,6 +147,22 @@ configMaps:
   config:
     enabled: true
     data: {{ toYaml .Values.config | nindent 6 }}
+{{if .Values.mail | empty | not }}
+  mail:
+    enabled: true
+    data: {{ toYaml .Values.mail | nindent 6 }}
+{{- end }}
+{{ if .Values.oidc | empty | not }}
+  oidc:
+    enabled: true
+    data: {{ toYaml .Values.oidc | nindent 6 }}
+{{- end }}
+{{if .Values.openai | empty | not }}
+  openai:
+    enabled: true
+    data: {{ toYaml .Values.openai | nindent 6 }}
+{{- end }}
+
 
 secrets:
   dummy:
@@ -132,21 +172,7 @@ secrets:
     enabled: true
     stringData: {{ toYaml .Values.db | nindent 6 }}
 {{- end }}
-{{if .Values.mail | empty | not }}
-  mail:
-    enabled: true
-    stringData: {{ toYaml .Values.mail | nindent 6 }}
-{{- end }}
-{{ if .Values.oidc | empty | not }}
-  oidc:
-    enabled: true
-    stringData: {{ toYaml .Values.oidc | nindent 6 }}
-{{- end }}
-{{if .Values.openai | empty | not }}
-  openai:
-    enabled: true
-    stringData: {{ toYaml .Values.openai | nindent 6 }}
-{{- end }}
+
 
 persistence:
   data:
