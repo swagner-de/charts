@@ -83,6 +83,10 @@ controllers:
           - secretRef:
               identifier: openai
 {{- end }}
+{{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ .name | quote }}
+{{- end }}
         probes:
           liveness: &probe
             enabled: true
