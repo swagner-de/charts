@@ -1,4 +1,6 @@
 {{- define "hardcoded" -}}
+global:
+  alwaysAppendIdentifierToResourceName: true
 
 defaultPodOptions:
   securityContext:
