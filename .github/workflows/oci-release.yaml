@@ -77,7 +77,7 @@ jobs:
         working-directory: ${{ matrix.charts.chart_path }}
 
       - name: Release Helm chart to OCI
-        uses: appany/helm-oci-chart-releaser@v0.3.0
+        uses: appany/helm-oci-chart-releaser@v0.5.0
         with:
           name: ${{ matrix.charts.chart_name }}
           repository: swagner-de/charts/
