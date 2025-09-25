@@ -3,6 +3,8 @@
 {{ if and .Values.cnpg.enabled .Values.postgresql.enabled }}
 {{ fail "postgres cannot be used via bitnami chart and CNPG"}}
 {{- end }}
+global:
+  alwaysAppendIdentifierToResourceName: true
 
 defaultPodOptions:
   securityContext:
