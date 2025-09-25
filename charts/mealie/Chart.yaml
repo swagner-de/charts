@@ -2,7 +2,7 @@ apiVersion: v2
 name: mealie
 description: A Helm chart for Mealie
 type: application
-version: 0.1.6
+version: 0.1.7
 # renovate: image=ghcr.io/mealie-recipes/mealie
 appVersion: 'v2.8.0'
 dependencies:
@@ -11,7 +11,7 @@ dependencies:
     repository: https://bjw-s-labs.github.io/helm-charts/
   - name: postgresql
     repository: https://charts.bitnami.com/bitnami
-    version: 16.6.3
+    version: 16.7.27
     condition: postgresql.enabled
 maintainers:
   - name: swagner-de
