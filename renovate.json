@@ -7,7 +7,8 @@
   "packageRules": [
     {
       "matchManagers": ["helm-values", "helmfile", "helmv3"],
-      "enabled": true
+      "enabled": true,
+      "bumpVersion": "patch"
     },
     {
       "matchUpdateTypes": ["minor", "patch"],
