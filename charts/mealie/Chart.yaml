@@ -2,12 +2,12 @@ apiVersion: v2
 name: mealie
 description: A Helm chart for Mealie
 type: application
-version: 0.1.4
+version: 0.1.5
 
 appVersion: "v2.8.0"
 dependencies:
   - name: common
-    version: 3.7.3
+    version: 4.3.0
     repository: https://bjw-s-labs.github.io/helm-charts/
   - name: postgresql
     repository: https://charts.bitnami.com/bitnami
