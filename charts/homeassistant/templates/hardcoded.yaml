@@ -18,7 +18,7 @@ controllers:
             - ALL
         image:
           repository: alpine
-          tag: latest
+          tag: 3.22.1
         command: ["sh"]
         envFrom:
           - secret: {{ .Values.cnpg.clusterName }}-app
@@ -33,6 +33,7 @@ controllers:
         name: ldap
         image:
           repository: ghcr.io/swagner-de/home-assistant-ldap-helper
+          tag: 0.3.0
         securityContext:
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false

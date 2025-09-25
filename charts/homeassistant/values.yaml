@@ -8,8 +8,6 @@ controllers:
     containers:
       ldap:
         enabled: false
-        image:
-          tag: v0.3.0
       main:
         env:
         - name: TZ

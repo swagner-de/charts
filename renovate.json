@@ -15,5 +15,23 @@
       "automerge": true,
       "automergeType": "branch"
     }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "datasourceTemplate": "docker",
+      "managerFilePatterns": ["/(^|/)Chart\\.yaml$/"],
+      "matchStrings": [
+        "#\\s?renovate: image=(?<depName>.*?)\\s?appVersion:\\s?\\'?(?<currentValue>[\\w+\\.\\-]*)'"
+      ]
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "docker",
+      "managerFilePatterns": ["/(^|/)templates/hardcoded\\.yaml$/"],
+      "matchStrings": [
+        "repository:\\s(?<depName>[\\w+\\/.\\-]*?)\\s+tag:\\s(?<currentValue>[\\w+\\.\\-]*)"
+      ]
+    }
   ]
 }
