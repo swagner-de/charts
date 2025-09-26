@@ -1,0 +1,26 @@
+controllers:
+  main:
+    containers:
+      main:
+        env:
+          # TZ: UTC
+          # cleartext secret or use envFrom: {secret: zigbee2mqtt-mqtt}
+          # ZIGBEE2MQTT_CONFIG_MQTT_BASE_TOPIC: zigbee2mqtt
+          # ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtts://mosquitto.mydomain.com
+          # ZIGBEE2MQTT_CONFIG_MQTT_USER: zigbee2mqtt
+          # ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD: somethingsecret
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+
+usbPath: /dev/ttyACM0
+
+persistence:
+  data:
+    enabled: true
+    type: emptyDir
+
+ingress:
+  main:
+    enabled: false

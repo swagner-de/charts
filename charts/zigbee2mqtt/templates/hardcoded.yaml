@@ -1,0 +1,80 @@
+{{- define "hardcoded" -}}
+global:
+  alwaysAppendIdentifierToResourceName: true
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 20
+    fsGroup: 20
+    fsGroupChangePolicy: Always
+
+controllers:
+  main:
+    containers:
+      main:
+        securityContext:
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
+          privileged: true
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - SYS_ADMIN
+        image:
+          repository: koenkk/zigbee2mqtt
+          tag: {{ .Chart.AppVersion }}
+        env:
+          ZIGBEE2MQTT_CONFIG_SERIAL_PORT: {{ .Values.usbPath | quote }}
+        probes:
+          startup:
+            spec:
+              initialDelaySeconds: 30
+        probes:
+           liveness: {type: http}
+           startup: {type: http}
+           readiness: {type: http}
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+
+persistence:
+  data:
+    advancedMounts:
+      main:
+        main:
+        - path: /app/data
+
+  udev:
+    enabled: true
+    type: hostPath
+    hostPath: /run/udev
+    advancedMounts:
+      main:
+        main:
+        - path: /run/udev
+          readOnly: true
+  usb:
+    enabled: true
+    type: hostPath
+    hostPath: {{ .Values.usbPath | quote }}
+    advancedMounts:
+      main:
+        main:
+        - path:  {{ .Values.usbPath | quote }}
+          readOnly: true
+
+
+
+{{ end }}
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
