@@ -15,12 +15,25 @@ controllers:
 
 # ldap:
 #   HA_LDAP_HOST: "ldap.mydomain.com"
-#   HA_LDAP_BIND_DN: "cn=ldapservice,ou=users,dc=ldap,dc=goauthentik,dc=io"
-#   HA_LDAP_BIND_DN_PASSWORD: "mysupersecretpassword"
 #   HA_LDAP_BASE_DN: "DC=ldap,DC=goauthentik,DC=io"
 #   HA_LDAP_ADMIN_FILTER: "(&(objectClass=person)(cn={username})(memberOf=cn=homeassistantAdmins,ou=groups,dc=ldap,dc=goauthentik,dc=io))"
 #   HA_LDAP_USER_FILTER: "(&(objectClass=person)(cn={username})(memberOf=cn=homeassistantUsers,ou=groups,dc=ldap,dc=goauthentik,dc=io))"
 #   HA_LDAP_SSL: "true"
+
+# external secret or define the secrets below
+ldapSecret: homeassistant-ldap
+
+
+secrets:
+  ldap:
+    enabled: false
+    stringData:
+      HA_LDAP_BIND_DN_PASSWORD: "mysupersecretpassword"
+      HA_LDAP_BIND_DN: "cn=ldapservice,ou=users,dc=ldap,dc=goauthentik,dc=io"
+  prometheus:
+    enabled: false
+    stringData:
+      token: "mysupersecrettoken"
 
 
 ingress:

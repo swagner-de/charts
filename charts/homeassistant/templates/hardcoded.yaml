@@ -45,8 +45,14 @@ controllers:
             drop:
             - ALL
         envFrom:
-        - secretRef:
+        - configMapRef:
             identifier: ldap
+        - secretRef:
+{{- if .Values.ldapSecret }}
+            name: {{ .Values.ldapSecret }}
+{{- else }}
+            identifier: ldap
+{{- end }}
         args:
         - run-server
       main:
@@ -110,11 +116,11 @@ persistence:
 {{ end }}
 
 
-secrets:
+configMaps:
 
   ldap:
     enabled: {{ .Values.controllers.main.containers.ldap.enabled }}
-    stringData: {{ toYaml .Values.ldap  | nindent 6 }}
+    data: {{ toYaml .Values.ldap  | nindent 6 }}
 
 
 
