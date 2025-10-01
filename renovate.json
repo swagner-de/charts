@@ -16,10 +16,10 @@
       "automergeType": "branch"
     },
     {
-      "matchFileNames": ["charts/**"],
+      "matchFileNames": ["charts/**", "charts/**/templates/hardcoded.yaml"],
       "bumpVersions": [
         {
-          "filePatterns": ["{{packageFileDir}}/Chart.{yaml,yml}", "{{packageFileDir}}/templates/hardcoded.yaml"],
+          "filePatterns": ["{{packageFileDir}}/Chart.{yaml,yml}", "{{{replace '\/templates.*' '' packageFileDir}}}/Chart.{yaml,yml}"],
           "matchStrings": ["version:\\s(?<version>[^\\s]+)"],
           "bumpType": "{{#if isPatch}}patch{{else}}minor{{/if}}"
         }
