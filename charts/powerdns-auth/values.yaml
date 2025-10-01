@@ -1,0 +1,60 @@
+persistence:
+  data:
+    type: persistentVolumeClaim
+    # storageClass: my-class
+    size: 2Gi
+
+externalDNS:
+  enabled: false
+  apiKey:
+    data: change-me
+    # existingSecret:
+    #   name: pdns-api
+    #   key: API_KEY
+  config:
+    sources: []
+    provider: pdns
+    pdns-server: http://powerdns-auth:8081
+    # txt-owner-id:
+    # domain-filter:
+    # log-level: info
+    # interval: 30s
+
+
+config: |
+  launch=lmdb
+  lmdb-filename=/data/pdns.lmdb
+
+  # Logging
+  log-dns-queries=yes
+  loglevel=4
+
+  webserver=yes
+  webserver-address=0.0.0.0
+  webserver-allow-from=10.0.0.0/8
+
+secretConfig:
+  data: |
+    api=yes
+    api-key= 123
+  # or
+  # existingSecret:
+  #   name: powerdns-auth
+
+zone:
+  name: my-zone
+  zonefile: |
+    $TTL 2d    ; default TTL for zone
+    $ORIGIN myzone.com. ; base domain-name
+    ; Start of Authority RR defining the key characteristics of the zone (domain)
+    @         IN      SOA   ns1.myzone.com. hostmaster.myzone.com. (
+                                    2003080800 ; serial number
+                                    12h        ; refresh
+                                    15m        ; update retry
+                                    3w         ; expiry
+                                    2h         ; minimum
+                                    )
+    ; name server RR for the domain
+              IN      NS      ns1.myzone.com.
+    ns1        IN      A      10.0.0.1
+    ns1        IN      AAAA   fdfd::
