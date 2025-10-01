@@ -1,0 +1,62 @@
+persistence:
+  config:
+    enabled: true
+    # storageClass: my-storage-class
+    accessMode: ReadWriteOnce
+    size: 4Gi
+
+  data:
+    enabled: true
+    # storageClass: my-storage-class
+    accessMode: ReadWriteOnce
+    size: 4Gi
+
+  certs:
+    enabled: false
+    # enabled: true
+    # type: secret
+    # name: adguard-tls
+    # advancedMounts:
+    #   main:
+    #     main:
+    #     - path: /certs/
+
+# service: {}
+# main:
+#   type: LoadBalancer
+#   externalTrafficPolicy: Local
+#   ipFamilyPolicy: PreferDualStack
+#   annotations:
+#     metallb.universe.tf/loadBalancerIPs: "10.10.10.10"
+
+# ingress:
+# main:
+#   enabled: true
+#   annotations:
+#     cert-manager.io/cluster-issuer: lets-encrypt-prod
+#   hosts:
+#     - host: adguard.mydomain.com
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         service:
+#           identifier: main
+#           port: http
+#   tls:
+#     - secretName: adguard-tls
+#       hosts:
+#         - adguard.mydomain.com
+
+# controllers:
+#   main:
+#     containers:
+#       main:
+#         resources:
+#           requests:
+#             cpu: 100m
+#             memory: 100Mi
+
+
+serviceMonitor:
+  main:
+    enabled: false
