@@ -1,0 +1,14 @@
+apiVersion: v2
+name: adguard-home
+description: A Helm chart for Kubernetes
+type: application
+version: 0.1.0
+# renovate: image=11notes/adguard
+appVersion: '0.107.59'
+dependencies:
+  - name: common
+    version: 4.3.0
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com
