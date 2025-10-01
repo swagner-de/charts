@@ -1,0 +1,15 @@
+config:
+  incoming:
+    allow_from:
+      - 10.0.0.0/8
+      - 127.0.0.0/8
+  dnssec:
+    validation: validate
+    log_bogus: true
+  logging:
+    loglevel: 4
+  recursor:
+    forward_zones:
+      - zone: "somezone.com"
+        forwarders:
+        - 10.0.0.1
