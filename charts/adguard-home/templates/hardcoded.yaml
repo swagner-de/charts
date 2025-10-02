@@ -82,7 +82,7 @@ controllers:
         enabled: true
         image:
           repository: ghcr.io/henrywhitaker3/adguard-exporter
-          tag: v1.2.0
+          tag: v1.2.1
         env:
           ADGUARD_SERVERS: http://127.0.0.1:3000
           ADGUARD_USERNAMES: dummy
