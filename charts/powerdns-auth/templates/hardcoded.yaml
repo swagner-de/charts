@@ -7,6 +7,7 @@ defaultPodOptions:
     fsGroupChangePolicy: OnRootMismatch
     fsGroup: 1883
 
+
 # Configure options applied to all pods
 controllers:
   main:
@@ -68,7 +69,8 @@ controllers:
   external-dns:
     enabled: {{ .Values.externalDNS.enabled }}
     serviceAccount:
-      identifier: externaldns
+      identifier: powerdns-auth
+    automountServiceAccountToken: true
     containers:
       main:
         securityContext:
@@ -200,13 +202,14 @@ persistence:
 
 {{- if .Values.externalDNS.enabled }}
 serviceAccount:
-  externaldns:
-    create: true
-    name: externaldns
+  default:
+    enabled: false
+  powerdns-auth:
+    enabled: true
 
 rbac:
   roles:
-    externaldns:
+    external-dns:
       type: ClusterRole
       rules:
       - apiGroups: [""]
@@ -222,12 +225,12 @@ rbac:
         resources: ["nodes"]
         verbs: ["list", "watch"]
   bindings:
-    externaldns:
+    external-dns:
       type: ClusterRoleBinding
       roleRef:
-        identifier: externaldns
+        identifier: external-dns
       subjects:
-        - identifier: externaldns
+        - identifier: powerdns-auth
 {{- end }}
 
 {{ end }}
