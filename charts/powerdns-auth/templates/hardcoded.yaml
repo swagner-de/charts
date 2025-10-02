@@ -224,6 +224,9 @@ rbac:
       - apiGroups: [""]
         resources: ["nodes"]
         verbs: ["list", "watch"]
+      - apiGroups: ["discovery.k8s.io"]
+        resources: ["endpointslices"]
+        verbs: ["get","watch","list"]
   bindings:
     external-dns:
       type: ClusterRoleBinding
