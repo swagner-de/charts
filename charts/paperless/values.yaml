@@ -1,0 +1,112 @@
+persistence:
+  data:
+    size: 100Gi
+    # storageClass: "gp2"
+    accessMode: ReadWriteOnce
+  consumption:
+    size: 1Gi
+    # storageClass: "gp2"
+    accessMode: ReadWriteOnce
+
+
+ingress:
+  main:
+    enabled: false
+
+# controllers:
+#   main:
+#     containers:
+#       main:
+#         resources:
+#           requests:
+#             cpu: 1000m
+#             memory: 2Gi
+#   gotenberg:
+#     containers:
+#       main:
+#         resources:
+#           requests:
+#             cpu: 300m
+#             memory: 300Mi
+#   tika:
+#     containers:
+#       main:
+#         resources:
+#           requests:
+#             cpu: 300m
+#             memory: 300Mi
+
+paperless:
+  admin:
+    existingSecret: ""
+  # oidc secret will populate PAPERLESS_SOCIALACCOUNT_PROVIDERS with a json string contained in secret.PAPERLESS_SOCIAL_ACCOUNT_PROVIDERS
+  # oidcSecret: paperless-oidc
+  config:
+    # All of these options will be converted to environment variables prefixed with PAPERLESS and uppercased
+    # use_x_forward_host: "1"
+    # tika_enabled: "true"
+    # tika_gotenberg_endpoint: gotenberg:3000
+    # tika_endpoint: tika:9998
+    # ocr_languages: "deu eng"
+    # ocr_language: "deu"
+    # time_zone: "Europe/Berlin"
+    # apps: "allauth.socialaccount.providers.openid_connect"
+    # url: "https://mydomain.de"
+    # consumer_polling: "60"
+    # consumer_recursive: "true"
+    # ocr_rotate_pages: "false"
+    # task_workers: "3"
+    # threads_per_worker: "2"
+    # consumer_enable_barcodes: "true"
+    # consumer_barcode_scanner: "ZXING"
+
+
+redis:
+  # enables the packaged redis chart
+  enabled: true
+  # set enabled=false and fill out the values for redis host secret
+  architecture: standalone
+  auth:
+    enabled: true
+    password: "supersecure"
+  persistence:
+    enabled: true
+    size: 1Gi
+
+
+postgres:
+  enabled: true
+  auth:
+    username: "paperless"
+    database: "paperless"
+    password: "supersecure"
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+
+cnpg:
+  # In case CNPG operator is used, provide the cluster definition via additionalObjects
+  # and set the postgresql.enabled to false
+  # The cluster name must be provided for the database to be auto-configured
+  enabled: false
+  clusterName: paperless-db
+
+
+# rawResources:
+#   db:
+#     enabled: true
+#     apiVersion: postgresql.cnpg.io/v1
+#     kind: Cluster
+#     spec:
+#       spec:
+#         instances: 1
+#         imageCatalogRef:
+#           apiGroup: postgresql.cnpg.io
+#           kind: ClusterImageCatalog
+#           name: postgresql
+#           major: 16
+#         storage:
+#           size: 5Gi
+#           storageClass: longhorn-ssd-nvme2
