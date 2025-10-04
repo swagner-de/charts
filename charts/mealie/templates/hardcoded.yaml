@@ -1,6 +1,6 @@
 {{- define "hardcoded" -}}
 
-{{ if and .Values.cnpg.enabled .Values.postgresql.enabled }}
+{{ if and .Values.cnpg.enabled .Values.postgres.enabled }}
 {{ fail "postgres cannot be used via bitnami chart and CNPG"}}
 {{- end }}
 global:
@@ -36,10 +36,10 @@ controllers:
           requests:
             cpu: 100m
             memory: 500Mi
-{{ if .Values.postgresql.enabled }}
+{{ if .Values.postgres.enabled }}
         env:
           DB_ENGINE: postgres
-          POSTGRES_SERVER: {{ printf "%s-postgresql" .Release.Name | quote }}
+          POSTGRES_SERVER: {{ printf "%s-postgres" .Release.Name | quote }}
           POSTGRES_PORT: "5432"
 {{ end }}
 {{ if .Values.cnpg.enabled }}
@@ -69,7 +69,7 @@ controllers:
         envFrom:
           - configMapRef:
               identifier: config
-{{ if and (.Values.db | empty | not) .Values.postgresql.enabled }}
+{{ if and (.Values.db | empty | not) .Values.postgres.enabled }}
           - secretRef:
               identifier: db
 {{- end }}
@@ -169,7 +169,7 @@ configMaps:
 secrets:
   dummy:
     enabled: false
-{{ if and (.Values.db | empty | not) .Values.postgresql.enabled }}
+{{ if and (.Values.db | empty | not) .Values.postgres.enabled }}
   db:
     enabled: true
     stringData: {{ toYaml .Values.db | nindent 6 }}
