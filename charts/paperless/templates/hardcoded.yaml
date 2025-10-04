@@ -217,7 +217,7 @@ controllers:
             - ALL
         image:
           repository: docker.io/apache/tika
-          tag: 2.9.2.1
+          tag: 3.2.3.0
         probes:
           liveness: &probe
             custom: true  
