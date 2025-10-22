@@ -2,9 +2,9 @@ apiVersion: v2
 name: powerdns-recursor
 description: A Helm chart for Kubernetes
 type: application
-version: 0.1.1
+version: 0.1.2
 # renovate: image=powerdns/pdns-recursor-53
-appVersion: '5.3.0'
+appVersion: '5.3.1'
 dependencies:
   - name: common
     version: 4.3.0
