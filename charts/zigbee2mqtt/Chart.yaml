@@ -2,12 +2,12 @@ apiVersion: v2
 name: zigbee2mqtt
 description: A chart installing zigbee2mqtt
 type: application
-version: 0.1.2
+version: 0.2.0
 # renovate: image=koenkk/zigbee2mqtt
 appVersion: '2.6.2'
 dependencies:
   - name: common
-    version: 4.3.0
+    version: 4.4.0
     repository: https://bjw-s-labs.github.io/helm-charts/
 maintainers:
   - name: swagner-de
