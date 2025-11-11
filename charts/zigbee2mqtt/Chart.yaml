@@ -2,9 +2,9 @@ apiVersion: v2
 name: zigbee2mqtt
 description: A chart installing zigbee2mqtt
 type: application
-version: 0.2.0
+version: 0.2.1
 # renovate: image=koenkk/zigbee2mqtt
-appVersion: '2.6.2'
+appVersion: '2.6.3'
 dependencies:
   - name: common
     version: 4.4.0
