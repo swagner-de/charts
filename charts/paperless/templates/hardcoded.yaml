@@ -23,7 +23,7 @@ controllers:
           PAPERLESS_CONSUMPTION_DIR: /consumption/
         image:
           repository: alpine
-          tag: 3.22.1
+          tag: 3.22.2
         command:
           - /bin/sh
         args:
