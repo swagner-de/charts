@@ -18,7 +18,7 @@
     {
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
-      "automergeType": "branch"
+      "automergeType": "pr"
     },
     {
       "matchFileNames": ["charts/**", "charts/**/templates/hardcoded.yaml"],
