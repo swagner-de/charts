@@ -43,7 +43,7 @@
     {
       "customType": "regex",
       "datasourceTemplate": "docker",
-      "managerFilePatterns": ["/(^|/)templates/hardcoded\\.yaml$/"],
+      "managerFilePatterns": ["/(\\w+)/templates/hardcoded\\.yaml$/"],
       "matchStrings": [
         "repository:\\s(?<depName>[\\w+\\/.\\-]*?)\\s+tag:\\s(?<currentValue>[\\w+\\.\\-]*)"
       ]
