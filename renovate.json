@@ -4,7 +4,12 @@
   "automerge": false,
   "semanticCommits": "enabled",
   "labels": ["dependencies"],
+  "dependencyDashboardApproval": false,
   "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "automerge": false
+    },
     {
       "matchManagers": ["helm-values", "helmfile", "helmv3"],
       "enabled": true,
