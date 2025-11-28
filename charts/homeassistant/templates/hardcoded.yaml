@@ -85,8 +85,41 @@ controllers:
               failureThreshold: 3
           readiness: *probe
           startup: *probe
-
-
+  matterhub:
+    enabled: {{ .Values.matterHub.enabled | default false }}
+    containers:
+      main:
+        name: matterhub
+        image:
+          repository: ghcr.io/t0bst4r/home-assistant-matter-hub
+          tag: 3.0.2
+        securityContext:
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        env:
+          - name: HAMH_HOME_ASSISTANT_URL
+            value: "http://{{ .Release.Name }}-main:8123/"
+          - name: HAMH_HOME_ASSISTANT_ACCESS_TOKEN
+{{- if .Values.matterHub.existingSecret }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.matterHub.existingSecret.name }}
+                key: {{ .Values.matterHub.existingSecret.key }}
+{{- end }}
+          - name: HAMH_LOG_LEVEL
+            value: {{ .Values.matterHub.logLevel | default "info" }}
+          - name: HAMH_HTTP_PORT
+            value: "8482"
+{{- if not .Values.matterHub.existingSecret.name  }}
+        envFrom:
+          - secretRef:
+              name: matterHub
+{{- end }}
 
 persistence:
   config:
@@ -97,6 +130,13 @@ persistence:
           - path: /config
         init:
           - path: /config
+  matterhub:
+    enabled: {{ .Values.matterHub.enabled | default false }}
+    type: persistentVolumeClaim
+    advancedMounts:
+      matterhub:
+        main:
+          - path: /data
 
   tmp:
     type: emptyDir
@@ -131,6 +171,13 @@ service:
     ports:
       http:
         port: 8123
+        protocol: TCP
+  matterhub:
+    enabled: {{ .Values.matterHub.enabled | default false }}
+    controller: matterhub
+    ports:
+      http:
+        port: 8482
         protocol: TCP
 
 
