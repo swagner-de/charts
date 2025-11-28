@@ -34,7 +34,10 @@ secrets:
     enabled: false
     stringData:
       token: "mysupersecrettoken"
-
+  matterHub:
+    enabled: false
+    stringData:
+      HAMH_HOME_ASSISTANT_ACCESS_TOKEN: "mysupersecrettoken"
 
 ingress:
   main:
@@ -94,3 +97,11 @@ cnpg:
 #           credentials:
 #             name: home-assistant-prometheus
 #             key: token
+
+# Matter Hub configuration
+matterHub:
+  enabled: false
+  # Use either existingSecret or provide an access token via secrets
+  existingSecret: {}
+  #   name: mysecret
+  #   key: token
