@@ -4,7 +4,7 @@ description: Invidious + inv-sig-helper + Postgres, based on bjw-s common chart
 maintainers:
   - name: swagner-de
     email: swagner-de@users.noreply.github.com
-version: 0.2.0
+version: 0.2.1
 # renovate: image=quay.io/invidious/invidious
 appVersion: '2.20250913.0'
 keywords:

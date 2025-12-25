@@ -29,6 +29,9 @@ hmacKey:
   #   name: ""
   #   key: ""
 
+companion: {}
+  # publicUrl: https://companion.mydomain.example
+
 config:
   external_port: 443
   domain: mydomain.example
