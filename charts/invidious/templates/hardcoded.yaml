@@ -64,6 +64,9 @@ controllers:
             check_tables: true
             invidious_companion:
               - private_url: "http://{{.Release.Name}}-companion:8282/companion"
+{{- if .Values.companion.publicUrl }}
+                public_url: {{ .Values.companion.publicUrl }}
+{{- end }}
 {{ .Values.config | toYaml | indent 12 }}
         securityContext:
           readOnlyRootFilesystem: true
