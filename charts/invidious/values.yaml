@@ -1,0 +1,67 @@
+persistence:
+  cache:
+    type: emptyDir
+
+ingress:
+  main:
+    enabled: false
+
+postgres:
+  enabled: true
+  auth:
+    username: &postgresUser invidious
+    database: &postgresDB invidious
+    password: &postgresPassword invidious
+  persistence:
+    enabled: true
+    size: 2Gi
+    accessMode: ReadWriteOnce
+
+companionKey:
+  value: "CHANGEMEPLEASE12"
+  # existingSecret:
+  #   name: invidious-companion-key
+  #   key: key
+
+hmacKey:
+  value: "CHANGEMEPLEASE12"
+  # existingSecret:
+  #   name: ""
+  #   key: ""
+
+config:
+  external_port: 443
+  domain: mydomain.example
+  https_only: true
+  hsts: true
+  log_level: debug
+  popular_enabled: true
+  statistics_enabled: true
+  registration_enabled: true
+  login_enabled: true
+  captcha_enabled: false
+  enable_user_notifications: true
+
+cnpg:
+  # In case CNPG operator is used, provide the cluster definition via additionalObjects
+  # and set the postgresql.enabled to false
+  # The cluster name must be provided for the database to be auto-configured
+  enabled: false
+  clusterName: invidious
+
+# rawResources:
+#   db:
+#     enabled: true
+#     apiVersion: postgresql.cnpg.io/v1
+#     kind: Cluster
+#     spec:
+#       spec:
+#         instances: 1
+#         imageCatalogRef:
+#           apiGroup: postgresql.cnpg.io
+#           kind: ClusterImageCatalog
+#           name: postgresql
+#           major: 16
+#         storage:
+#           size: 5Gi
+#           storageClass: g2-standard
