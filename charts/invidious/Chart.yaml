@@ -4,7 +4,7 @@ description: Invidious + inv-sig-helper + Postgres, based on bjw-s common chart
 maintainers:
   - name: swagner-de
     email: swagner-de@users.noreply.github.com
-version: 0.3.0
+version: 0.3.1
 # renovate: image=quay.io/invidious/invidious
 appVersion: '2.20250913.0'
 keywords:
@@ -15,7 +15,7 @@ home: https://github.com/iv-org/invidious
 dependencies:
   - name: common
     repository: https://bjw-s-labs.github.io/helm-charts
-    version: 4.5.0
+    version: 4.6.0
   - name: postgres
     repository: oci://registry-1.docker.io/cloudpirates
     version: 0.13.6
