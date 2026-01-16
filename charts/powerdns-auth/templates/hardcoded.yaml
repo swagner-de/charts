@@ -213,7 +213,7 @@ rbac:
       type: ClusterRole
       rules:
       - apiGroups: [""]
-        resources: ["services","endpoints","pods"]
+        resources: ["services", "endpoints", "pods", "nodes", "namespaces"]
         verbs: ["get","watch","list"]
       - apiGroups: ["extensions","networking.k8s.io"]
         resources: ["ingresses"]
@@ -226,6 +226,9 @@ rbac:
         verbs: ["list", "watch"]
       - apiGroups: ["discovery.k8s.io"]
         resources: ["endpointslices"]
+        verbs: ["get","watch","list"]
+      - apiGroups: [gateway.networking.k8s.io]
+        resources: [gateways, httproutes, tlsroutes, tcproutes, udproutes, grpcroutes]
         verbs: ["get","watch","list"]
   bindings:
     external-dns:
