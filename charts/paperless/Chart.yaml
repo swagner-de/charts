@@ -2,7 +2,7 @@ apiVersion: v2
 name: paperless
 description: A Helm chart for Kubernetes
 type: application
-version: 0.23.4
+version: 0.23.6
 # renovate: image=ghcr.io/paperless-ngx/paperless-ngx
 appVersion: '2.20.4'
 dependencies:
@@ -14,7 +14,7 @@ dependencies:
     version: 0.14.1
     condition: postgres.enabled
   - name: redis
-    version: 0.20.6
+    version: 0.20.7
     repository: oci://registry-1.docker.io/cloudpirates
     condition: redis.enabled
 maintainers:
