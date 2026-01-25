@@ -92,7 +92,7 @@ controllers:
         name: matterhub
         image:
           repository: ghcr.io/t0bst4r/home-assistant-matter-hub
-          tag: 3.0.3
+          tag: 3.0.4
         securityContext:
           readOnlyRootFilesystem: false
           allowPrivilegeEscalation: false
