@@ -1,0 +1,66 @@
+controllers:
+  main:
+    containers:
+      main:
+        env:
+          HOMEPAGE_ALLOWED_HOSTS: mydomain.com
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi
+
+# route:
+#   main:
+#     enabled: true
+#     hostnames:
+#       - homepage.mydomain.com
+#     parentRefs:
+#       - namespace: gw
+#         name: gw
+#     rules:
+#       - matches:
+#           - path:
+#               type: PathPrefix
+#               value: /
+#         backendRefs:
+#           - name: homepage
+#             port: 3000
+
+config:
+  kubernetes:
+    mode: cluster
+    gateway: true
+  settings:
+    language: de
+    title: Home Infra
+  bookmarks:
+    - Section 1:
+      - Scanner:
+        - icon: mdi-scanner
+          href: scanner.local
+  services: []
+
+  widgets:
+    - kubernetes:
+        cluster:
+          cpu: true
+          label: cluster
+          memory: true
+          show: true
+          showLabel: true
+        nodes:
+          cpu: true
+          memory: true
+          show: true
+          showLabel: true
+    - openmeteo:
+        cache: 5
+        format:
+          maximumFractionDigits: 1
+        latitude: 49.488888
+        longitude: 8.469167
+        timezone: Europe/Berlin
+        units: metric
