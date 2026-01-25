@@ -24,6 +24,15 @@ controllers:
         image:
           repository: ghcr.io/gethomepage/homepage
           tag: {{ .Chart.AppVersion | quote }}
+        envFrom:
+{{- if ne (len .Values.secretReplacements) 0  }}
+        - secret: replacements
+{{- end }}
+{{- if ne (len .Values.additionalSecrets) 0  }}
+{{- range .Values.additionalSecrets }}
+        - secret: {{ .name }}
+{{- end }}
+{{- end }}
         probes:
           liveness: &probe
             enabled: true
@@ -67,6 +76,14 @@ service:
       http:
         port: 3000
         protocol: TCP
+
+secrets:
+  replacements:
+    enabled: {{ ne (len .Values.secretReplacements) 0 }}
+    stringData:
+{{- range $key, $value := .Values.secretReplacements }}
+      {{ $key }}: {{ $value | quote }}
+{{- end }}
 
 configMaps:
   config:
