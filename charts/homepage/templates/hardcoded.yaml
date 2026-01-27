@@ -10,6 +10,8 @@ defaultPodOptions:
 controllers:
   main:
     automountServiceAccountToken: true
+    serviceAccount:
+      identifier: homepage
     containers:
       main:
         enabled: true
@@ -96,6 +98,8 @@ configMaps:
 
 serviceAccount:
   default:
+    enabled: false
+  homepage:
     enabled: true
 
 rbac:
@@ -124,7 +128,7 @@ rbac:
       roleRef:
         identifier: homepage
       subjects:
-        - identifier: default
+        - identifier: homepage
 
 {{ end }}
 
