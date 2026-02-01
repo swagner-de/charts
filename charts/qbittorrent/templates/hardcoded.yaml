@@ -1,0 +1,121 @@
+{{- define "hardcoded" -}}
+
+# Configure options applied to all pods
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    initContainers:
+      vuetorrent:
+        enabled: true
+        image:
+          repository: alpine/curl
+          tag: latest
+        securityContext:
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        command: ["/bin/sh"]
+        args:
+        - -cex
+        - |
+          cd /vuetorrent/
+          rm -rf /vuetorrent/*
+          wget https://github.com/VueTorrent/VueTorrent/releases/latest/download/vuetorrent.zip
+          unzip vuetorrent.zip -d /
+          rm -f vuetorrent.zip
+          ls -lah /vuetorrent
+          ls -lah /vuetorrent/public
+    containers:
+      main:
+        enabled: true
+        image:
+          repository: ghcr.io/home-operations/qbittorrent
+          tag: {{ .Chart.AppVersion | quote}}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+          readiness: *probe
+          startup: *probe
+      gluetun:
+        dependsOn: main
+        image:
+          repository: ghcr.io/qdm12/gluetun
+          tag: 'v3.41.0'
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          capabilities:
+            add:
+              - NET_ADMIN
+
+service:
+  main:
+    type: ClusterIP
+    controller: main
+    ports:
+      http:
+        port: 8080
+
+ingress:
+  main:
+    enabled: false
+
+persistence:
+  config:
+    enabled: true
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+  vuetorrent:
+    enabled: true
+    advancedMounts:
+      main:
+        vuetorrent:
+          - path: /vuetorrent
+        main:
+          - path: /vuetorrent
+  downloads:
+    enabled: true
+    advancedMounts:
+      main:
+        main:
+          - path: /downloads
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

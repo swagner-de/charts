@@ -1,0 +1,33 @@
+persistence:
+  config:
+    enabled: true
+    size: 100Mi
+    # storageClass: "gp2"
+    accessMode: ReadWriteOnce
+
+  vuetorrent:
+    enabled: true
+    size: 200Mi
+    # storageClass: "gp2"
+    accessMode: ReadWriteOnce
+
+  downloads:
+    enabled: true
+    size: 300Gi
+  # storageClass: "gp2"
+    accessMode: ReadWriteOnce
+
+controllers:
+  main:
+    containers:
+      gluetun:
+        enabled: false
+#     containers:
+#       main:
+#         resources:
+#           requests:
+#             cpu: 100m
+#             memory: 250Mi
+#           limits:
+#             cpu: 1000m
+#             memory: 1Gi
