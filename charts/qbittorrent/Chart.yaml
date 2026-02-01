@@ -1,0 +1,14 @@
+apiVersion: v2
+name: qbittorrent
+description: A Helm chart for qBittorrent, a cross-platform BitTorrent client
+type: application
+version: 0.1.2
+# renovate: image=ghcr.io/home-operations/qbittorrent
+appVersion: '5.1.4'
+dependencies:
+  - name: common
+    version: 4.4.0
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com
