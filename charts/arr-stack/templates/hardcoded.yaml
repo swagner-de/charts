@@ -1,0 +1,106 @@
+{{- define "hardcoded" -}}
+{{- $servers := list "sonarr" "radarr" "prowlarr" "bazarr" "flaresolverr" -}}
+
+# Configure options applied to all pods
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: Always
+
+controllers:
+{{- range $server := $servers }}
+{{- $serverConfig := get $.Values $server }}
+{{- if $serverConfig.enabled | default false }}
+  {{ $server }}:
+    enabled: true
+{{- if eq $server "flaresolverr" }}
+    pod:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000 
+{{- end }}
+    containers:
+      main:
+        image: {{ $serverConfig.image | toYaml | nindent 12 }}
+        securityContext:
+{{- if ne $server "flaresolverr" }}
+          readOnlyRootFilesystem: true
+{{- end }}
+          allowPrivilegeEscalation: false
+          privileged: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        probes:
+          liveness: &{{ $server }}Probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: {{ $serverConfig.port }}
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+          readiness: *{{ $server }}Probe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: {{ $serverConfig.port }}
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 30
+{{- end }}
+{{- end }}
+
+service:
+{{- range $server := $servers }}
+{{- $serverConfig := get $.Values $server }}
+{{- if $serverConfig.enabled | default false }}
+ {{ $server }}:
+    type: ClusterIP
+    controller: {{ $server }}
+    ports:
+      http:
+        port: {{ $serverConfig.port }}
+{{- end }}
+{{- end }}
+
+
+persistence:
+{{- range $server := $servers }}
+{{- $serverConfig := get $.Values $server }}
+{{- if $serverConfig.enabled | default false }}
+{{- range $pName, $pConfig := $serverConfig.persistence }}
+  {{ printf "%s-%s" $server $pName}}: 
+    enabled: true
+{{ (omit (omit $pConfig "mountPath" "subPath")) | toYaml | indent 4 }}
+    advancedMounts:
+      {{ $server }}:
+        main:
+          - path: {{ $pConfig.mountPath }}
+{{- if (hasKey $pConfig "subPath") }}
+            subPath: {{ $pConfig.subPath }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
