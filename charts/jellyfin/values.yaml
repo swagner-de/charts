@@ -1,0 +1,63 @@
+persistence:
+  config:
+    enabled: true
+    size: 15Gi
+    accessMode: ReadWriteOnce
+    # storageClass: gp2
+
+  transcode:
+    enabled: true
+    size: 70Gi
+    accessMode: ReadWriteOnce
+    # storageClass: gp2
+
+  media:
+    enabled: true
+    size: 100Gi
+    accessMode: ReadWriteOnce
+    # storageClass: gp2
+
+# For hardware accel;aration uncomment this
+#   dev-dri:
+#     enabled: true
+#     type: hostPath
+#     hostPath: /dev/dri
+#     advancedMounts:
+#       main:
+#         main:
+#         - path:  /dev/dri
+
+# defaultPodOptions:
+#   securityContext:
+#     supplementalGroups: [992]
+
+# Resource limits
+# controllers:
+#   main:
+#     containers:
+#       main:
+#         resources:
+#           requests:
+#             cpu: 1000m
+#             memory: 1Gi
+#           limits:
+#             memory: 10Gi
+#             cpu: 8000m
+
+# route:
+#   main:
+#     enabled: true
+#     annotations:
+#     hostnames:
+#       - jellyfin.mydomain
+#     parentRefs:
+#       - namespace: gateway
+#         name: mygateway
+#     rules:
+#       - matches:
+#           - path:
+#               type: PathPrefix
+#               value: /
+#         backendRefs:
+#           - name: jellyfin
+#             port: 8096
