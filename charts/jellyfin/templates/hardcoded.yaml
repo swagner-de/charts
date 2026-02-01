@@ -1,0 +1,84 @@
+{{- define "hardcoded" -}}
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+
+# Configure options applied to all pods
+controllers:
+  main:
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          privileged: true # TODO retire once I have https://github.com/intel/intel-device-plugins-for-kubernetes/
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: jellyfin/jellyfin
+          tag: {{ .Chart.AppVersion | quote }}
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /web
+                port: 8096
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+          readiness: *probe
+          startup: *probe
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 8096
+        protocol: TCP
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    advancedMounts:
+      main:
+        main:
+        - path: /config
+  transcode:
+    type: persistentVolumeClaim
+    advancedMounts:
+      main:
+        main:
+        - path: /transcode
+  media:
+    type: persistentVolumeClaim
+    advancedMounts:
+      main:
+        main:
+        - path: /media
+  cache:
+    type: persistentVolumeClaim
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /cache
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
