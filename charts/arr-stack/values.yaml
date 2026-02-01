@@ -1,0 +1,62 @@
+sonarr:
+  enabled: true
+  port: 8989
+  image:
+    repository: ghcr.io/home-operations/sonarr
+    tag: '4.0.16.2946'
+  persistence:
+    config:
+      type: persistentVolumeClaim
+      mountPath: /config
+      size: 100Mi
+      # storageClass: "gp2"
+      accessMode: ReadWriteOnce
+
+radarr:
+  enabled: true
+  port: 7878
+  image:
+    repository: ghcr.io/home-operations/radarr
+    tag: '6.1.1'
+  persistence:
+    config:
+      type: persistentVolumeClaim
+      mountPath: /config
+      size: 100Mi
+      # storageClass: "gp2"
+      accessMode: ReadWriteOnce
+
+prowlarr:
+  enabled: true
+  port: 9696
+  image:
+    repository: ghcr.io/home-operations/prowlarr
+    tag: '2.3.2.5245'
+  persistence:
+    config:
+      type: persistentVolumeClaim
+      mountPath: /config
+      size: 100Mi
+      accessMode: ReadWriteOnce
+      # storageClass: "gp2"
+
+flaresolverr:
+  enabled: true
+  port: 8191
+  image:
+    repository: ghcr.io/flaresolverr/flaresolverr
+    tag: 'v3.4.6'
+
+bazarr:
+  enabled: true
+  port: 6767
+  image:
+    repository: ghcr.io/home-operations/bazarr
+    tag: '1.5.4'
+  persistence:
+    config:
+      type: persistentVolumeClaim
+      mountPath: /config
+      size: 100Mi
+      # storageClass: "gp2"
+      accessMode: ReadWriteOnce
