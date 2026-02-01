@@ -65,6 +65,28 @@ controllers:
 {{- end }}
 {{- end }}
 
+  configarr:
+    enabled: {{ .Values.configarr.enabled }}
+    type: cronjob
+    containers:
+      main:
+        image: {{ $.Values.configarr.image | toYaml | nindent 12 }}
+        envFrom:
+{{- if .Values.configarr.secrets.existingSecret }}
+          - secret: {{ .Values.configarr.secrets.existingSecret }}
+{{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+    cronjob:
+      schedule: "0 * * * *" 
+
 service:
 {{- range $server := $servers }}
 {{- $serverConfig := get $.Values $server }}
@@ -97,6 +119,51 @@ persistence:
 {{- end }}
 {{- end }}
 {{- end }}
+
+  configarr-cache:
+    enabled: {{ .Values.configarr.enabled }}
+    type: {{ .Values.configarr.persistence.cache.type }}
+    size: {{ .Values.configarr.persistence.cache.size }}
+    accessMode: {{ .Values.configarr.persistence.cache.accessMode }}
+    storageClass: {{ .Values.configarr.persistence.cache.storageClass }}
+    advancedMounts:
+      configarr:
+        main:
+          - path: /app/repos
+  configarr-config:
+    type: configMap
+    enabled: {{ .Values.configarr.enabled }}
+    identifier: configarr
+    advancedMounts:
+      configarr:
+        main:
+        - path: /app/config/config.yml
+          subPath: config.yml
+  configarr-secrets:
+    type: secret
+    enabled: {{ ( and .Values.configarr.enabled (.Values.configarr.secrets.data | len  )) }}
+{{- if ( and .Values.configarr.enabled (.Values.configarr.secrets.data | len  )) }}
+    identifier: configarr
+    advancedMounts:
+      configarr:
+        main:
+        - path: /app/config/secrets.yml
+          subPath: secrets.yml
+{{- end }}
+
+configMaps:
+  configarr:
+    enabled: {{ .Values.configarr.enabled }}
+    data:
+      config.yml: |
+{{ .Values.configarr.config | indent 10 }}
+
+secrets:
+  configarr:
+    enabled: {{ and .Values.configarr.enabled (.Values.configarr.secrets.data | len  )}}
+    stringData: {{ .Values.configarr.secrets.data | toYaml | nindent 10}}
+
+
 
 {{ end }}
 
