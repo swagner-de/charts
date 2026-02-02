@@ -2,7 +2,7 @@ apiVersion: v2
 name: arr-stack
 description: A Helm chart for the *arr stack (Sonarr, Radarr, Prowlarr, etc.)
 type: application
-version: 0.1.0
+version: 0.1.1
 dependencies:
   - name: common
     version: 4.4.0
