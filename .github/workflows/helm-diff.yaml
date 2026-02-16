@@ -35,7 +35,7 @@ jobs:
           version: v3.17.2
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.6.1
+        uses: helm/chart-testing-action@v2.8.0
 
       - name: Find changed charts
         id: list-changed
