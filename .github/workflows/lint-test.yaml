@@ -42,5 +42,14 @@ jobs:
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         if: steps.list-changed.outputs.changed == 'true'
 
+      - name: Install CNPG operator
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          # Install CNPG operator
+          kubectl apply --server-side -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.24/releases/cnpg-1.24.1.yaml
+          
+          # Wait for CNPG operator to be ready
+          kubectl wait --for=condition=Available deployment/cnpg-controller-manager -n cnpg-system --timeout=300s
+
       - name: Run chart-testing (install)
         run: ct install --config .github/ct.yaml
