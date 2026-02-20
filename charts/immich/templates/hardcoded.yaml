@@ -5,9 +5,9 @@ global:
 defaultPodOptions:
   securityContext:
     runAsNonRoot: true
-    runAsUser: 65534
-    runAsGroup: 65534
-    fsGroup: 65534
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
 
 # Configure options applied to all pods
 controllers:
@@ -125,7 +125,7 @@ controllers:
       main:
         enabled: true
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: false
           allowPrivilegeEscalation: false
           seccompProfile:
             type: RuntimeDefault
