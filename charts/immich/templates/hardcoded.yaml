@@ -1,0 +1,274 @@
+{{- define "hardcoded" -}}
+global:
+  alwaysAppendIdentifierToResourceName: true
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+
+# Configure options applied to all pods
+controllers:
+  main:
+    enabled: false
+  server:
+    initContainers:
+      assemble-config:
+        enabled: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: alpine
+          tag: 3.18.2
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            cat /src-config/*.yaml > /config/immich-config.yaml
+    containers:            
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        env:
+          IMMICH_TELEMETRY_INCLUDE: all
+          IMMICH_CONFIG_FILE: /config/immich-config.yaml
+          IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
+{{- if .Values.redis.enabled }}
+          REDIS_HOSTNAME: {{ printf "%s-redis" .Release.Name | quote }}
+          REDIS_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+{{-   if and .Values.redis.auth.existingSecret .Values.redis.auth.existingSecretPasswordKey }}
+                # internal redis, key from existing Secret
+                name: {{ .Values.redis.auth.existingSecret }}
+                key: {{ .Values.redis.auth.existingSecretPasswordKey }}
+{{-   else }}
+                # internal redis, key straight from .Values
+                name: {{ printf "%s-redis" .Release.Name | quote }}
+                key: redis-password
+{{-   end }}
+{{-   end }}
+          DB_HOSTNAME:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpgClusterName }}
+                key: host
+          DB_USERNAME:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpgClusterName }}
+                key: user
+          DB_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpgClusterName }}
+                key: password
+          DB_DATABASE_NAME:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpgClusterName }}
+                key: dbname
+        image:
+          repository: ghcr.io/immich-app/immich-server
+          tag: {{ .Chart.AppVersion | quote }}
+        ports:
+          - name: http
+            containerPort: 2283
+            protocol: TCP
+          - name: metrics-api
+            containerPort: 8081
+            protocol: TCP
+          - name: metrics-ms
+            containerPort: 8082
+            protocol: TCP
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/server/ping
+                port: http
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probes
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/server/ping
+                port: http
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 30
+  machine-learning:
+    enabled: true
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        env:
+          IMMICH_TELEMETRY_INCLUDE: all
+          IMMICH_CONFIG_FILE: /config/immich-config.yaml
+          IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
+          REDIS_HOSTNAME: '{{ printf "%s-redis" .Release.Name }}'
+        image:
+          repository: ghcr.io/immich-app/immich-machine-learning
+          tag: {{ .Chart.AppVersion | quote }}
+        ports:
+          - name: http
+            containerPort: 3003
+            protocol: TCP
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                port: http
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probes
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                port: http
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 60
+
+service:
+  server:
+    enabled: true
+    controller: server
+    ports:
+      http:
+        enabled: true
+        primary: true
+        port: 2283
+        targetPort: http
+        protocol: HTTP
+      metrics-api:
+        enabled: true
+        port: 8081
+        targetPort: metrics-api
+        protocol: HTTP
+      metrics-ms:
+        enabled: true
+        port: 8082
+        targetPort: metrics-ms
+        protocol: HTTP
+
+  machine-learning:
+    enabled: true
+    controller: machine-learning
+    ports:
+      http:
+        enabled: true
+        port: 3003
+        targetPort: http
+        protocol: HTTP
+
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      immich.yaml : |
+{{ .Values.config | toYaml | indent 8 }}
+
+persistence:
+  library:
+    enabled: true
+    type: persistentVolumeClaim
+    advancedMounts:
+      server:
+        main:
+        - path: /usr/src/app/upload
+  
+  ml-cache:
+    enabled: true
+    type: persistentVolumeClaim
+    advancedMounts:
+      machine-learning:
+        main:
+        - path: /cache
+
+  config:
+    enabled: true
+    type: emptyDir
+    advancedMounts:
+      server:
+        assemble-config:
+        - path: /config
+        main:
+        - path: /config
+
+  tmp-ml:
+    enabled: true
+    type: emptyDir
+    advancedMounts:
+      machine-learning:
+        main:
+        - path: /tmp
+
+  src-config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      server:
+        assemble-config:
+        - path: /src-config/immich.yaml
+          subPath: immich.yaml
+
+{{- range $name, $secret := .Values.configFromSecret }}
+  {{ printf "%s-secret" $name }}:
+    enabled: true
+    type: secret
+    name: {{ $secret.secretName }}
+    advancedMounts:
+      server:
+        assemble-config:
+        - path: /src-config/{{ $name }}.yaml
+          subPath: {{ $secret.secretKey }}
+{{- end }}
+
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
