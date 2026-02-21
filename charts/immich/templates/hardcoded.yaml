@@ -65,22 +65,22 @@ controllers:
           DB_HOSTNAME:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpgClusterName }}
+                name: {{ printf "%s-%s-app" .Release.Name .Values.cnpgClusterName }}
                 key: host
           DB_USERNAME:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpgClusterName }}
+                name: {{ printf "%s-%s-app" .Release.Name .Values.cnpgClusterName }}
                 key: user
           DB_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpgClusterName }}
+                name: {{ printf "%s-%s-app" .Release.Name .Values.cnpgClusterName }}
                 key: password
           DB_DATABASE_NAME:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpgClusterName }}
+                name: {{ printf "%s-%s-app" .Release.Name .Values.cnpgClusterName }}
                 key: dbname
         image:
           repository: ghcr.io/immich-app/immich-server
@@ -139,7 +139,11 @@ controllers:
           REDIS_HOSTNAME: '{{ printf "%s-redis" .Release.Name }}'
         image:
           repository: ghcr.io/immich-app/immich-machine-learning
+{{- if .Values.machineLearning.acceleration }}
+          tag: {{ printf "%s-%s" .Chart.AppVersion .Values.machineLearning.acceleration | quote }}
+{{- else }}
           tag: {{ .Chart.AppVersion | quote }}
+{{- end }}
         ports:
           - name: http
             containerPort: 3003

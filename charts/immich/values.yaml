@@ -1,0 +1,164 @@
+route:
+  main:
+    enabled: false
+    # annotations:
+    # parentRefs:
+    #   - namespace: envoy-gateway-system
+    #     name: envoy-internal
+    # hostnames:
+    #   - immich.example.com
+    # rules:
+    #   - matches:
+    #       - path:
+    #           type: PathPrefix
+    #           value: /
+    #     backendRefs:
+    #       - name: immich-server
+    #         port: 2283
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+    # Let redis generate a random password or provide an existing secret with the password
+    # existingSecret: immich-redis-user
+    # existingSecretPasswordKey: password
+  persistence:
+    enabled: true
+    size: 1Gi
+
+persistence:
+  library:
+    # storageClass: "gp2"
+    size: 1Ti
+    accessMode: ReadWriteOnce
+    type: persistentVolumeClaim
+
+  ml-cache:
+    # storageClass: "gp2"
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    type: persistentVolumeClaim
+
+
+# You can provide additional configuration via config or configFromSecret.
+# Both contents will be merged by an init container
+configFromSecret: {}
+  # oauth:
+  #   secretName: immich-oidc
+  #   secretKey: oauth.yaml
+
+config: {}
+#   job:
+#     backgroundTask:
+#       concurrency: 20
+#     editor:
+#       concurrency: 2
+#     faceDetection:
+#       concurrency: 8
+#     library:
+#       concurrency: 10
+#     metadataExtraction:
+#       concurrency: 20
+#     migration:
+#       concurrency: 30
+#     notifications:
+#       concurrency: 5
+#     ocr:
+#       concurrency: 10
+#     search:
+#       concurrency: 15
+#     sidecar:
+#       concurrency: 15
+#     smartSearch:
+#       concurrency: 5
+#     thumbnailGeneration:
+#       concurrency: 20
+#     videoConversion:
+#       concurrency: 1
+#     workflow:
+#       concurrency: 5
+#   ffmpeg:
+#     accel: qsv
+#     accelDecode: true
+#     acceptedVideoCodecs:
+#     - h264
+#     - hevc
+#   logging:
+#     enabled: true
+#     level: log
+#   machineLearning:
+#     availabilityChecks:
+#       enabled: true
+#       interval: 30000
+#       timeout: 2000
+#     clip:
+#       enabled: true
+#       modelName: ViT-L-16-SigLIP2-256__webli
+
+machineLearning:
+  acceleration: ""
+  # acceleration: openvino
+
+# In case your /dev/dri needs additional groups
+# defaultPodOptions:
+#   securityContext:
+#     supplementalGroups: [992, 226]
+
+# Set controller specific options, e.g. resource limits for the server and machine-learning controller
+# controllers:
+#   server:
+#     containers:
+#       main:
+#         resources:
+#           limits:
+#             squat.ai/dri: "1"
+#   machine-learning:
+#     containers:
+#       main:
+#         resources:
+#           limits:
+#             squat.ai/dri: "1"
+
+serviceMonitor:
+  main:
+    enabled: false
+    serviceName: immich-server
+    # endpoints:
+    #   - port: metrics-api
+    #     scheme: http
+    #     path: /metrics
+    #     interval: 1m
+    #     scrapeTimeout: 10s
+    #   - port: metrics-ms
+    #     scheme: http
+    #     path: /metrics
+    #     interval: 1m
+    #     scrapeTimeout: 10s
+
+
+cnpgClusterName: db
+rawResources:
+  db:
+    enabled: true
+    apiVersion: postgresql.cnpg.io/v1
+    kind: Cluster
+    spec:
+      spec:
+        instances: 1
+        imageName: ghcr.io/tensorchord/cloudnative-vectorchord:18-1.1.0
+        postgresql:
+          shared_preload_libraries:
+            - "vchord.so"
+        bootstrap:
+          initdb:
+            postInitSQL:
+              - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
+              - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
+            postInitApplicationSQL:
+              - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
+              - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
+        storage:
+          size: 5Gi
+          # storageClass: gp2
