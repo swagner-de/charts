@@ -46,7 +46,7 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           # Install CNPG operator
-          kubectl apply --server-side -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.24/releases/cnpg-1.24.1.yaml
+          kubectl apply --server-side -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.28/releases/cnpg-1.28.1.yaml
           
           # Wait for CNPG operator to be ready
           kubectl wait --for=condition=Available deployment/cnpg-controller-manager -n cnpg-system --timeout=300s
