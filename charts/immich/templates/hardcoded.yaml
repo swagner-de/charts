@@ -14,6 +14,7 @@ controllers:
   main:
     enabled: false
   server:
+{{- if or .Values.config .Values.configFromSecret }}
     initContainers:
       assemble-config:
         enabled: true
@@ -32,6 +33,7 @@ controllers:
         args:
           - |
             cat /src-config/*.yaml > /config/immich-config.yaml
+{{- end}}
     containers:            
       main:
         enabled: true
@@ -45,7 +47,9 @@ controllers:
             - ALL
         env:
           IMMICH_TELEMETRY_INCLUDE: all
+{{- if or .Values.config .Values.configFromSecret }}
           IMMICH_CONFIG_FILE: /config/immich-config.yaml
+{{- end }}
           IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
 {{- if .Values.redis.enabled }}
           REDIS_HOSTNAME: {{ printf "%s-redis" .Release.Name | quote }}
@@ -134,7 +138,6 @@ controllers:
             - ALL
         env:
           IMMICH_TELEMETRY_INCLUDE: all
-          IMMICH_CONFIG_FILE: /config/immich-config.yaml
           IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
           REDIS_HOSTNAME: '{{ printf "%s-redis" .Release.Name }}'
         image:
@@ -208,7 +211,7 @@ service:
 
 configMaps:
   config:
-    enabled: true
+    enabled: {{ empty .Values.config | not }}
     data:
       immich.yaml : |
 {{ .Values.config | toYaml | indent 8 }}
@@ -263,7 +266,7 @@ persistence:
         main:
         - path: /.config
         
-
+{{- if .Values.config }}
   src-config:
     type: configMap
     identifier: config
@@ -272,6 +275,7 @@ persistence:
         assemble-config:
         - path: /src-config/immich.yaml
           subPath: immich.yaml
+{{- end }}
 
 {{- range $name, $secret := .Values.configFromSecret }}
   {{ printf "%s-secret" $name }}:
