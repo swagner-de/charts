@@ -161,7 +161,7 @@ controllers:
                 port: http
               initialDelaySeconds: 0
               periodSeconds: 10
-              timeoutSeconds: 1
+              timeoutSeconds: 3
               failureThreshold: 3
           readiness: *probes
           startup:
@@ -171,7 +171,7 @@ controllers:
               httpGet:
                 path: /ping
                 port: http
-              initialDelaySeconds: 0
+              initialDelaySeconds: 5
               periodSeconds: 10
               timeoutSeconds: 1
               failureThreshold: 60
