@@ -34,11 +34,9 @@ secrets:
     enabled: false
     stringData:
       token: "mysupersecrettoken"
-  matterHub:
+  matterbridge:
     enabled: false
-    stringData:
-      HAMH_HOME_ASSISTANT_ACCESS_TOKEN: "mysupersecrettoken"
-
+    mdns_interface: net1
 ingress:
   main:
     enabled: false
@@ -82,6 +80,28 @@ cnpg:
 #           size: 5Gi
 #           storageClassName: "standard"
 
+
+# Activate this if your run matterbridge and want to layer 2 attach it to your home network. This is required for mDNS to work
+#   matterbridge:
+#     enabled: true
+#     kind: NetworkAttachmentDefinition
+#     apiVersion: "k8s.cni.cncf.io/v1"
+#     spec:
+#       spec:
+#         config: |
+#           {
+#             "cniVersion": "0.3.1",
+#             "type": "bridge",
+#             "bridge": "br-vlan2",
+#             "ipam": {
+#               "type": "static",
+#               "addresses": [
+#                 {"address": "192.168.101.60/24"},
+#                 {"address": "fdfd::60/64"}
+#               ]
+#             }
+#           }
+
 # serviceMonitor:
 #   main:
 #     enabled: true
@@ -98,10 +118,7 @@ cnpg:
 #             name: home-assistant-prometheus
 #             key: token
 
-# Matter Hub configuration
-matterHub:
+# matterbridge configuration
+matterbridge:
   enabled: false
   # Use either existingSecret or provide an access token via secrets
-  existingSecret: {}
-  #   name: mysecret
-  #   key: token

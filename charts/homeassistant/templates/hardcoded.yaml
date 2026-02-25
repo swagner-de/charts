@@ -85,42 +85,32 @@ controllers:
               failureThreshold: 3
           readiness: *probe
           startup: *probe
-  matterhub:
-    enabled: {{ .Values.matterHub.enabled | default false }}
+  matterbridge:
+    enabled: {{ .Values.matterbridge.enabled | default false }}
     containers:
       main:
-        name: matterhub
+        name: matterbridge
         image:
-          repository: ghcr.io/t0bst4r/home-assistant-matter-hub
-          tag: 3.0.4
+          repository: luligu/matterbridge
+          tag: '3.5.1'
+        command: /matterbridge-init/matterbridge-init.sh
+        env:
+          - name: POD_IPS
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIPs
+          - name: MDNS_INTERFACE
+            value: {{ .Values.matterbridge.mdns_interface }}
         securityContext:
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           seccompProfile:
             type: RuntimeDefault
           capabilities:
             drop:
             - ALL
-        env:
-          - name: HAMH_HOME_ASSISTANT_URL
-            value: "http://{{ .Release.Name }}-main:8123/"
-          - name: HAMH_HOME_ASSISTANT_ACCESS_TOKEN
-{{- if .Values.matterHub.existingSecret }}
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.matterHub.existingSecret.name }}
-                key: {{ .Values.matterHub.existingSecret.key }}
-{{- end }}
-          - name: HAMH_LOG_LEVEL
-            value: {{ .Values.matterHub.logLevel | default "info" }}
-          - name: HAMH_HTTP_PORT
-            value: "8482"
-{{- if not .Values.matterHub.existingSecret.name  }}
-        envFrom:
-          - secretRef:
-              name: matterHub
-{{- end }}
-
+            add:
+            - NET_RAW 
 persistence:
   config:
     type: persistentVolumeClaim
@@ -130,13 +120,23 @@ persistence:
           - path: /config
         init:
           - path: /config
-  matterhub:
-    enabled: {{ .Values.matterHub.enabled | default false }}
+  matterbridge:
+    enabled: {{ .Values.matterbridge.enabled | default false }}
     type: persistentVolumeClaim
     advancedMounts:
-      matterhub:
+      matterbridge:
         main:
-          - path: /data
+          - path: /nonexistent
+  
+  matterbridge-init:
+    enabled: {{ .Values.matterbridge.enabled | default false }}
+    type: configMap
+    defaultMode: 0755
+    identifier: matterbridge-init
+    advancedMounts:
+      matterbridge:
+        main:
+          - path: /matterbridge-init
 
   tmp:
     type: emptyDir
@@ -162,7 +162,40 @@ configMaps:
     enabled: {{ .Values.controllers.main.containers.ldap.enabled }}
     data: {{ toYaml .Values.ldap  | nindent 6 }}
 
+  matterbridge-init:
+    enabled: {{ .Values.matterbridge.enabled | default false }}
+    data:
+      matterbridge-init.sh: |
+        #!/bin/sh
+        set -e
 
+        IPV4=""
+        IPV6=""
+
+        # Split on commas
+        IFS=',' read -r IP1 IP2 <<EOF
+        $POD_IPS
+        EOF
+
+        for ip in "$IP1" "$IP2"; do
+          case "$ip" in
+            *:*) IPV6="$ip" ;;
+            *.*) IPV4="$ip" ;;
+          esac
+        done
+
+        ARGS="
+        --logger debug
+        --mdnsinterface $MDNS_INTERFACE
+        "
+
+        #[ -n "$IPV4" ] && ARGS="$ARGS --ipv4address $IPV4"
+        #[ -n "$IPV6" ] && ARGS="$ARGS --ipv6address $IPV6"
+
+        echo "Starting matterbridge with args:"
+        echo "$ARGS"
+
+        exec /usr/local/bin/matterbridge $ARGS
 
 service:
   main:
@@ -172,15 +205,13 @@ service:
       http:
         port: 8123
         protocol: TCP
-  matterhub:
-    enabled: {{ .Values.matterHub.enabled | default false }}
-    controller: matterhub
+  matterbridge:
+    enabled: {{ .Values.matterbridge.enabled | default false }}
+    controller: matterbridge
     ports:
       http:
-        port: 8482
+        port: 8283
         protocol: TCP
-
-
 
 rbac:
   roles: {}
