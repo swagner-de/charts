@@ -92,7 +92,7 @@ controllers:
         name: matterbridge
         image:
           repository: luligu/matterbridge
-          tag: 3.6.0
+          tag: 3.6.1
         command: /matterbridge-init/matterbridge-init.sh
         env:
           - name: POD_IPS
