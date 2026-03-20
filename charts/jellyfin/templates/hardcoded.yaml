@@ -75,6 +75,13 @@ persistence:
       main:
         main:
         - path: /cache
+  tmp:
+    type: persistentVolumeClaim
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /tmp
 
 {{ end }}
 
