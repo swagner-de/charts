@@ -27,7 +27,7 @@ controllers:
           CONFIG: "/adguard/etc/config.yaml"
         image:
           repository: mikefarah/yq
-          tag: 4.52.4
+          tag: 4.52.5
         command: /bin/sh
         args:
         - -c
