@@ -2,9 +2,9 @@ apiVersion: v2
 name: mealie
 description: A Helm chart for Mealie
 type: application
-version: 0.14.1
+version: 0.15.0
 # renovate: image=ghcr.io/mealie-recipes/mealie
-appVersion: 'v3.13.1'
+appVersion: 'v3.14.0'
 dependencies:
   - name: common
     version: 4.6.2
