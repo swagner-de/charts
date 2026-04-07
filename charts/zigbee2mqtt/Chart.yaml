@@ -1,8 +1,11 @@
 apiVersion: v2
 name: zigbee2mqtt
-description: A chart installing zigbee2mqtt
+description: Zigbee-to-MQTT bridge for smart home devices
 type: application
 version: 0.7.2
+home: https://www.zigbee2mqtt.io/
+sources:
+  - https://github.com/swagner-de/charts
 # renovate: image=koenkk/zigbee2mqtt
 appVersion: '2.9.2'
 dependencies:
