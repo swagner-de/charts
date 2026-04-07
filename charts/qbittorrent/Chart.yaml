@@ -1,8 +1,11 @@
 apiVersion: v2
 name: qbittorrent
-description: A Helm chart for qBittorrent, a cross-platform BitTorrent client
+description: BitTorrent client with web UI and optional VPN (gluetun) sidecar
 type: application
 version: 0.2.0
+home: https://www.qbittorrent.org/
+sources:
+  - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/home-operations/qbittorrent
 appVersion: '5.1.4'
 dependencies:
