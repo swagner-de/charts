@@ -1,8 +1,11 @@
 apiVersion: v2
 name: adguard-home
-description: A Helm chart for Kubernetes
+description: DNS-level ad and tracker blocking with optional Prometheus exporter
 type: application
 version: 0.5.5
+home: https://github.com/AdguardTeam/AdGuardHome
+sources:
+  - https://github.com/swagner-de/charts
 # renovate: image=11notes/adguard
 appVersion: '0.107.73'
 dependencies:
