@@ -68,7 +68,7 @@ redis:
   architecture: standalone
   auth:
     enabled: true
-    password: "supersecure"
+    password: "CHANGEME"  # REQUIRED: set your Redis password
   persistence:
     enabled: true
     size: 1Gi
@@ -79,7 +79,7 @@ postgres:
   auth:
     username: "paperless"
     database: "paperless"
-    password: "supersecure"
+    password: "CHANGEME"  # REQUIRED: set your database password
 
   persistence:
     enabled: true
