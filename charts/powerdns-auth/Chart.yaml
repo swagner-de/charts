@@ -1,8 +1,11 @@
 apiVersion: v2
 name: powerdns-auth
-description: A Helm chart for Kubernetes
+description: PowerDNS authoritative DNS server with LMDB backend and external-dns support
 type: application
 version: 0.4.0
+home: https://www.powerdns.com/auth/
+sources:
+  - https://github.com/swagner-de/charts
 # renovate: image=powerdns/pdns-auth-50
 appVersion: '5.0.3'
 dependencies:
