@@ -1,8 +1,11 @@
 apiVersion: v2
 name: homepage
-description: A Helm chart to deploy homepage (gethomepage.dev)
+description: Customizable application dashboard for your homelab
 type: application
 version: 0.5.2
+home: https://gethomepage.dev/
+sources:
+  - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/gethomepage/homepage
 appVersion: 'v1.12.3'
 dependencies:
