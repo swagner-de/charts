@@ -28,12 +28,12 @@ secrets:
   ldap:
     enabled: false
     stringData:
-      HA_LDAP_BIND_DN_PASSWORD: "mysupersecretpassword"
+      HA_LDAP_BIND_DN_PASSWORD: ""  # REQUIRED: set your LDAP bind password
       HA_LDAP_BIND_DN: "cn=ldapservice,ou=users,dc=ldap,dc=goauthentik,dc=io"
   prometheus:
     enabled: false
     stringData:
-      token: "mysupersecrettoken"
+      token: ""  # REQUIRED: set your Prometheus long-lived access token
   matterbridge:
     enabled: false
     mdns_interface: net1
