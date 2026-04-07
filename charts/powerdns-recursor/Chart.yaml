@@ -1,8 +1,11 @@
 apiVersion: v2
 name: powerdns-recursor
-description: A Helm chart for Kubernetes
+description: PowerDNS recursive DNS resolver with DNSSEC validation
 type: application
 version: 0.1.10
+home: https://www.powerdns.com/recursor/
+sources:
+  - https://github.com/swagner-de/charts
 # renovate: image=powerdns/pdns-recursor-53
 appVersion: '5.3.5'
 dependencies:
