@@ -1,10 +1,12 @@
 apiVersion: v2
 name: invidious
-description: Invidious + inv-sig-helper + Postgres, based on bjw-s common chart
+description: Privacy-focused alternative YouTube frontend with companion service and PostgreSQL
 maintainers:
   - name: swagner-de
     email: swagner-de@users.noreply.github.com
 version: 0.4.9
+sources:
+  - https://github.com/swagner-de/charts
 # renovate: image=quay.io/invidious/invidious
 appVersion: '2.20260207.0'
 keywords:

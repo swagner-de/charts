@@ -11,20 +11,20 @@ postgres:
   auth:
     username: &postgresUser invidious
     database: &postgresDB invidious
-    password: &postgresPassword invidious
+    password: &postgresPassword "CHANGEME"  # REQUIRED: set your database password
   persistence:
     enabled: true
     size: 2Gi
     accessMode: ReadWriteOnce
 
 companionKey:
-  value: "CHANGEMEPLEASE12"
+  value: "CHANGEME"  # REQUIRED: set a shared secret for companion communication
   # existingSecret:
   #   name: invidious-companion-key
   #   key: key
 
 hmacKey:
-  value: "CHANGEMEPLEASE12"
+  value: "CHANGEME"  # REQUIRED: set an HMAC signing key
   # existingSecret:
   #   name: ""
   #   key: ""
