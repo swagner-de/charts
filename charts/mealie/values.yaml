@@ -27,7 +27,7 @@ config:
 
 db:
   POSTGRES_USER: &postgresUser mealie
-  POSTGRES_PASSWORD: &postgresPassword mealie
+  POSTGRES_PASSWORD: &postgresPassword "CHANGEME"  # REQUIRED: set your database password
   POSTGRES_DB: &postgresDB mealie
 
 envFromSecrets:

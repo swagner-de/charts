@@ -1,8 +1,11 @@
 apiVersion: v2
 name: mealie
-description: A Helm chart for Mealie
+description: Self-hosted recipe manager and meal planner
 type: application
 version: 0.15.0
+home: https://mealie.io/
+sources:
+  - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/mealie-recipes/mealie
 appVersion: 'v3.14.0'
 dependencies:
