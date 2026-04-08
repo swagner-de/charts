@@ -21,6 +21,10 @@
       "automergeType": "pr"
     },
     {
+      "matchFileNames": ["charts/**/templates/hardcoded.yaml"],
+      "additionalBranchPrefix": "{{packageFileDir}}-"
+    },
+    {
       "matchFileNames": ["charts/**", "charts/**/templates/hardcoded.yaml"],
       "bumpVersions": [
         {
