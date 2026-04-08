@@ -76,11 +76,7 @@ controllers:
           runAsUser: 0
           runAsGroup: 0
           allowPrivilegeEscalation: true
-          seccompProfile:
-            type: RuntimeDefault
           capabilities:
-            drop:
-              - ALL
             add:
               - NET_ADMIN
 
