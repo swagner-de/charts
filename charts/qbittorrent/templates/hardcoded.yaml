@@ -15,8 +15,9 @@ controllers:
       vuetorrent:
         enabled: true
         image:
+          # renovate: image=alpine/curl
           repository: alpine/curl
-          tag: latest
+          tag: '8.14.1'
         securityContext:
           runAsNonRoot: true
           readOnlyRootFilesystem: true
@@ -74,7 +75,12 @@ controllers:
         securityContext:
           runAsUser: 0
           runAsGroup: 0
+          allowPrivilegeEscalation: true
+          seccompProfile:
+            type: RuntimeDefault
           capabilities:
+            drop:
+              - ALL
             add:
               - NET_ADMIN
 
