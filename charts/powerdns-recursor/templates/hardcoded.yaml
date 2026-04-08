@@ -4,6 +4,9 @@ defaultPodOptions:
   securityContext:
     runAsNonRoot: true
     runAsUser: 1883
+    runAsGroup: 1883
+    fsGroup: 1883
+    fsGroupChangePolicy: OnRootMismatch
 
 # Configure options applied to all pods
 controllers:
@@ -45,7 +48,7 @@ service:
       dns-tcp:
         port: 53
         protocol: TCP 
-        targetPort: 5353he
+        targetPort: 5353
       dns-udp:
         port: 53
         protocol: UDP
