@@ -2,7 +2,7 @@ apiVersion: v2
 name: skel
 description: Skeleton chart template for creating new charts
 type: application
-version: 0.1.6
+version: 0.1.7
 appVersion: "latest"
 sources:
   - https://github.com/swagner-de/charts
