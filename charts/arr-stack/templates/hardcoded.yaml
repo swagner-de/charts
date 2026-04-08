@@ -5,10 +5,11 @@
 defaultPodOptions:
   automountServiceAccountToken: false
   securityContext:
+    runAsNonRoot: true
     runAsUser: 65534
     runAsGroup: 65534
     fsGroup: 65534
-    fsGroupChangePolicy: Always
+    fsGroupChangePolicy: OnRootMismatch
 
 controllers:
 {{- range $server := $servers }}
@@ -19,8 +20,11 @@ controllers:
 {{- if eq $server "flaresolverr" }}
     pod:
       securityContext:
+        runAsNonRoot: true
         runAsUser: 1000
-        runAsGroup: 1000 
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
 {{- end }}
     containers:
       main:
@@ -91,7 +95,7 @@ service:
 {{- range $server := $servers }}
 {{- $serverConfig := get $.Values $server }}
 {{- if $serverConfig.enabled | default false }}
- {{ $server }}:
+  {{ $server }}:
     type: ClusterIP
     controller: {{ $server }}
     ports:
@@ -125,7 +129,9 @@ persistence:
     type: {{ .Values.configarr.persistence.cache.type }}
     size: {{ .Values.configarr.persistence.cache.size }}
     accessMode: {{ .Values.configarr.persistence.cache.accessMode }}
+{{- if .Values.configarr.persistence.cache.storageClass }}
     storageClass: {{ .Values.configarr.persistence.cache.storageClass }}
+{{- end }}
     advancedMounts:
       configarr:
         main:
