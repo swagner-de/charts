@@ -80,6 +80,14 @@ controllers:
           startup: *probe
       exporter:
         enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
         image:
           repository: ghcr.io/henrywhitaker3/adguard-exporter
           tag: v1.2.1
