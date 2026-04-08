@@ -24,24 +24,24 @@ controllers:
         envFrom:
 {{- if not .Values.companionKey.existingSecret }}
           - secretRef:
-              identifier: invidious-hmac-key
+              identifier: invidious-companion-key
 {{- end }}
 {{- if not .Values.hmacKey.existingSecret }}
           - secretRef:
-              identifier: invidious-companion-key
+              identifier: invidious-hmac-key
 {{- end }}
         env:
 {{- if .Values.companionKey.existingSecret }}
           INVIDIOUS_INVIDIOUS_COMPANION_KEY:
             secretKeyRef:
-              name: invidious-companion-key
-              key: key
+              name: {{ .Values.companionKey.existingSecret.name }}
+              key: {{ .Values.companionKey.existingSecret.key }}
 {{- end }}
 {{- if .Values.hmacKey.existingSecret }}
           INVIDIOUS_HMAC_KEY:
             secretKeyRef:
-              name: invidious-hmac-key
-              key: key
+              name: {{ .Values.hmacKey.existingSecret.name }}
+              key: {{ .Values.hmacKey.existingSecret.key }}
 {{- end }}
 {{ if .Values.cnpg.enabled }}
           DB_FQDN_URI: 
@@ -50,11 +50,8 @@ controllers:
               key: fqdn-uri
           INVIDIOUS_DATABASE_URL:
             value: $(DB_FQDN_URI)?sslmode=verify-full&sslrootcert=/certs/ca.crt
-            dependsOn: 
+            dependsOn:
               - DB_FQDN_URI
-            secretKeyRef:
-              name: {{ .Values.cnpg.clusterName }}-app
-              key: fqdn-uri
 {{- end }}
 {{ if .Values.postgres.enabled }}
           INVIDIOUS_DATABASE_URL: 
@@ -94,8 +91,9 @@ controllers:
     containers:
       main:
         image:
+          # renovate: image=quay.io/invidious/invidious-companion
           repository: quay.io/invidious/invidious-companion
-          tag: latest
+          tag: latest  # TODO: pin to a specific version once available
 {{- if .Values.companionKey.existingSecret }}
         env:
           SERVER_SECRET_KEY:
