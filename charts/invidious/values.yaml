@@ -18,7 +18,7 @@ postgres:
     accessMode: ReadWriteOnce
 
 companionKey:
-  value: "CHANGEME"  # REQUIRED: set a shared secret for companion communication
+  value: "CHANGEME_16CHARS"  # REQUIRED: set a shared secret (exactly 16 characters)
   # existingSecret:
   #   name: invidious-companion-key
   #   key: key
