@@ -4,6 +4,7 @@ global:
 
 defaultPodOptions:
   securityContext:
+    runAsNonRoot: true
     runAsUser: 65534
     runAsGroup: 65534
     fsGroup: 65534
@@ -15,6 +16,10 @@ controllers:
       init:
         enabled: {{ .Values.cnpg.enabled }}
         securityContext:
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
           capabilities:
             drop:
             - ALL

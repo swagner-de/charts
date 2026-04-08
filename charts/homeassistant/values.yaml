@@ -36,7 +36,6 @@ secrets:
       token: ""  # REQUIRED: set your Prometheus long-lived access token
   matterbridge:
     enabled: false
-    mdns_interface: net1
 ingress:
   main:
     enabled: false
@@ -121,4 +120,4 @@ cnpg:
 # matterbridge configuration
 matterbridge:
   enabled: false
-  # Use either existingSecret or provide an access token via secrets
+  mdns_interface: net1
