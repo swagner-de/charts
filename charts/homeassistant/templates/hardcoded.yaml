@@ -25,7 +25,7 @@ controllers:
             - ALL
         image:
           repository: alpine
-          tag: 3.22.1
+          tag: 3.23.3
         command: ["sh"]
         envFrom:
           - secret: {{ .Values.cnpg.clusterName }}-app
