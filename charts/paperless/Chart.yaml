@@ -2,7 +2,7 @@ apiVersion: v2
 name: paperless
 description: Document management system with OCR and full-text search
 type: application
-version: 0.39.0
+version: 0.39.1
 home: https://docs.paperless-ngx.com/
 sources:
   - https://github.com/swagner-de/charts
