@@ -16,6 +16,14 @@ controllers:
     initContainers:
       create-dirs:
         enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
         env:
           PAPERLESS_DATA_DIR: /paperless/data
           PAPERLESS_TRASH_DIR: /paperless/trash
@@ -165,7 +173,7 @@ controllers:
                 port: 8000
               initialDelaySeconds: 20
               failureThreshold: 5
-              periodSeconds: 0
+              periodSeconds: 10
               timeoutSeconds: 5
           readiness: *probe
           startup: *probe
@@ -256,7 +264,7 @@ service:
 
 secrets:
   admin:
-    enabled: {{ not (hasKey .Values.paperless.admin "existingSecret") }}
+    enabled: {{ not .Values.paperless.admin.existingSecret }}
     stringData: {{ .Values.paperless.admin | toYaml | nindent 6}}
 
 persistence:
