@@ -102,17 +102,6 @@ controllers:
             mountPath: /app/nltk_data
           - name: temp
             mountPath: /tmp/
-{{ if .Values.ingress.main.enabled }}
-    ingress:
-      main:
-        enabled: true
-        className: {{ .Values.ingress.main.className | quote }}
-        annotations: {{ toYaml .Values.ingress.main.annotations | nindent 10 }}
-        hosts:
-          - host: {{ .Values.ingress.main.host | quote }}
-            paths:
-
-{{- end }}
         probes:
           liveness: &probe
             enabled: true
