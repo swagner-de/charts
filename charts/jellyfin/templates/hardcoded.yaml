@@ -15,7 +15,6 @@ controllers:
         enabled: true
         securityContext:
           readOnlyRootFilesystem: true
-          allowPrivilegeEscalation: false
           privileged: true # TODO retire once I have https://github.com/intel/intel-device-plugins-for-kubernetes/
           seccompProfile:
             type: RuntimeDefault
