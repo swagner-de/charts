@@ -15,6 +15,7 @@ controllers:
         enabled: true
         securityContext:
           readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
           privileged: true # TODO retire once I have https://github.com/intel/intel-device-plugins-for-kubernetes/
           seccompProfile:
             type: RuntimeDefault
@@ -69,14 +70,12 @@ persistence:
         main:
         - path: /media
   cache:
-    type: persistentVolumeClaim
     type: emptyDir
     advancedMounts:
       main:
         main:
         - path: /cache
   tmp:
-    type: persistentVolumeClaim
     type: emptyDir
     advancedMounts:
       main:
