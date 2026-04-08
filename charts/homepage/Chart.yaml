@@ -2,7 +2,7 @@ apiVersion: v2
 name: homepage
 description: Customizable application dashboard for your homelab
 type: application
-version: 0.5.2
+version: 0.5.3
 home: https://gethomepage.dev/
 sources:
   - https://github.com/swagner-de/charts
