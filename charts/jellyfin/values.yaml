@@ -1,19 +1,32 @@
+# -- Persistent storage configuration
 persistence:
+  # -- Configuration volume
   config:
+    # -- Enable config persistence
     enabled: true
+    # -- Config volume size
     size: 15Gi
+    # -- Storage access mode
     accessMode: ReadWriteOnce
     # storageClass: gp2
 
+  # -- Transcoding volume
   transcode:
+    # -- Enable transcode persistence
     enabled: true
+    # -- Transcode volume size
     size: 70Gi
+    # -- Storage access mode
     accessMode: ReadWriteOnce
     # storageClass: gp2
 
+  # -- Media library volume
   media:
+    # -- Enable media persistence
     enabled: true
+    # -- Media volume size
     size: 100Gi
+    # -- Storage access mode
     accessMode: ReadWriteOnce
     # storageClass: gp2
 

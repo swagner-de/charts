@@ -1,0 +1,30 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Persistent volumes for config, transcoding, and media library
+- Hardware transcoding support via `/dev/dri` host path mount
+- Read-only root filesystem with emptyDir for cache and tmp
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsNonRoot: true`, UID/GID 65534 (nobody)
+- `readOnlyRootFilesystem: true`
+- `privileged: true` (required for hardware transcoding access; can be disabled if not using GPU)
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+**Note:** The container currently runs as privileged to access GPU hardware for transcoding. If you do not need hardware transcoding, consider overriding this in your values.
+
+{{ template "chart.maintainersSection" . }}

@@ -1,14 +1,21 @@
+# -- Persistent storage configuration
 persistence:
   config:
+    # -- Storage access mode
     accessMode: ReadWriteOnce
+    # -- Volume size
     size: 5Gi
 
+# -- Controller configuration
 controllers:
   main:
     containers:
+      # -- LDAP authentication sidecar
       ldap:
+        # -- Enable LDAP sidecar
         enabled: false
       main:
+        # -- Environment variables
         env:
         - name: TZ
           value: Europe/Berlin
@@ -20,24 +27,35 @@ controllers:
 #   HA_LDAP_USER_FILTER: "(&(objectClass=person)(cn={username})(memberOf=cn=homeassistantUsers,ou=groups,dc=ldap,dc=goauthentik,dc=io))"
 #   HA_LDAP_SSL: "true"
 
-# external secret or define the secrets below
+# -- External secret or define the secrets below
 ldapSecret: homeassistant-ldap
 
 
+# -- Kubernetes secrets configuration
 secrets:
+  # -- LDAP secret
   ldap:
+    # -- Enable LDAP secret creation
     enabled: false
+    # -- LDAP secret data
     stringData:
       HA_LDAP_BIND_DN_PASSWORD: ""  # REQUIRED: set your LDAP bind password
       HA_LDAP_BIND_DN: "cn=ldapservice,ou=users,dc=ldap,dc=goauthentik,dc=io"
+  # -- Prometheus secret
   prometheus:
+    # -- Enable Prometheus secret creation
     enabled: false
+    # -- Prometheus secret data
     stringData:
       token: ""  # REQUIRED: set your Prometheus long-lived access token
+  # -- Matterbridge secret
   matterbridge:
+    # -- Enable Matterbridge secret creation
     enabled: false
+# -- Ingress configuration
 ingress:
   main:
+    # -- Enable ingress
     enabled: false
     # annotations:
     # hosts:
@@ -54,11 +72,14 @@ ingress:
     #     hosts:
     #       - homeassistant.my-domain.com
 
+# -- CloudNativePG database configuration
 cnpg:
   # In case CNPG operator is used, provide the cluster definition via additionalObjects
   # and set the postgresql.enabled to false
   # The cluster name must be provided for the database to be auto-configured
+  # -- Enable CNPG operator for database
   enabled: false
+  # -- CNPG cluster name
   clusterName: homeassistant-db
 
 
@@ -117,7 +138,9 @@ cnpg:
 #             name: home-assistant-prometheus
 #             key: token
 
-# matterbridge configuration
+# -- Matterbridge configuration
 matterbridge:
+  # -- Enable Matter bridge controller
   enabled: false
+  # -- mDNS network interface
   mdns_interface: net1

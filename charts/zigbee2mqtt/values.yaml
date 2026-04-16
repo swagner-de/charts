@@ -1,7 +1,9 @@
+# -- Controller configuration
 controllers:
   main:
     containers:
       main:
+        # -- Environment variables
         env:
           # TZ: UTC
           # cleartext secret or use envFrom: {secret: zigbee2mqtt-mqtt}
@@ -9,18 +11,26 @@ controllers:
           # ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtts://mosquitto.mydomain.com
           # ZIGBEE2MQTT_CONFIG_MQTT_USER: zigbee2mqtt
           # ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD: somethingsecret
+        # -- Resource requests and limits
         resources:
           requests:
             cpu: 200m
             memory: 200Mi
 
+# -- Host path to USB Zigbee adapter
 usbPath: /dev/ttyACM0
 
+# -- Persistent storage configuration
 persistence:
+  # -- Data volume
   data:
+    # -- Enable data persistence
     enabled: true
+    # -- Volume type
     type: emptyDir
 
+# -- Ingress configuration
 ingress:
   main:
+    # -- Enable ingress
     enabled: false

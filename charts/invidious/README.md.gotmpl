@@ -1,0 +1,29 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Invidious server with companion service for enhanced video playback
+- PostgreSQL database (packaged subchart or CNPG operator)
+- HMAC-signed companion key authentication
+- CNPG support with automatic database connection configuration
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsNonRoot: true`, UID/GID 1000
+- `readOnlyRootFilesystem: true`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+{{ template "chart.maintainersSection" . }}

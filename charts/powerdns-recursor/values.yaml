@@ -1,14 +1,24 @@
+# -- PowerDNS Recursor configuration (recursor.yml format)
 config:
+  # -- Incoming query settings
   incoming:
+    # -- Networks allowed to query
     allow_from:
       - 10.0.0.0/8
       - 127.0.0.0/8
+  # -- DNSSEC settings
   dnssec:
+    # -- DNSSEC validation mode
     validation: validate
+    # -- Log DNSSEC bogus results
     log_bogus: true
+  # -- Logging settings
   logging:
+    # -- Log verbosity level
     loglevel: 4
+  # -- Recursor settings
   recursor:
+    # -- Forward zone configuration
     forward_zones:
       - zone: "somezone.com"
         forwarders:

@@ -1,0 +1,33 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Each service runs as a separate controller and can be individually enabled/disabled
+- Per-service persistence configuration
+- Optional Configarr CronJob for automated quality profile management
+- Shared or individual storage volumes per service
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+All containers run with restrictive security defaults:
+
+- `runAsUser: 65534` (nobody), `runAsGroup: 65534`
+- `readOnlyRootFilesystem: true` (except Flaresolverr)
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+Flaresolverr runs as UID 1000 and requires a writable root filesystem due to its Chromium dependency.
+
+{{ template "chart.maintainersSection" . }}

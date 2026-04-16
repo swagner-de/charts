@@ -1,9 +1,13 @@
+# -- Controller configuration
 controllers:
   main:
     containers:
       main:
+        # -- Environment variables
         env:
+          # -- Allowed hosts for Homepage
           HOMEPAGE_ALLOWED_HOSTS: mydomain.com
+        # -- Resource requests and limits
         resources:
           requests:
             cpu: 100m
@@ -34,27 +38,39 @@ controllers:
 # Environment variables must start with HOMEPAGE_VAR_ or HOMEPAGE_FILE_
 # The value of env var HOMEPAGE_VAR_XXX will replace {{HOMEPAGE_VAR_XXX}} in any config
 # The value of env var HOMEPAGE_FILE_XXX must be a file path, the contents of which will be used to replace {{HOMEPAGE_FILE_XXX}} in any config
+# -- Secret variable replacements (HOMEPAGE_VAR_* / HOMEPAGE_FILE_*) for API keys
 secretReplacements: {}
   # HOMEPAGE_VAR_API_KEY: "mysecretapikey"
 
+# -- Additional external secrets to mount as environment variables
 # A list of external secrets to be passed as environment variables to the container.
 additionalSecrets: []
   # - name: mysecret
 
+# -- Homepage application configuration
 config:
+  # -- Kubernetes service discovery configuration
   kubernetes:
+    # -- Discovery mode (cluster or disabled)
     mode: cluster
+    # -- Enable Gateway API discovery
     gateway: true
+  # -- General settings
   settings:
+    # -- UI language
     language: de
+    # -- Dashboard title
     title: Home Infra
+  # -- Bookmark definitions
   bookmarks:
     - Section 1:
       - Scanner:
         - icon: mdi-scanner
           href: scanner.local
+  # -- Service definitions
   services: []
 
+  # -- Widget definitions
   widgets:
     - kubernetes:
         cluster:

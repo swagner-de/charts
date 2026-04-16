@@ -1,5 +1,7 @@
+# -- Gateway API HTTPRoute configuration
 route:
   main:
+    # -- Enable Gateway API HTTPRoute
     enabled: false
     # annotations:
     # parentRefs:
@@ -16,39 +18,58 @@ route:
     #       - name: immich-server
     #         port: 2283
 
+# -- Redis configuration (subchart)
 redis:
+  # -- Enable packaged Redis
   enabled: true
+  # -- Redis architecture
   architecture: standalone
+  # -- Redis authentication configuration
   auth:
+    # -- Enable Redis authentication
     enabled: true
     # Let redis generate a random password or provide an existing secret with the password
     # existingSecret: immich-redis-user
     # existingSecretPasswordKey: password
+  # -- Redis persistence configuration
   persistence:
+    # -- Enable Redis persistence
     enabled: true
+    # -- Redis volume size
     size: 1Gi
 
+# -- Persistent storage configuration
 persistence:
+  # -- Photo library volume
   library:
     # storageClass: "gp2"
+    # -- Photo library volume size
     size: 1Ti
+    # -- Storage access mode
     accessMode: ReadWriteOnce
+    # -- Volume type
     type: persistentVolumeClaim
 
+  # -- Machine learning model cache volume
   ml-cache:
     # storageClass: "gp2"
+    # -- ML cache volume size
     size: 10Gi
+    # -- Storage access mode
     accessMode: ReadWriteOnce
+    # -- Volume type
     type: persistentVolumeClaim
 
 
 # You can provide additional configuration via config or configFromSecret.
 # Both contents will be merged by an init container
+# -- Additional configuration from Kubernetes Secrets
 configFromSecret: {}
   # oauth:
   #   secretName: immich-oidc
   #   secretKey: oauth.yaml
 
+# -- Immich configuration (merged into config file)
 config: {}
 #   job:
 #     backgroundTask:
@@ -97,7 +118,9 @@ config: {}
 #       enabled: true
 #       modelName: ViT-L-16-SigLIP2-256__webli
 
+# -- Machine learning acceleration configuration
 machineLearning:
+  # -- ML acceleration backend (e.g., openvino, cuda)
   acceleration: ""
   # acceleration: openvino
 
@@ -121,9 +144,12 @@ machineLearning:
 #           limits:
 #             squat.ai/dri: "1"
 
+# -- Prometheus ServiceMonitor configuration
 serviceMonitor:
   main:
+    # -- Enable Prometheus ServiceMonitor
     enabled: false
+    # -- Service name for the ServiceMonitor
     serviceName: immich-server
     # endpoints:
     #   - port: metrics-api
@@ -138,12 +164,19 @@ serviceMonitor:
     #     scrapeTimeout: 10s
 
 
+# -- CNPG cluster name for database
 cnpgClusterName: db
+# -- Raw Kubernetes resources
 rawResources:
+  # -- CNPG database cluster
   db:
+    # -- Enable CNPG database cluster
     enabled: true
+    # -- API version
     apiVersion: postgresql.cnpg.io/v1
+    # -- Resource kind
     kind: Cluster
+    # -- Resource spec
     spec:
       spec:
         instances: 1

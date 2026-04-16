@@ -1,74 +1,130 @@
+# -- Sonarr TV series management configuration
 sonarr:
+  # -- Enable Sonarr
   enabled: true
+  # -- Service port
   port: 8989
+  # -- Container image configuration
   image:
+    # -- Image repository
     repository: ghcr.io/home-operations/sonarr
+    # -- Image tag
     tag: '4.0.17.2953'
+  # -- Persistence configuration
   persistence:
     config:
+      # -- Volume type
       type: persistentVolumeClaim
+      # -- Mount path inside the container
       mountPath: /config
+      # -- Volume size
       size: 100Mi
       # storageClass: "gp2"
+      # -- Storage access mode
       accessMode: ReadWriteOnce
 
+# -- Radarr movie management configuration
 radarr:
+  # -- Enable Radarr
   enabled: true
+  # -- Service port
   port: 7878
+  # -- Container image configuration
   image:
+    # -- Image repository
     repository: ghcr.io/home-operations/radarr
+    # -- Image tag
     tag: '6.2.0'
+  # -- Persistence configuration
   persistence:
     config:
+      # -- Volume type
       type: persistentVolumeClaim
+      # -- Mount path inside the container
       mountPath: /config
+      # -- Volume size
       size: 100Mi
       # storageClass: "gp2"
+      # -- Storage access mode
       accessMode: ReadWriteOnce
 
+# -- Prowlarr indexer management configuration
 prowlarr:
+  # -- Enable Prowlarr
   enabled: true
+  # -- Service port
   port: 9696
+  # -- Container image configuration
   image:
+    # -- Image repository
     repository: ghcr.io/home-operations/prowlarr
+    # -- Image tag
     tag: '2.3.6.5351'
   persistence:
     config:
+      # -- Volume type
       type: persistentVolumeClaim
+      # -- Mount path inside the container
       mountPath: /config
+      # -- Volume size
       size: 100Mi
+      # -- Storage access mode
       accessMode: ReadWriteOnce
       # storageClass: "gp2"
 
+# -- Flaresolverr Cloudflare bypass proxy configuration
 flaresolverr:
+  # -- Enable Flaresolverr
   enabled: true
+  # -- Service port
   port: 8191
+  # -- Container image configuration
   image:
+    # -- Image repository
     repository: ghcr.io/flaresolverr/flaresolverr
+    # -- Image tag
     tag: 'v3.4.6'
 
+# -- Bazarr subtitle management configuration
 bazarr:
+  # -- Enable Bazarr
   enabled: true
+  # -- Service port
   port: 6767
+  # -- Container image configuration
   image:
+    # -- Image repository
     repository: ghcr.io/home-operations/bazarr
+    # -- Image tag
     tag: '1.5.6'
+  # -- Persistence configuration
   persistence:
     config:
+      # -- Volume type
       type: persistentVolumeClaim
+      # -- Mount path inside the container
       mountPath: /config
+      # -- Volume size
       size: 100Mi
       # storageClass: "gp2"
+      # -- Storage access mode
       accessMode: ReadWriteOnce
 
+# -- Configarr quality profile sync configuration
 configarr:
+  # -- Enable Configarr CronJob
   enabled: false
+  # -- Persistence configuration
   persistence:
     cache:
+      # -- Volume type
       type: emptyDir
+      # -- Volume size
       size: 100Mi
       # storageClass: "gp2"
+      # -- Storage access mode
       accessMode: ReadWriteOnce
+  # -- Configarr configuration (YAML format)
   config: |
     trashGuideUrl: https://github.com/TRaSH-Guides/Guides
     recyclarrConfigUrl: https://github.com/recyclarr/config-templates
@@ -94,7 +150,10 @@ configarr:
         custom_formats: []
     radarr: {}
 
+  # -- Configarr secrets configuration
   secrets:
+    # -- Use an existing secret for Configarr
     existingSecret: ""
+    # -- Secret data key-value pairs
     data: {}
       # SONARR_API_KEY: 1234

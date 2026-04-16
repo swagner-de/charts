@@ -1,16 +1,25 @@
+# -- Persistent storage configuration
 persistence:
+  # -- Document storage volume
   data:
+    # -- Document storage volume size
     size: 100Gi
     # storageClass: "gp2"
+    # -- Storage access mode
     accessMode: ReadWriteOnce
+  # -- Consumption directory volume
   consumption:
+    # -- Consumption directory volume size
     size: 1Gi
     # storageClass: "gp2"
+    # -- Storage access mode
     accessMode: ReadWriteOnce
 
 
+# -- Ingress configuration
 ingress:
   main:
+    # -- Enable ingress
     enabled: false
 
 # controllers:
@@ -36,11 +45,15 @@ ingress:
 #             cpu: 300m
 #             memory: 300Mi
 
+# -- Paperless-ngx application configuration
 paperless:
+  # -- Admin credentials
   admin:
+    # -- Existing secret with admin credentials
     existingSecret: ""
   # oidc secret will populate PAPERLESS_SOCIALACCOUNT_PROVIDERS with a json string contained in secret.PAPERLESS_SOCIAL_ACCOUNT_PROVIDERS
   # oidcSecret: paperless-oidc
+  # -- Paperless config (keys converted to PAPERLESS_* env vars)
   config:
     # All of these options will be converted to environment variables prefixed with PAPERLESS and uppercased
     # use_x_forward_host: "1"
@@ -61,36 +74,57 @@ paperless:
     # consumer_barcode_scanner: "ZXING"
 
 
+# -- Redis configuration (subchart)
 redis:
   # enables the packaged redis chart
+  # -- Enable packaged Redis
   enabled: true
   # set enabled=false and fill out the values for redis host secret
+  # -- Redis architecture
   architecture: standalone
+  # -- Redis authentication
   auth:
+    # -- Enable Redis authentication
     enabled: true
+    # -- Redis password
     password: "CHANGEME"  # REQUIRED: set your Redis password
+  # -- Redis persistence
   persistence:
+    # -- Enable Redis persistence
     enabled: true
+    # -- Redis volume size
     size: 1Gi
 
 
+# -- PostgreSQL database configuration (subchart)
 postgres:
+  # -- Enable packaged PostgreSQL
   enabled: true
+  # -- PostgreSQL authentication
   auth:
+    # -- Database username
     username: "paperless"
+    # -- Database name
     database: "paperless"
+    # -- Database password
     password: "CHANGEME"  # REQUIRED: set your database password
 
+  # -- PostgreSQL persistence
   persistence:
+    # -- Enable PostgreSQL persistence
     enabled: true
+    # -- PostgreSQL volume size
     size: 10Gi
 
 
+# -- CloudNativePG database configuration
 cnpg:
   # In case CNPG operator is used, provide the cluster definition via additionalObjects
   # and set the postgresql.enabled to false
   # The cluster name must be provided for the database to be auto-configured
+  # -- Enable CNPG operator
   enabled: false
+  # -- CNPG cluster name
   clusterName: paperless-db
 
 

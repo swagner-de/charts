@@ -1,0 +1,31 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- PostgreSQL database (packaged subchart or CNPG operator)
+- Redis for task queue (packaged subchart or external)
+- Gotenberg and Tika sidecars for document conversion
+- Init container for directory setup
+- Configurable OCR settings, consumer polling, and barcode scanning
+- OIDC authentication support
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsNonRoot: true`, UID/GID 1000
+- `readOnlyRootFilesystem: true`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+{{ template "chart.maintainersSection" . }}
