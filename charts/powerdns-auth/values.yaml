@@ -1,19 +1,31 @@
+# -- Persistent storage configuration
 persistence:
+  # -- Data volume for LMDB
   data:
+    # -- Volume type
     type: persistentVolumeClaim
     # storageClass: my-class
+    # -- Data volume size
     size: 2Gi
 
+# -- External-DNS sidecar configuration
 externalDNS:
+  # -- Enable external-dns sidecar
   enabled: false
+  # -- API key for external-dns
   apiKey:
+    # -- API key value
     data: change-me
     # existingSecret:
     #   name: pdns-api
     #   key: API_KEY
+  # -- External-DNS configuration
   config:
+    # -- DNS record sources
     sources: []
+    # -- DNS provider
     provider: pdns
+    # -- PowerDNS server URL
     pdns-server: http://powerdns-auth:8081
     # txt-owner-id:
     # domain-filter:
@@ -21,6 +33,7 @@ externalDNS:
     # interval: 30s
 
 
+# -- PowerDNS configuration (pdns.conf format)
 config: |
   launch=lmdb
   lmdb-filename=/data/pdns.lmdb
@@ -33,7 +46,9 @@ config: |
   webserver-address=0.0.0.0
   webserver-allow-from=10.0.0.0/8
 
+# -- Sensitive PowerDNS configuration (api-key, etc.)
 secretConfig:
+  # -- Secret config data
   data: |
     api=yes
     api-key=CHANGEME
@@ -41,8 +56,11 @@ secretConfig:
   # existingSecret:
   #   name: powerdns-auth
 
+# -- DNS zone configuration
 zone:
+  # -- Zone name
   name: my-zone
+  # -- Zone file content
   zonefile: |
     $TTL 2d    ; default TTL for zone
     $ORIGIN myzone.com. ; base domain-name

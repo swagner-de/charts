@@ -1,0 +1,31 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Separate server and machine-learning controllers for independent scaling
+- GPU acceleration support for machine learning (OpenVINO, CUDA, etc.)
+- CloudNativePG (CNPG) for PostgreSQL with pgvecto.rs/VectorChord extension
+- Redis for caching (packaged subchart or external)
+- Config assembly from ConfigMaps and Secrets via init container
+- Prometheus metrics endpoints and optional ServiceMonitor
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsNonRoot: true`, UID/GID 1000
+- `readOnlyRootFilesystem: true` (server), `false` (machine-learning, due to model downloads)
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+{{ template "chart.maintainersSection" . }}

@@ -2,7 +2,7 @@ apiVersion: v2
 name: qbittorrent
 description: BitTorrent client with web UI and optional VPN (gluetun) sidecar
 type: application
-version: 0.2.2
+version: 0.2.3
 home: https://www.qbittorrent.org/
 sources:
   - https://github.com/swagner-de/charts

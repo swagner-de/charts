@@ -1,0 +1,31 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- LMDB backend for zone storage
+- Init container for automatic zone loading from zone files
+- Optional external-dns sidecar for Kubernetes-driven DNS record management
+- DNS served on port 5353 internally (mapped to 53 via Service, no `NET_BIND_SERVICE` needed)
+- API/web interface on port 8081
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsNonRoot: true`, UID/GID 1883
+- `readOnlyRootFilesystem: true`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+- DNS on port 5353 internally avoids need for privileged ports
+
+{{ template "chart.maintainersSection" . }}

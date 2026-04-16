@@ -1,17 +1,28 @@
+# -- Persistent storage configuration
 persistence:
+  # -- Configuration volume
   config:
+    # -- Enable persistent storage for config
     enabled: true
     # storageClass: my-storage-class
+    # -- Storage access mode
     accessMode: ReadWriteOnce
+    # -- Volume size
     size: 4Gi
 
+  # -- Data volume
   data:
+    # -- Enable persistent storage for data
     enabled: true
     # storageClass: my-storage-class
+    # -- Storage access mode
     accessMode: ReadWriteOnce
+    # -- Volume size
     size: 4Gi
 
+  # -- TLS certificate volume
   certs:
+    # -- Enable TLS certificate mount from a Secret
     enabled: false
     # enabled: true
     # type: secret
@@ -57,6 +68,8 @@ persistence:
 #             memory: 100Mi
 
 
+# -- Prometheus ServiceMonitor configuration
 serviceMonitor:
   main:
+    # -- Enable Prometheus ServiceMonitor
     enabled: false

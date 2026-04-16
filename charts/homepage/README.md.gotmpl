@@ -1,0 +1,30 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Kubernetes service discovery via ClusterRole RBAC (Gateway API, Ingress, Traefik IngressRoutes)
+- Configuration via `values.yaml` — services, bookmarks, widgets, and settings
+- Secret variable injection (`HOMEPAGE_VAR_*` / `HOMEPAGE_FILE_*`) for API keys
+- Read-only root filesystem with emptyDir for runtime config
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsUser: 1000`, `runAsGroup: 1000`
+- `readOnlyRootFilesystem: true`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+- ServiceAccount with minimal ClusterRole for Kubernetes resource discovery
+
+{{ template "chart.maintainersSection" . }}

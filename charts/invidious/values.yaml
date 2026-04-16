@@ -1,55 +1,90 @@
+# -- Persistent storage configuration
 persistence:
+  # -- Cache volume (emptyDir)
   cache:
+    # -- Volume type
     type: emptyDir
 
+# -- Ingress configuration
 ingress:
   main:
+    # -- Enable ingress
     enabled: false
 
+# -- PostgreSQL database configuration (subchart)
 postgres:
+  # -- Enable packaged PostgreSQL
   enabled: true
+  # -- PostgreSQL authentication
   auth:
+    # -- Database username
     username: &postgresUser invidious
+    # -- Database name
     database: &postgresDB invidious
+    # -- Database password
     password: &postgresPassword "CHANGEME"  # REQUIRED: set your database password
+  # -- PostgreSQL persistence
   persistence:
+    # -- Enable PostgreSQL persistence
     enabled: true
+    # -- PostgreSQL volume size
     size: 2Gi
+    # -- Storage access mode
     accessMode: ReadWriteOnce
 
+# -- Companion service shared secret (exactly 16 alphanumeric characters)
 companionKey:
+  # -- Companion key value
   value: "CHANGEMEplease16"  # REQUIRED: set a shared secret (exactly 16 alphanumeric characters)
   # existingSecret:
   #   name: invidious-companion-key
   #   key: key
 
+# -- HMAC signing key configuration
 hmacKey:
+  # -- HMAC key value
   value: "CHANGEME"  # REQUIRED: set an HMAC signing key
   # existingSecret:
   #   name: ""
   #   key: ""
 
+# -- Companion service configuration
 companion: {}
   # publicUrl: https://companion.mydomain.example
 
+# -- Invidious application configuration
 config:
+  # -- External port
   external_port: 443
+  # -- Public domain name
   domain: mydomain.example
+  # -- Force HTTPS
   https_only: true
+  # -- Enable HSTS
   hsts: true
+  # -- Log level
   log_level: debug
+  # -- Enable popular feed
   popular_enabled: true
+  # -- Enable statistics
   statistics_enabled: true
+  # -- Allow registration
   registration_enabled: true
+  # -- Allow login
   login_enabled: true
+  # -- Enable captcha
   captcha_enabled: false
+  # -- Enable user notifications
   enable_user_notifications: true
 
+# -- CloudNativePG database configuration
 cnpg:
   # In case CNPG operator is used, provide the cluster definition via additionalObjects
   # and set the postgresql.enabled to false
   # The cluster name must be provided for the database to be auto-configured
+  # -- Enable CNPG operator
   enabled: false
+  # -- CNPG cluster name
   clusterName: invidious
 
 # rawResources:

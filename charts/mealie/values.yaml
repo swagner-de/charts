@@ -1,15 +1,24 @@
+# -- Persistent storage configuration
 persistence:
+  # -- Data volume
   data:
+    # -- Enable data persistence
     enabled: true
+    # -- Data volume size
     size: 10Gi
+    # -- Storage access mode
     accessMode: ReadWriteOnce
 
+# -- Ingress configuration
 ingress:
   main:
+    # -- Enable ingress
     enabled: false
 
+# -- Mealie application configuration
 config:
   # see https://docs.mealie.io/documentation/getting-started/installation/
+  # -- Allow new user signups
   ALLOW_SIGNUP: "false"
   # PUID:
   # PGID:
@@ -25,40 +34,58 @@ config:
   # LOG_LEVEL:
   # DAILY_SCHEDULE_TIME:
 
+# -- Database credentials
 db:
+  # -- PostgreSQL username
   POSTGRES_USER: &postgresUser mealie
+  # -- PostgreSQL password
   POSTGRES_PASSWORD: &postgresPassword "CHANGEME"  # REQUIRED: set your database password
+  # -- PostgreSQL database name
   POSTGRES_DB: &postgresDB mealie
 
+# -- Additional secrets to mount as environment variables
 envFromSecrets:
 # Example:
 # - name: my-secret
 
+# -- Kubernetes secrets configuration
 secrets:
+  # -- SMTP mail secret
   mail:
+    # -- Enable mail secret creation
     enabled: false
+    # -- Mail secret data
     stringData:
       # SMTP_FROM_EMAIL: None
       # SMTP_USER: None
       # SMTP_PASSWORD: None
+  # -- OIDC authentication secret
   oidc:
+    # -- Enable OIDC secret creation
     enabled: false
+    # -- OIDC secret data
     stringData:
       # OIDC_CLIENT_ID: None
       # OIDC_CONFIGURATION_URL: None
       # OIDC_CLIENT_SECRET: None
+  # -- OpenAI integration secret
   openai:
+    # -- Enable OpenAI secret creation
     enabled: false
+    # -- OpenAI secret data
     stringData:
       # OPENAI_API_KEY: None
 
+# -- SMTP mail configuration
 # See https://docs.mealie.io/documentation/getting-started/installation/backend-config/#email
 mail:
+  # -- SMTP host
   SMTP_HOST: None
   # SMTP_PORT: 587
   # SMTP_FROM_NAME: Mealie
   # SMTP_AUTH_STRATEGY: TLS
 
+# -- OIDC authentication configuration
 # See https://docs.mealie.io/documentation/getting-started/installation/backend-config/#oidc
 oidc:
   # OIDC_AUTH_ENABLED: true
@@ -75,6 +102,7 @@ oidc:
   # OIDC_SCOPES_OVERRIDE: None
   # OIDC_TLS_CACERTFILE: None
 
+# -- OpenAI integration configuration
 openai: {}
   # OPENAI_BASE_URL: None
   # OPENAI_MODEL: gpt-4o
@@ -85,24 +113,37 @@ openai: {}
   # OPENAI_SEND_DATABASE_DATA: True
   # OPENAI_REQUEST_TIMEOUT: 60
 
+# -- PostgreSQL database configuration (subchart)
 postgres:
+  # -- Enable packaged PostgreSQL
   enabled: true
+  # -- PostgreSQL authentication
   auth:
+    # -- Database username
     username: *postgresUser
+    # -- Database name
     database: *postgresDB
+    # -- Database password
     password: *postgresPassword
 
+  # -- PostgreSQL persistence
   persistence:
+    # -- Enable PostgreSQL persistence
     enabled: true
+    # -- PostgreSQL volume size
     size: 2Gi
+    # -- Storage access mode
     accessMode: ReadWriteOnce
 
 
+# -- CloudNativePG database configuration
 cnpg:
   # In case CNPG operator is used, provide the cluster definition via additionalObjects
   # and set the postgresql.enabled to false
   # The cluster name must be provided for the database to be auto-configured
+  # -- Enable CNPG operator
   enabled: false
+  # -- CNPG cluster name
   clusterName: mealie-db
 
 # In case of CNPG

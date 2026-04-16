@@ -1,0 +1,30 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- VueTorrent web UI automatically downloaded via init container
+- Optional [gluetun](https://github.com/qdm12/gluetun) VPN sidecar (disabled by default)
+- Separate persistent volumes for config, VueTorrent UI, and downloads
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsUser: 65534` (nobody), `runAsGroup: 65534`
+- `readOnlyRootFilesystem: true`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+**Note:** The gluetun sidecar runs as root (UID 0) with `NET_ADMIN` capability, which is required for VPN tunnel setup. It is disabled by default.
+
+{{ template "chart.maintainersSection" . }}

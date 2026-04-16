@@ -1,26 +1,42 @@
+# -- Persistent storage configuration
 persistence:
+  # -- Configuration volume
   config:
+    # -- Enable config persistence
     enabled: true
+    # -- Config volume size
     size: 100Mi
     # storageClass: "gp2"
+    # -- Storage access mode
     accessMode: ReadWriteOnce
 
+  # -- VueTorrent web UI volume
   vuetorrent:
+    # -- Enable VueTorrent persistence
     enabled: true
+    # -- VueTorrent volume size
     size: 200Mi
     # storageClass: "gp2"
+    # -- Storage access mode
     accessMode: ReadWriteOnce
 
+  # -- Downloads volume
   downloads:
+    # -- Enable downloads persistence
     enabled: true
+    # -- Downloads volume size
     size: 300Gi
   # storageClass: "gp2"
+    # -- Storage access mode
     accessMode: ReadWriteOnce
 
+# -- Controller configuration
 controllers:
   main:
     containers:
+      # -- Gluetun VPN sidecar
       gluetun:
+        # -- Enable gluetun VPN sidecar
         enabled: false
 #     containers:
 #       main:

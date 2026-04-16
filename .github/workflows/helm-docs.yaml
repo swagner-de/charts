@@ -1,0 +1,39 @@
+name: Helm Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/**'
+
+permissions:
+  contents: write
+
+jobs:
+  helm-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install helm-docs
+        run: |
+          HELM_DOCS_VERSION="1.14.2"
+          curl -sSL "https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz" | tar xz -C /usr/local/bin helm-docs
+
+      - name: Run helm-docs
+        run: |
+          helm-docs --chart-search-root charts --log-level warning
+
+      - name: Commit updated docs
+        run: |
+          if git diff --quiet -- 'charts/*/README.md'; then
+            echo "Docs are up to date."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add charts/*/README.md
+            git commit -m "docs: regenerate helm-docs READMEs"
+            git push
+          fi
