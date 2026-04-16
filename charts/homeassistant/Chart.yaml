@@ -2,7 +2,7 @@ apiVersion: v2
 name: homeassistant
 description: Home automation platform with optional LDAP, Matter bridge, and CNPG database support
 type: application
-version: 1.9.2
+version: 1.9.3
 # renovate: image=ghcr.io/home-operations/home-assistant
 appVersion: '2026.4.2'
 home: https://www.home-assistant.io/
