@@ -1,0 +1,40 @@
+# -- Existing secret containing a `users` key with YAML-formatted user list
+# When set, the chart will not create its own users secret
+# Expected format: YAML list with name/password entries, e.g.:
+#   - name: myuser
+#     password: mypassword
+existingUsersSecret: ""
+
+# -- Mosquitto user credentials for password authentication
+# Ignored when existingUsersSecret is set
+users: []
+  # - username: myuser
+  #   password: mypassword
+
+# -- Mosquitto configuration file content
+config: |
+  listener 8883
+  persistence_location /mosquitto/data/
+  certfile /tls/tls.crt
+  keyfile /tls/tls.key
+  password_file /mosquitto/passwd/passwd
+  allow_anonymous false
+  log_dest stdout
+  log_type all
+
+# -- Persistent storage configuration
+persistence:
+  # -- Data volume for mosquitto persistence
+  data:
+    enabled: true
+    size: 2Gi
+    accessMode: ReadWriteOnce
+  # -- TLS certificate secret name (e.g. from cert-manager)
+  tls:
+    name: mosquitto-tls
+
+# -- Service configuration
+service:
+  main:
+    type: LoadBalancer
+    externalTrafficPolicy: Local
