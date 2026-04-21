@@ -1,0 +1,331 @@
+{{- define "hardcoded" -}}
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 999
+    fsGroup: 999
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    initContainers:
+      render-config:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: alpine
+          tag: "3.21"
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -e
+          for f in /templates/*.conf; do
+            out="/rendered/$(basename "$f")"
+            while IFS= read -r line; do
+              for key in /secrets/*; do
+                name=$(basename "$key")
+                val=$(cat "$key")
+                line="${line//__${name}__/$val}"
+              done
+              printf '%s\n' "$line"
+            done < "$f" > "$out"
+          done
+      flush-registrations:
+        enabled: true
+        dependsOn: render-config
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: python
+          tag: "3.13-alpine"
+        command: ["python3", "-c"]
+        args:
+        - |
+          import socket, hashlib, re, uuid, sys
+
+          SERVER = None
+          accounts = []
+
+          with open('/rendered/pjsip.conf') as f:
+              content = f.read()
+
+          for m in re.finditer(r'\[(\w+)\]\s*\ntype=registration\b.*?server_uri=sip:(\S+).*?outbound_auth=(\S+)', content, re.DOTALL):
+              reg_name, server, auth_name = m.group(1), m.group(2), m.group(3)
+              am = re.search(rf'\[{re.escape(auth_name)}\].*?username=(\S+).*?password=(\S+)', content, re.DOTALL)
+              if am:
+                  accounts.append({'name': reg_name, 'server': server, 'user': am.group(1), 'pass': am.group(2)})
+
+          for acct in accounts:
+              server = acct['server']
+              username = acct['user']
+              password = acct['pass']
+              print(f"Flushing contacts for {username}@{server}...")
+              try:
+                  CALL_ID = str(uuid.uuid4())
+                  TAG = str(uuid.uuid4())[:16]
+                  BRANCH = 'z9hG4bK' + str(uuid.uuid4())[:16]
+                  sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                  sock.settimeout(5)
+                  req = (
+                      f'REGISTER sip:{server} SIP/2.0\r\n'
+                      f'Via: SIP/2.0/UDP 0.0.0.0:5099;rport;branch={BRANCH}\r\n'
+                      f'From: <sip:{username}@{server}>;tag={TAG}\r\n'
+                      f'To: <sip:{username}@{server}>\r\n'
+                      f'Call-ID: {CALL_ID}\r\nCSeq: 1 REGISTER\r\n'
+                      f'Contact: *\r\nExpires: 0\r\nMax-Forwards: 70\r\nContent-Length: 0\r\n\r\n'
+                  )
+                  sock.sendto(req.encode(), (server, 5060))
+                  resp = sock.recvfrom(4096)[0].decode()
+                  nonce_m = re.search(r'nonce="([^"]+)"', resp)
+                  realm_m = re.search(r'realm="([^"]+)"', resp)
+                  if nonce_m and realm_m:
+                      nonce, realm = nonce_m.group(1), realm_m.group(1)
+                      ha1 = hashlib.md5(f'{username}:{realm}:{password}'.encode()).hexdigest()
+                      ha2 = hashlib.md5(f'REGISTER:sip:{server}'.encode()).hexdigest()
+                      cnonce = uuid.uuid4().hex[:16]
+                      resp_hash = hashlib.md5(f'{ha1}:{nonce}:00000001:{cnonce}:auth:{ha2}'.encode()).hexdigest()
+                      BRANCH2 = 'z9hG4bK' + str(uuid.uuid4())[:16]
+                      req2 = (
+                          f'REGISTER sip:{server} SIP/2.0\r\n'
+                          f'Via: SIP/2.0/UDP 0.0.0.0:5099;rport;branch={BRANCH2}\r\n'
+                          f'From: <sip:{username}@{server}>;tag={TAG}\r\n'
+                          f'To: <sip:{username}@{server}>\r\n'
+                          f'Call-ID: {CALL_ID}\r\nCSeq: 2 REGISTER\r\n'
+                          f'Contact: *\r\nExpires: 0\r\n'
+                          f'Authorization: Digest username="{username}", realm="{realm}", nonce="{nonce}", '
+                          f'uri="sip:{server}", response="{resp_hash}", cnonce="{cnonce}", qop=auth, nc=00000001\r\n'
+                          f'Max-Forwards: 70\r\nContent-Length: 0\r\n\r\n'
+                      )
+                      sock.sendto(req2.encode(), (server, 5060))
+                      resp2 = sock.recvfrom(4096)[0].decode()
+                      status = resp2.split('\r\n')[0]
+                      print(f"  {username}: {status}")
+                  else:
+                      print(f"  {username}: No auth challenge received")
+                  sock.close()
+              except Exception as e:
+                  print(f"  {username}: Error - {e}")
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            add:
+            - CHOWN
+            - SETUID
+            - SETGID
+            drop:
+            - ALL
+        ports:
+{{- range untilStep (int .Values.rtp.start) (int (add1 .Values.rtp.end)) 1 }}
+        - containerPort: {{ . }}
+          hostPort: {{ . }}
+          protocol: UDP
+{{- end }}
+        image:
+          repository: ghcr.io/andrius/asterisk
+          tag: {{ .Chart.AppVersion | quote }}
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 5060
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 3
+          readiness: *probe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 5060
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 10
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      sip-udp:
+        port: 5060
+        protocol: UDP
+      sip-tcp:
+        port: 5060
+        protocol: TCP
+      sip-tls:
+        port: 5061
+        protocol: TCP
+{{- range untilStep (int .Values.rtp.start) (int (add1 .Values.rtp.end)) 1 }}
+      rtp-{{ . }}:
+        port: {{ . }}
+        protocol: UDP
+{{- end }}
+
+ingress:
+  main:
+    enabled: false
+
+configMaps:
+  templates:
+    enabled: true
+    data:
+      pjsip.conf: |
+{{ .Values.config.pjsip | indent 8 }}
+      extensions.conf: |
+{{ .Values.config.extensions | indent 8 }}
+  config:
+    enabled: true
+    data:
+      rtp.conf: |
+        [general]
+        rtpstart={{ .Values.rtp.start }}
+        rtpend={{ .Values.rtp.end }}
+{{- if .Values.rtp.stunAddr }}
+        stunaddr={{ .Values.rtp.stunAddr }}
+        stun_blacklist=10.0.0.0/8
+        stun_blacklist=172.16.0.0/12
+        stun_blacklist=192.168.0.0/16
+{{- end }}
+{{- if .Values.rtp.stunAddr }}
+      res_stun_monitor.conf: |
+        [general]
+        stunaddr={{ .Values.rtp.stunAddr }}
+        stunrefresh=30
+{{- end }}
+      modules.conf: |
+{{ .Values.config.modules | indent 8 }}
+      logger.conf: |
+{{ .Values.config.logger | indent 8 }}
+      asterisk.conf: |
+{{ .Values.config.asterisk | indent 8 }}
+
+secrets:
+  credentials:
+    enabled: {{ not (hasKey .Values.secretConfig "existingSecret") }}
+    stringData:
+{{- range $key, $val := .Values.secretConfig.data }}
+      {{ $key }}: {{ $val | quote }}
+{{- end }}
+
+persistence:
+  templates:
+    type: configMap
+    identifier: templates
+    advancedMounts:
+      main:
+        render-config:
+        - path: /templates
+          readOnly: true
+
+  secrets:
+    type: secret
+{{- if not (hasKey .Values.secretConfig "existingSecret") }}
+    identifier: credentials
+{{- else }}
+    name: {{ .Values.secretConfig.existingSecret.name }}
+{{- end }}
+    advancedMounts:
+      main:
+        render-config:
+        - path: /secrets
+          readOnly: true
+
+  rendered:
+    type: emptyDir
+    advancedMounts:
+      main:
+        render-config:
+        - path: /rendered
+        flush-registrations:
+        - path: /rendered
+          readOnly: true
+        main:
+        - path: /etc/asterisk/pjsip.conf
+          subPath: pjsip.conf
+        - path: /etc/asterisk/extensions.conf
+          subPath: extensions.conf
+
+  config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        main:
+        - path: /etc/asterisk/rtp.conf
+          subPath: rtp.conf
+        - path: /etc/asterisk/modules.conf
+          subPath: modules.conf
+        - path: /etc/asterisk/logger.conf
+          subPath: logger.conf
+        - path: /etc/asterisk/asterisk.conf
+          subPath: asterisk.conf
+{{- if .Values.rtp.stunAddr }}
+        - path: /etc/asterisk/res_stun_monitor.conf
+          subPath: res_stun_monitor.conf
+{{- end }}
+
+  tls:
+    type: secret
+    advancedMounts:
+      main:
+        main:
+        - path: /etc/asterisk/tls/
+
+  astdb:
+    advancedMounts:
+      main:
+        main:
+        - path: /var/lib/asterisk/astdb
+
+  spool:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /var/spool/asterisk
+
+  logs:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /var/log/asterisk
+
+  run:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /var/run/asterisk
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

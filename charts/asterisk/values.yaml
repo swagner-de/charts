@@ -1,0 +1,222 @@
+# -- RTP port range configuration
+rtp:
+  # -- First RTP port
+  start: 10000
+  # -- Last RTP port
+  end: 10099
+  # -- STUN server for NAT traversal (e.g. "stun.l.google.com:19302")
+  # stunAddr:
+
+# -- Persistence configuration
+persistence:
+  # -- AstDB persistence (internal state database)
+  astdb:
+    # -- Enable AstDB persistence
+    enabled: true
+    # -- Volume size
+    size: 100Mi
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+  # -- TLS certificate secret mount
+  tls:
+    # -- Enable TLS certificate mount
+    enabled: false
+
+# service:
+#   main:
+#     type: LoadBalancer
+#     externalTrafficPolicy: Local
+#     ipFamilyPolicy: PreferDualStack
+#     annotations:
+#       metallb.universe.tf/loadBalancerIPs: "10.10.10.10"
+
+# rawResources:
+#   certificate:
+#     enabled: true
+#     apiVersion: cert-manager.io/v1
+#     kind: Certificate
+#     spec:
+#       spec:
+#         secretName: asterisk-tls
+#         dnsNames:
+#           - sip.example.com
+#         issuerRef:
+#           name: lets-encrypt-prod
+#           kind: ClusterIssuer
+
+# -- Asterisk configuration templates (use `__VAR__` placeholders for secret substitution)
+config:
+  # -- Dialplan configuration
+  extensions: |
+    [general]
+    static=yes
+    writeprotect=yes
+
+    [globals]
+    LOCAL_RANGE=__LOCAL_RANGE__
+    OUTBOUND_CALLERID=__OUTBOUND_CALLERID__
+
+    [from-internal]
+    exten => _${LOCAL_RANGE}XX,1,Dial(PJSIP/${EXTEN},30)
+     same =>                    n,Hangup()
+
+    exten => _9.,1,Set(OUTNUM=${EXTEN:1})
+     same =>     n,Set(CALLERID(num)=${OUTBOUND_CALLERID})
+     same =>     n,Dial(PJSIP/${OUTNUM}@upstream-endpoint,60)
+     same =>     n,Hangup()
+
+    [from-upstream]
+    exten => _X.,1,Dial(PJSIP/${LOCAL_RANGE}01,30)
+     same =>     n,Hangup()
+
+  # -- PJSIP configuration (transports, trunks, endpoints)
+  pjsip: |
+    [transport-udp]
+    type=transport
+    protocol=udp
+    bind=0.0.0.0:5060
+
+    [transport-tcp]
+    type=transport
+    protocol=tcp
+    bind=0.0.0.0:5060
+
+    [transport-tls]
+    type=transport
+    protocol=tls
+    bind=0.0.0.0:5061
+    cert_file=/etc/asterisk/tls/tls.crt
+    priv_key_file=/etc/asterisk/tls/tls.key
+    method=tlsv1_2
+
+    ; --- Upstream SIP Trunk ---
+    [upstream]
+    type=registration
+    transport=transport-udp
+    outbound_auth=upstream-auth
+    server_uri=sip:__UPSTREAM_HOST__
+    client_uri=sip:__UPSTREAM_USERNAME__@__UPSTREAM_HOST__
+    contact_user=__UPSTREAM_USERNAME__
+    retry_interval=60
+    expiration=600
+
+    [upstream-auth]
+    type=auth
+    auth_type=userpass
+    username=__UPSTREAM_USERNAME__
+    password=__UPSTREAM_PASSWORD__
+
+    [upstream-aor]
+    type=aor
+    contact=sip:__UPSTREAM_HOST__
+    qualify_frequency=60
+
+    [upstream-identify]
+    type=identify
+    endpoint=upstream-endpoint
+    match=__UPSTREAM_HOST__
+
+    [upstream-endpoint]
+    type=endpoint
+    transport=transport-udp
+    context=from-upstream
+    disallow=all
+    allow=alaw
+    allow=ulaw
+    allow=g722
+    outbound_auth=upstream-auth
+    aors=upstream-aor
+    from_user=__UPSTREAM_USERNAME__
+    from_domain=__UPSTREAM_HOST__
+    trust_id_inbound=yes
+    rtp_symmetric=yes
+    force_rport=yes
+    rewrite_contact=yes
+    direct_media=no
+    dtmf_mode=rfc4733
+
+    ; --- Local Extensions ---
+    [local-phone](!)
+    type=endpoint
+    transport=transport-tls
+    context=from-internal
+    disallow=all
+    allow=g722
+    allow=alaw
+    allow=ulaw
+    media_encryption=sdes
+    media_encryption_optimistic=yes
+    rtp_symmetric=yes
+    force_rport=yes
+    rewrite_contact=yes
+    direct_media=no
+    dtmf_mode=rfc4733
+
+    [local-phone-auth](!)
+    type=auth
+    auth_type=userpass
+
+    [local-phone-aor](!)
+    type=aor
+    max_contacts=1
+    remove_existing=yes
+    qualify_frequency=60
+
+  # -- Asterisk modules configuration
+  modules: |
+    [modules]
+    autoload=yes
+    noload=chan_sip.so
+    noload=chan_alsa.so
+    noload=chan_console.so
+    noload=chan_oss.so
+    noload=chan_phone.so
+    noload=res_hep.so
+    noload=res_hep_pjsip.so
+    noload=res_hep_rtcp.so
+    noload=res_adsi.so
+    noload=res_smdi.so
+    noload=res_calendar.so
+    noload=res_fax.so
+    noload=res_phoneprov.so
+    noload=res_pjsip_phoneprov_provider.so
+    noload=res_agi.so
+    noload=res_speech.so
+    noload=app_adsiprog.so
+    noload=app_festival.so
+    noload=app_minivm.so
+    noload=app_mp3.so
+    noload=app_nbscat.so
+    noload=app_amd.so
+    noload=cdr_csv.so
+    noload=cdr_custom.so
+    noload=cdr_manager.so
+    noload=cel_custom.so
+    noload=cel_manager.so
+
+  # -- Asterisk logging configuration
+  logger: |
+    [general]
+
+    [logfiles]
+    console => notice,warning,error,dtmf,verbose
+    messages => notice,warning,error
+
+  # -- Asterisk core configuration
+  asterisk: |
+    [options]
+    nocolor=yes
+    runuser=asterisk
+    rungroup=asterisk
+
+# -- Secret configuration for `__VAR__` placeholder substitution
+secretConfig:
+  # existingSecret:
+  #   name: asterisk-credentials
+  # -- Key-value pairs substituted into config templates at startup
+  data:
+    UPSTREAM_HOST: CHANGEME
+    UPSTREAM_USERNAME: CHANGEME
+    UPSTREAM_PASSWORD: CHANGEME
+    OUTBOUND_CALLERID: CHANGEME
+    LOCAL_RANGE: "1"

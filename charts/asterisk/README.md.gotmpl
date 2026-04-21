@@ -1,0 +1,92 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- PJSIP-based SIP stack with UDP, TCP, and TLS transports
+- Inter-site peering via encrypted PJSIP trunks (TLS + SRTP)
+- Upstream SIP trunk registration to VoIP providers
+- Init container resolves `__PLACEHOLDER__` variables in config templates from a Kubernetes Secret
+- Compatible with ExternalSecrets — supply an existing secret with the same key names
+- RTP port range (default 10000–10099) exposed as individual service ports for LoadBalancer use
+- Optional cert-manager Certificate for SIP-TLS via rawResources
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+### Variable Substitution
+
+Config templates (`config.pjsip`, `config.extensions`) use `__VARIABLE__` placeholders. At startup, an init container reads each key from the credentials secret (mounted as files at `/secrets/`) and replaces the matching `__KEY__` marker in the templates using shell parameter expansion.
+
+For example, `password=__UPSTREAM_PASSWORD__` in `config.pjsip` becomes `password=s3cret` when the secret contains key `UPSTREAM_PASSWORD` with value `s3cret`.
+
+This works identically with inline secrets and ExternalSecrets — the secret just needs matching key names:
+
+```yaml
+# Inline
+secretConfig:
+  data:
+    UPSTREAM_HOST: sip.provider.de
+    UPSTREAM_PASSWORD: s3cret
+
+# Or with ExternalSecret
+secretConfig:
+  existingSecret:
+    name: asterisk-credentials
+```
+
+Add custom placeholders by adding keys to `secretConfig.data` (or the ExternalSecret) and using `__KEY_NAME__` in the config templates.
+
+### Extensions
+
+The chart ships without concrete phone extensions. Add them in your values override by appending to `config.pjsip`:
+
+```yaml
+config:
+  pjsip: |
+    ... base config ...
+
+    [101](local-phone)
+    auth=101-auth
+    aors=101
+    callerid=__EXT101_CALLERID__
+
+    [101-auth](local-phone-auth)
+    username=101
+    password=__EXT101_PASSWORD__
+
+    [101](local-phone-aor)
+```
+
+Then add `EXT101_PASSWORD` and `EXT101_CALLERID` to `secretConfig.data` or your ExternalSecret.
+
+### LoadBalancer
+
+SIP and RTP require a LoadBalancer with `externalTrafficPolicy: Local` for proper NAT handling:
+
+```yaml
+service:
+  main:
+    type: LoadBalancer
+    externalTrafficPolicy: Local
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: "10.10.10.10"
+```
+
+## Security
+- `runAsNonRoot: true`, UID 1000 / GID 999 (asterisk)
+- `readOnlyRootFilesystem: false` (Asterisk writes runtime state)
+- `allowPrivilegeEscalation: false`
+- Capabilities: CHOWN, SETUID, SETGID (required by Asterisk); all others dropped
+- Seccomp profile: `RuntimeDefault`
+- Init container runs with `readOnlyRootFilesystem: true`
+
+{{ template "chart.maintainersSection" . }}
