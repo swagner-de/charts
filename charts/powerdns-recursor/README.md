@@ -1,9 +1,10 @@
 # powerdns-recursor
 
-A Helm chart for [PowerDNS Recursor](https://www.powerdns.com/recursor/), a high-performance recursive DNS resolver.
+![Version: 0.1.12](https://img.shields.io/badge/Version-0.1.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.3.5](https://img.shields.io/badge/AppVersion-5.3.5-informational?style=flat-square)
+PowerDNS recursive DNS resolver with DNSSEC validation
+**Homepage:** <https://www.powerdns.com/recursor/>
 
 ## Features
-
 - DNSSEC validation enabled by default
 - YAML-based configuration (recursor.yml)
 - DNS served on port 5353 internally (mapped to 53 via Service, no `NET_BIND_SERVICE` needed)
@@ -12,38 +13,40 @@ A Helm chart for [PowerDNS Recursor](https://www.powerdns.com/recursor/), a high
 ## Install
 
 ```bash
-helm install powerdns-recursor oci://ghcr.io/swagner-de/charts/powerdns-recursor --version 0.1.10
+helm install powerdns-recursor oci://ghcr.io/swagner-de/charts/powerdns-recursor
 ```
 
-## Configuration
+## Requirements
 
-| Key | Description | Default |
-|-----|-------------|---------|
-| `config.incoming.allow_from` | Networks allowed to query | `[10.0.0.0/8, 127.0.0.0/8]` |
-| `config.dnssec.validation` | DNSSEC validation mode | `validate` |
-| `config.recursor.forward_zones` | Forward zones configuration | `[]` |
-| `config.logging.loglevel` | Log verbosity level | `4` |
+| Repository | Name | Version |
+|------------|------|---------|
+| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
 
-### Forward Zones
+## Values
 
-Configure DNS forwarding for specific zones:
-
-```yaml
-config:
-  recursor:
-    forward_zones:
-      - zone: "internal.example.com"
-        forwarders:
-          - 10.0.0.1
-```
-
-See [values.yaml](values.yaml) for the full list of configurable values.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| config | object | `{"dnssec":{"log_bogus":true,"validation":"validate"},"incoming":{"allow_from":["10.0.0.0/8","127.0.0.0/8"]},"logging":{"loglevel":4},"recursor":{"forward_zones":[{"forwarders":["10.0.0.1"],"zone":"somezone.com"}]}}` | PowerDNS Recursor configuration (recursor.yml format) |
+| config.dnssec | object | `{"log_bogus":true,"validation":"validate"}` | DNSSEC settings |
+| config.dnssec.log_bogus | bool | `true` | Log DNSSEC bogus results |
+| config.dnssec.validation | string | `"validate"` | DNSSEC validation mode |
+| config.incoming | object | `{"allow_from":["10.0.0.0/8","127.0.0.0/8"]}` | Incoming query settings |
+| config.incoming.allow_from | list | `["10.0.0.0/8","127.0.0.0/8"]` | Networks allowed to query |
+| config.logging | object | `{"loglevel":4}` | Logging settings |
+| config.logging.loglevel | int | `4` | Log verbosity level |
+| config.recursor | object | `{"forward_zones":[{"forwarders":["10.0.0.1"],"zone":"somezone.com"}]}` | Recursor settings |
+| config.recursor.forward_zones | list | `[{"forwarders":["10.0.0.1"],"zone":"somezone.com"}]` | Forward zone configuration |
 
 ## Security
-
 - `runAsNonRoot: true`, UID 1883
 - `readOnlyRootFilesystem: true`
 - `allowPrivilegeEscalation: false`
 - All capabilities dropped
 - Seccomp profile: `RuntimeDefault`
 - DNS on port 5353 internally avoids need for privileged ports
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| swagner-de | <swagner-de@users.noreply.github.com> |  |

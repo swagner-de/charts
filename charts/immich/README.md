@@ -1,9 +1,10 @@
 # immich
 
-A Helm chart for [Immich](https://immich.app/), a self-hosted photo and video backup solution.
+![Version: 0.7.8](https://img.shields.io/badge/Version-0.7.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.7.5](https://img.shields.io/badge/AppVersion-v2.7.5-informational?style=flat-square)
+Self-hosted photo and video backup solution with machine learning
+**Homepage:** <https://immich.app/>
 
 ## Features
-
 - Separate server and machine-learning controllers for independent scaling
 - GPU acceleration support for machine learning (OpenVINO, CUDA, etc.)
 - CloudNativePG (CNPG) for PostgreSQL with pgvecto.rs/VectorChord extension
@@ -14,48 +15,63 @@ A Helm chart for [Immich](https://immich.app/), a self-hosted photo and video ba
 ## Install
 
 ```bash
-helm install immich oci://ghcr.io/swagner-de/charts/immich --version 0.5.4
+helm install immich oci://ghcr.io/swagner-de/charts/immich
 ```
 
-## Configuration
+## Requirements
 
-| Key | Description | Default |
-|-----|-------------|---------|
-| `persistence.library.size` | Photo library volume size | `1Ti` |
-| `persistence.ml-cache.size` | ML model cache volume size | `10Gi` |
-| `redis.enabled` | Enable packaged Redis | `true` |
-| `redis.auth.enabled` | Enable Redis auth | `true` |
-| `cnpgClusterName` | CNPG cluster name for database | `db` |
-| `machineLearning.acceleration` | ML acceleration backend (e.g., `openvino`) | `""` |
-| `config` | Immich configuration (merged into config file) | `{}` |
-| `configFromSecret` | Additional config from Kubernetes Secrets | `{}` |
-| `route.main.enabled` | Enable Gateway API HTTPRoute | `false` |
-| `serviceMonitor.main.enabled` | Enable Prometheus ServiceMonitor | `false` |
+| Repository | Name | Version |
+|------------|------|---------|
+| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
+| oci://registry-1.docker.io/cloudpirates | redis | 0.27.0 |
 
-### Machine Learning Acceleration
+## Values
 
-```yaml
-machineLearning:
-  acceleration: openvino  # Uses immich-machine-learning:<version>-openvino image tag
-```
-
-### Configuration from Secrets
-
-Merge sensitive configuration (e.g., OIDC) from external Secrets:
-
-```yaml
-configFromSecret:
-  oauth:
-    secretName: immich-oidc
-    secretKey: oauth.yaml
-```
-
-See [values.yaml](values.yaml) for the full list of configurable values.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| cnpgClusterName | string | `"db"` | CNPG cluster name for database |
+| config | object | `{}` | Immich configuration (merged into config file) |
+| configFromSecret | object | `{}` | Additional configuration from Kubernetes Secrets |
+| machineLearning | object | `{"acceleration":""}` | Machine learning acceleration configuration |
+| machineLearning.acceleration | string | `""` | ML acceleration backend (e.g., openvino, cuda) |
+| persistence | object | `{"library":{"accessMode":"ReadWriteOnce","size":"1Ti","type":"persistentVolumeClaim"},"ml-cache":{"accessMode":"ReadWriteOnce","size":"10Gi","type":"persistentVolumeClaim"}}` | Persistent storage configuration |
+| persistence.library | object | `{"accessMode":"ReadWriteOnce","size":"1Ti","type":"persistentVolumeClaim"}` | Photo library volume |
+| persistence.library.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.library.size | string | `"1Ti"` | Photo library volume size |
+| persistence.library.type | string | `"persistentVolumeClaim"` | Volume type |
+| persistence.ml-cache | object | `{"accessMode":"ReadWriteOnce","size":"10Gi","type":"persistentVolumeClaim"}` | Machine learning model cache volume |
+| persistence.ml-cache.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.ml-cache.size | string | `"10Gi"` | ML cache volume size |
+| persistence.ml-cache.type | string | `"persistentVolumeClaim"` | Volume type |
+| rawResources | object | `{"db":{"apiVersion":"postgresql.cnpg.io/v1","enabled":true,"kind":"Cluster","spec":{"spec":{"bootstrap":{"initdb":{"postInitApplicationSQL":["CREATE EXTENSION IF NOT EXISTS vchord CASCADE;","CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;"],"postInitSQL":["CREATE EXTENSION IF NOT EXISTS vchord CASCADE;","CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;"]}},"imageName":"ghcr.io/tensorchord/cloudnative-vectorchord:18-1.1.0","instances":1,"postgresql":{"shared_preload_libraries":["vchord.so"]},"storage":{"size":"5Gi"}}}}}` | Raw Kubernetes resources |
+| rawResources.db | object | `{"apiVersion":"postgresql.cnpg.io/v1","enabled":true,"kind":"Cluster","spec":{"spec":{"bootstrap":{"initdb":{"postInitApplicationSQL":["CREATE EXTENSION IF NOT EXISTS vchord CASCADE;","CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;"],"postInitSQL":["CREATE EXTENSION IF NOT EXISTS vchord CASCADE;","CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;"]}},"imageName":"ghcr.io/tensorchord/cloudnative-vectorchord:18-1.1.0","instances":1,"postgresql":{"shared_preload_libraries":["vchord.so"]},"storage":{"size":"5Gi"}}}}` | CNPG database cluster |
+| rawResources.db.apiVersion | string | `"postgresql.cnpg.io/v1"` | API version |
+| rawResources.db.enabled | bool | `true` | Enable CNPG database cluster |
+| rawResources.db.kind | string | `"Cluster"` | Resource kind |
+| rawResources.db.spec | object | `{"spec":{"bootstrap":{"initdb":{"postInitApplicationSQL":["CREATE EXTENSION IF NOT EXISTS vchord CASCADE;","CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;"],"postInitSQL":["CREATE EXTENSION IF NOT EXISTS vchord CASCADE;","CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;"]}},"imageName":"ghcr.io/tensorchord/cloudnative-vectorchord:18-1.1.0","instances":1,"postgresql":{"shared_preload_libraries":["vchord.so"]},"storage":{"size":"5Gi"}}}` | Resource spec |
+| redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":true,"persistence":{"enabled":true,"size":"1Gi"}}` | Redis configuration (subchart) |
+| redis.architecture | string | `"standalone"` | Redis architecture |
+| redis.auth | object | `{"enabled":true}` | Redis authentication configuration |
+| redis.auth.enabled | bool | `true` | Enable Redis authentication |
+| redis.enabled | bool | `true` | Enable packaged Redis |
+| redis.persistence | object | `{"enabled":true,"size":"1Gi"}` | Redis persistence configuration |
+| redis.persistence.enabled | bool | `true` | Enable Redis persistence |
+| redis.persistence.size | string | `"1Gi"` | Redis volume size |
+| route | object | `{"main":{"enabled":false}}` | Gateway API HTTPRoute configuration |
+| route.main.enabled | bool | `false` | Enable Gateway API HTTPRoute |
+| serviceMonitor | object | `{"main":{"enabled":false,"serviceName":"immich-server"}}` | Prometheus ServiceMonitor configuration |
+| serviceMonitor.main.enabled | bool | `false` | Enable Prometheus ServiceMonitor |
+| serviceMonitor.main.serviceName | string | `"immich-server"` | Service name for the ServiceMonitor |
 
 ## Security
-
 - `runAsNonRoot: true`, UID/GID 1000
 - `readOnlyRootFilesystem: true` (server), `false` (machine-learning, due to model downloads)
 - `allowPrivilegeEscalation: false`
 - All capabilities dropped
 - Seccomp profile: `RuntimeDefault`
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| swagner-de | <swagner-de@users.noreply.github.com> |  |

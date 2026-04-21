@@ -1,9 +1,10 @@
 # qbittorrent
 
-A Helm chart for [qBittorrent](https://www.qbittorrent.org/), a free BitTorrent client with a web UI.
+![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.1.4](https://img.shields.io/badge/AppVersion-5.1.4-informational?style=flat-square)
+BitTorrent client with web UI and optional VPN (gluetun) sidecar
+**Homepage:** <https://www.qbittorrent.org/>
 
 ## Features
-
 - VueTorrent web UI automatically downloaded via init container
 - Optional [gluetun](https://github.com/qdm12/gluetun) VPN sidecar (disabled by default)
 - Separate persistent volumes for config, VueTorrent UI, and downloads
@@ -11,37 +12,37 @@ A Helm chart for [qBittorrent](https://www.qbittorrent.org/), a free BitTorrent 
 ## Install
 
 ```bash
-helm install qbittorrent oci://ghcr.io/swagner-de/charts/qbittorrent --version 0.2.0
+helm install qbittorrent oci://ghcr.io/swagner-de/charts/qbittorrent
 ```
 
-## Configuration
+## Requirements
 
-| Key | Description | Default |
-|-----|-------------|---------|
-| `persistence.config.size` | Config volume size | `100Mi` |
-| `persistence.vuetorrent.size` | VueTorrent UI volume size | `200Mi` |
-| `persistence.downloads.size` | Downloads volume size | `300Gi` |
-| `controllers.main.containers.gluetun.enabled` | Enable gluetun VPN sidecar | `false` |
+| Repository | Name | Version |
+|------------|------|---------|
+| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
 
-### VPN Sidecar
+## Values
 
-Enable the gluetun VPN sidecar to route all traffic through a VPN:
-
-```yaml
-controllers:
-  main:
-    containers:
-      gluetun:
-        enabled: true
-        env:
-          VPN_SERVICE_PROVIDER: "your-provider"
-          VPN_TYPE: "wireguard"
-```
-
-See [values.yaml](values.yaml) for the full list of configurable values.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| controllers | object | `{"main":{"containers":{"gluetun":{"enabled":false}}}}` | Controller configuration |
+| controllers.main.containers.gluetun | object | `{"enabled":false}` | Gluetun VPN sidecar |
+| controllers.main.containers.gluetun.enabled | bool | `false` | Enable gluetun VPN sidecar |
+| persistence | object | `{"config":{"accessMode":"ReadWriteOnce","enabled":true,"size":"100Mi"},"downloads":{"accessMode":"ReadWriteOnce","enabled":true,"size":"300Gi"},"vuetorrent":{"accessMode":"ReadWriteOnce","enabled":true,"size":"200Mi"}}` | Persistent storage configuration |
+| persistence.config | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"100Mi"}` | Configuration volume |
+| persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.config.enabled | bool | `true` | Enable config persistence |
+| persistence.config.size | string | `"100Mi"` | Config volume size |
+| persistence.downloads | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"300Gi"}` | Downloads volume |
+| persistence.downloads.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.downloads.enabled | bool | `true` | Enable downloads persistence |
+| persistence.downloads.size | string | `"300Gi"` | Downloads volume size |
+| persistence.vuetorrent | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"200Mi"}` | VueTorrent web UI volume |
+| persistence.vuetorrent.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.vuetorrent.enabled | bool | `true` | Enable VueTorrent persistence |
+| persistence.vuetorrent.size | string | `"200Mi"` | VueTorrent volume size |
 
 ## Security
-
 - `runAsUser: 65534` (nobody), `runAsGroup: 65534`
 - `readOnlyRootFilesystem: true`
 - `allowPrivilegeEscalation: false`
@@ -49,3 +50,9 @@ See [values.yaml](values.yaml) for the full list of configurable values.
 - Seccomp profile: `RuntimeDefault`
 
 **Note:** The gluetun sidecar runs as root (UID 0) with `NET_ADMIN` capability, which is required for VPN tunnel setup. It is disabled by default.
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| swagner-de | <swagner-de@users.noreply.github.com> |  |

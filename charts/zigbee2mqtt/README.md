@@ -1,9 +1,10 @@
 # zigbee2mqtt
 
-A Helm chart for [Zigbee2MQTT](https://www.zigbee2mqtt.io/), a Zigbee-to-MQTT bridge for smart home devices.
+![Version: 0.7.4](https://img.shields.io/badge/Version-0.7.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.9.2](https://img.shields.io/badge/AppVersion-2.9.2-informational?style=flat-square)
+Zigbee-to-MQTT bridge for smart home devices
+**Homepage:** <https://www.zigbee2mqtt.io/>
 
 ## Features
-
 - USB Zigbee adapter passthrough via hostPath mount
 - udev access for device detection
 - Configurable MQTT connection via environment variables
@@ -11,39 +12,31 @@ A Helm chart for [Zigbee2MQTT](https://www.zigbee2mqtt.io/), a Zigbee-to-MQTT br
 ## Install
 
 ```bash
-helm install zigbee2mqtt oci://ghcr.io/swagner-de/charts/zigbee2mqtt --version 0.7.2
+helm install zigbee2mqtt oci://ghcr.io/swagner-de/charts/zigbee2mqtt
 ```
 
-## Configuration
+## Requirements
 
-| Key | Description | Default |
-|-----|-------------|---------|
-| `usbPath` | Host path to USB Zigbee adapter | `/dev/ttyACM0` |
-| `persistence.data.enabled` | Enable persistent data storage | `true` |
-| `persistence.data.type` | Storage type for data | `emptyDir` |
-| `controllers.main.containers.main.env` | Environment variables (MQTT settings) | `{}` |
+| Repository | Name | Version |
+|------------|------|---------|
+| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
 
-### MQTT Connection
+## Values
 
-Configure the MQTT broker connection via environment variables:
-
-```yaml
-controllers:
-  main:
-    containers:
-      main:
-        env:
-          ZIGBEE2MQTT_CONFIG_MQTT_BASE_TOPIC: zigbee2mqtt
-          ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtts://mosquitto.example.com
-          ZIGBEE2MQTT_CONFIG_MQTT_USER: zigbee2mqtt
-        envFrom:
-          - secret: zigbee2mqtt-mqtt  # Secret containing ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD
-```
-
-See [values.yaml](values.yaml) for the full list of configurable values.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| controllers | object | `{"main":{"containers":{"main":{"env":null,"resources":{"requests":{"cpu":"200m","memory":"200Mi"}}}}}}` | Controller configuration |
+| controllers.main.containers.main.env | string | `nil` | Environment variables |
+| controllers.main.containers.main.resources | object | `{"requests":{"cpu":"200m","memory":"200Mi"}}` | Resource requests and limits |
+| ingress | object | `{"main":{"enabled":false}}` | Ingress configuration |
+| ingress.main.enabled | bool | `false` | Enable ingress |
+| persistence | object | `{"data":{"enabled":true,"type":"emptyDir"}}` | Persistent storage configuration |
+| persistence.data | object | `{"enabled":true,"type":"emptyDir"}` | Data volume |
+| persistence.data.enabled | bool | `true` | Enable data persistence |
+| persistence.data.type | string | `"emptyDir"` | Volume type |
+| usbPath | string | `"/dev/ttyACM0"` | Host path to USB Zigbee adapter |
 
 ## Security
-
 - `runAsNonRoot: true`, UID 65534 (nobody), GID 20 (dialout)
 - `readOnlyRootFilesystem: true`
 - `privileged: true` (required for USB device access)
@@ -51,3 +44,9 @@ See [values.yaml](values.yaml) for the full list of configurable values.
 - Seccomp profile: `RuntimeDefault`
 
 **Note:** This chart requires privileged mode and `SYS_ADMIN` capability for USB Zigbee adapter access. The container needs direct access to the host USB device. If your cluster uses a device plugin (e.g., `intel-device-plugins`), you may be able to reduce these privileges.
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| swagner-de | <swagner-de@users.noreply.github.com> |  |

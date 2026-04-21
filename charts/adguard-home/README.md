@@ -1,9 +1,10 @@
 # adguard-home
 
-A Helm chart for [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome), a network-wide DNS ad and tracker blocker.
+![Version: 0.6.1](https://img.shields.io/badge/Version-0.6.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.107.73](https://img.shields.io/badge/AppVersion-0.107.73-informational?style=flat-square)
+DNS-level ad and tracker blocking with optional Prometheus exporter
+**Homepage:** <https://github.com/AdguardTeam/AdGuardHome>
 
 ## Features
-
 - Runs as non-root user (UID 1000) with read-only root filesystem
 - Init container automatically configures DNS to listen on port 5353 (no `NET_BIND_SERVICE` needed)
 - Service exposes DNS on port 53 (mapped to 5353 internally), DNS-over-TLS (853), and DNS-over-QUIC (853/UDP)
@@ -13,24 +14,34 @@ A Helm chart for [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome), a n
 ## Install
 
 ```bash
-helm install adguard-home oci://ghcr.io/swagner-de/charts/adguard-home --version 0.5.5
+helm install adguard-home oci://ghcr.io/swagner-de/charts/adguard-home
 ```
 
-## Configuration
+## Requirements
 
-| Key | Description | Default |
-|-----|-------------|---------|
-| `persistence.config.enabled` | Enable persistent storage for config | `true` |
-| `persistence.config.size` | Config volume size | `4Gi` |
-| `persistence.data.enabled` | Enable persistent storage for data | `true` |
-| `persistence.data.size` | Data volume size | `4Gi` |
-| `persistence.certs.enabled` | Mount TLS certificates from a Secret | `false` |
-| `serviceMonitor.main.enabled` | Enable Prometheus ServiceMonitor | `false` |
+| Repository | Name | Version |
+|------------|------|---------|
+| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
 
-See [values.yaml](values.yaml) for the full list of configurable values.
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| persistence | object | `{"certs":{"enabled":false},"config":{"accessMode":"ReadWriteOnce","enabled":true,"size":"4Gi"},"data":{"accessMode":"ReadWriteOnce","enabled":true,"size":"4Gi"}}` | Persistent storage configuration |
+| persistence.certs | object | `{"enabled":false}` | TLS certificate volume |
+| persistence.certs.enabled | bool | `false` | Enable TLS certificate mount from a Secret |
+| persistence.config | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"4Gi"}` | Configuration volume |
+| persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.config.enabled | bool | `true` | Enable persistent storage for config |
+| persistence.config.size | string | `"4Gi"` | Volume size |
+| persistence.data | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"4Gi"}` | Data volume |
+| persistence.data.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.data.enabled | bool | `true` | Enable persistent storage for data |
+| persistence.data.size | string | `"4Gi"` | Volume size |
+| serviceMonitor | object | `{"main":{"enabled":false}}` | Prometheus ServiceMonitor configuration |
+| serviceMonitor.main.enabled | bool | `false` | Enable Prometheus ServiceMonitor |
 
 ## Security
-
 This chart runs with restrictive security defaults:
 
 - `runAsNonRoot: true`, UID/GID 1000
@@ -40,3 +51,9 @@ This chart runs with restrictive security defaults:
 - Seccomp profile: `RuntimeDefault`
 
 DNS is served on port 5353 internally (mapped to 53 via the Service) so no `NET_BIND_SERVICE` capability is required.
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| swagner-de | <swagner-de@users.noreply.github.com> |  |

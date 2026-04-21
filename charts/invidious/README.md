@@ -1,9 +1,10 @@
 # invidious
 
-A Helm chart for [Invidious](https://github.com/iv-org/invidious), a privacy-focused alternative YouTube frontend.
+![Version: 0.4.13](https://img.shields.io/badge/Version-0.4.13-informational?style=flat-square) ![AppVersion: 2.20260207.0](https://img.shields.io/badge/AppVersion-2.20260207.0-informational?style=flat-square)
+Privacy-focused alternative YouTube frontend with companion service and PostgreSQL
+**Homepage:** <https://github.com/iv-org/invidious>
 
 ## Features
-
 - Invidious server with companion service for enhanced video playback
 - PostgreSQL database (packaged subchart or CNPG operator)
 - HMAC-signed companion key authentication
@@ -12,48 +13,65 @@ A Helm chart for [Invidious](https://github.com/iv-org/invidious), a privacy-foc
 ## Install
 
 ```bash
-helm install invidious oci://ghcr.io/swagner-de/charts/invidious --version 0.4.9
+helm install invidious oci://ghcr.io/swagner-de/charts/invidious
 ```
 
-## Configuration
+## Requirements
 
-| Key | Description | Default |
-|-----|-------------|---------|
-| `config.domain` | Public domain name | `mydomain.example` |
-| `config.https_only` | Force HTTPS | `true` |
-| `companionKey.value` | Shared secret for companion service | `CHANGEME` |
-| `companionKey.existingSecret` | Use existing Secret for companion key | — |
-| `hmacKey.value` | HMAC signing key | `CHANGEME` |
-| `hmacKey.existingSecret` | Use existing Secret for HMAC key | — |
-| `companion.publicUrl` | Public URL for the companion service | — |
-| `postgres.enabled` | Enable packaged PostgreSQL | `true` |
-| `postgres.auth.password` | PostgreSQL password | `CHANGEME` |
-| `cnpg.enabled` | Use CNPG operator instead of packaged Postgres | `false` |
-| `cnpg.clusterName` | CNPG cluster name | `invidious` |
-| `ingress.main.enabled` | Enable ingress | `false` |
+| Repository | Name | Version |
+|------------|------|---------|
+| https://bjw-s-labs.github.io/helm-charts | common | 4.6.2 |
+| oci://registry-1.docker.io/cloudpirates | postgres | 0.19.1 |
 
-### Using Existing Secrets
+## Values
 
-For production, use existing Kubernetes Secrets instead of inline values:
-
-```yaml
-companionKey:
-  existingSecret:
-    name: invidious-companion-key
-    key: key
-
-hmacKey:
-  existingSecret:
-    name: invidious-hmac-key
-    key: key
-```
-
-See [values.yaml](values.yaml) for the full list of configurable values.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| cnpg | object | `{"clusterName":"invidious","enabled":false}` | CloudNativePG database configuration |
+| cnpg.clusterName | string | `"invidious"` | CNPG cluster name |
+| cnpg.enabled | bool | `false` | Enable CNPG operator |
+| companion | object | `{}` | Companion service configuration |
+| companionKey | object | `{"value":"CHANGEMEplease16"}` | Companion service shared secret (exactly 16 alphanumeric characters) |
+| companionKey.value | string | `"CHANGEMEplease16"` | Companion key value |
+| config | object | `{"captcha_enabled":false,"domain":"mydomain.example","enable_user_notifications":true,"external_port":443,"hsts":true,"https_only":true,"log_level":"debug","login_enabled":true,"popular_enabled":true,"registration_enabled":true,"statistics_enabled":true}` | Invidious application configuration |
+| config.captcha_enabled | bool | `false` | Enable captcha |
+| config.domain | string | `"mydomain.example"` | Public domain name |
+| config.enable_user_notifications | bool | `true` | Enable user notifications |
+| config.external_port | int | `443` | External port |
+| config.hsts | bool | `true` | Enable HSTS |
+| config.https_only | bool | `true` | Force HTTPS |
+| config.log_level | string | `"debug"` | Log level |
+| config.login_enabled | bool | `true` | Allow login |
+| config.popular_enabled | bool | `true` | Enable popular feed |
+| config.registration_enabled | bool | `true` | Allow registration |
+| config.statistics_enabled | bool | `true` | Enable statistics |
+| hmacKey | object | `{"value":"CHANGEME"}` | HMAC signing key configuration |
+| hmacKey.value | string | `"CHANGEME"` | HMAC key value |
+| ingress | object | `{"main":{"enabled":false}}` | Ingress configuration |
+| ingress.main.enabled | bool | `false` | Enable ingress |
+| persistence | object | `{"cache":{"type":"emptyDir"}}` | Persistent storage configuration |
+| persistence.cache | object | `{"type":"emptyDir"}` | Cache volume (emptyDir) |
+| persistence.cache.type | string | `"emptyDir"` | Volume type |
+| postgres | object | `{"auth":{"database":"invidious","password":"CHANGEME","username":"invidious"},"enabled":true,"persistence":{"accessMode":"ReadWriteOnce","enabled":true,"size":"2Gi"}}` | PostgreSQL database configuration (subchart) |
+| postgres.auth | object | `{"database":"invidious","password":"CHANGEME","username":"invidious"}` | PostgreSQL authentication |
+| postgres.auth.database | string | `"invidious"` | Database name |
+| postgres.auth.password | string | `"CHANGEME"` | Database password |
+| postgres.auth.username | string | `"invidious"` | Database username |
+| postgres.enabled | bool | `true` | Enable packaged PostgreSQL |
+| postgres.persistence | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"2Gi"}` | PostgreSQL persistence |
+| postgres.persistence.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| postgres.persistence.enabled | bool | `true` | Enable PostgreSQL persistence |
+| postgres.persistence.size | string | `"2Gi"` | PostgreSQL volume size |
 
 ## Security
-
 - `runAsNonRoot: true`, UID/GID 1000
 - `readOnlyRootFilesystem: true`
 - `allowPrivilegeEscalation: false`
 - All capabilities dropped
 - Seccomp profile: `RuntimeDefault`
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| swagner-de | <swagner-de@users.noreply.github.com> |  |

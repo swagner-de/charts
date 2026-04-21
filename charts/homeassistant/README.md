@@ -1,9 +1,10 @@
 # homeassistant
 
-A Helm chart for [Home Assistant](https://www.home-assistant.io/), an open-source home automation platform.
+![Version: 1.9.6](https://img.shields.io/badge/Version-1.9.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.4.3](https://img.shields.io/badge/AppVersion-2026.4.3-informational?style=flat-square)
+Home automation platform with optional LDAP, Matter bridge, and CNPG database support
+**Homepage:** <https://www.home-assistant.io/>
 
 ## Features
-
 - Optional LDAP authentication sidecar
 - Optional Matter bridge (matterbridge) with Layer 2 network attachment for mDNS
 - CloudNativePG (CNPG) database support with automatic connection configuration
@@ -12,56 +13,54 @@ A Helm chart for [Home Assistant](https://www.home-assistant.io/), an open-sourc
 ## Install
 
 ```bash
-helm install homeassistant oci://ghcr.io/swagner-de/charts/homeassistant --version 1.8.2
+helm install homeassistant oci://ghcr.io/swagner-de/charts/homeassistant
 ```
 
-## Configuration
+## Requirements
 
-| Key | Description | Default |
-|-----|-------------|---------|
-| `persistence.config.size` | Config volume size | `5Gi` |
-| `controllers.main.containers.ldap.enabled` | Enable LDAP sidecar | `false` |
-| `secrets.ldap.enabled` | Create LDAP secret (set credentials in `stringData`) | `false` |
-| `secrets.prometheus.enabled` | Create Prometheus token secret | `false` |
-| `matterbridge.enabled` | Enable Matter bridge controller | `false` |
-| `cnpg.enabled` | Use CNPG operator for database | `false` |
-| `cnpg.clusterName` | CNPG cluster name | `homeassistant-db` |
-| `ingress.main.enabled` | Enable ingress | `false` |
+| Repository | Name | Version |
+|------------|------|---------|
+| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
 
-### LDAP Authentication
+## Values
 
-Enable LDAP and provide credentials:
-
-```yaml
-controllers:
-  main:
-    containers:
-      ldap:
-        enabled: true
-
-secrets:
-  ldap:
-    enabled: true
-    stringData:
-      HA_LDAP_BIND_DN_PASSWORD: "your-password"
-      HA_LDAP_BIND_DN: "cn=ldapservice,ou=users,dc=example,dc=com"
-```
-
-### Matter Bridge
-
-For Matter/Thread support with mDNS, enable the matterbridge controller and configure a network attachment:
-
-```yaml
-matterbridge:
-  enabled: true
-```
-
-See [values.yaml](values.yaml) for the full list of configurable values.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| cnpg | object | `{"clusterName":"homeassistant-db","enabled":false}` | CloudNativePG database configuration |
+| cnpg.clusterName | string | `"homeassistant-db"` | CNPG cluster name |
+| cnpg.enabled | bool | `false` | Enable CNPG operator for database |
+| controllers | object | `{"main":{"containers":{"ldap":{"enabled":false},"main":{"env":[{"name":"TZ","value":"Europe/Berlin"}]}}}}` | Controller configuration |
+| controllers.main.containers.ldap | object | `{"enabled":false}` | LDAP authentication sidecar |
+| controllers.main.containers.ldap.enabled | bool | `false` | Enable LDAP sidecar |
+| controllers.main.containers.main.env | list | `[{"name":"TZ","value":"Europe/Berlin"}]` | Environment variables |
+| ingress | object | `{"main":{"enabled":false}}` | Ingress configuration |
+| ingress.main.enabled | bool | `false` | Enable ingress |
+| ldapSecret | string | `"homeassistant-ldap"` | External secret or define the secrets below |
+| matterbridge | object | `{"enabled":false,"mdns_interface":"net1"}` | Matterbridge configuration |
+| matterbridge.enabled | bool | `false` | Enable Matter bridge controller |
+| matterbridge.mdns_interface | string | `"net1"` | mDNS network interface |
+| persistence | object | `{"config":{"accessMode":"ReadWriteOnce","size":"5Gi"}}` | Persistent storage configuration |
+| persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.config.size | string | `"5Gi"` | Volume size |
+| secrets | object | `{"ldap":{"enabled":false,"stringData":{"HA_LDAP_BIND_DN":"cn=ldapservice,ou=users,dc=ldap,dc=goauthentik,dc=io","HA_LDAP_BIND_DN_PASSWORD":""}},"matterbridge":{"enabled":false},"prometheus":{"enabled":false,"stringData":{"token":""}}}` | Kubernetes secrets configuration |
+| secrets.ldap | object | `{"enabled":false,"stringData":{"HA_LDAP_BIND_DN":"cn=ldapservice,ou=users,dc=ldap,dc=goauthentik,dc=io","HA_LDAP_BIND_DN_PASSWORD":""}}` | LDAP secret |
+| secrets.ldap.enabled | bool | `false` | Enable LDAP secret creation |
+| secrets.ldap.stringData | object | `{"HA_LDAP_BIND_DN":"cn=ldapservice,ou=users,dc=ldap,dc=goauthentik,dc=io","HA_LDAP_BIND_DN_PASSWORD":""}` | LDAP secret data |
+| secrets.matterbridge | object | `{"enabled":false}` | Matterbridge secret |
+| secrets.matterbridge.enabled | bool | `false` | Enable Matterbridge secret creation |
+| secrets.prometheus | object | `{"enabled":false,"stringData":{"token":""}}` | Prometheus secret |
+| secrets.prometheus.enabled | bool | `false` | Enable Prometheus secret creation |
+| secrets.prometheus.stringData | object | `{"token":""}` | Prometheus secret data |
 
 ## Security
-
 - `runAsNonRoot: true`, UID/GID 568
 - `readOnlyRootFilesystem: true`
 - `allowPrivilegeEscalation: false`
 - All capabilities dropped
 - Seccomp profile: `RuntimeDefault`
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| swagner-de | <swagner-de@users.noreply.github.com> |  |
