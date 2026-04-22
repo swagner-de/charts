@@ -35,5 +35,4 @@ persistence:
 # -- Service configuration
 service:
   main:
-    type: LoadBalancer
-    externalTrafficPolicy: Local
+    type: ClusterIP
