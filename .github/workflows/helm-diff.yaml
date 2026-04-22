@@ -54,97 +54,92 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Install yq
+        if: steps.list-changed.outputs.has_changes == 'true'
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
       - name: Generate Helm diffs
         id: helm-diff
         if: steps.list-changed.outputs.has_changes == 'true'
         run: |
           echo "# Helm Diff Results" > diff_output.md
           echo "" >> diff_output.md
-          
+
+          sort_manifests() {
+            local input_file="$1"
+            local output_file="$2"
+            yq eval 'del(.metadata.labels."helm.sh/chart")' "$input_file" | \
+            yq eval-all '[.] | sort_by(.apiVersion + "/" + .kind + "/" + (.metadata.namespace // "default") + "/" + (.metadata.name // "unnamed")) | .[]' - \
+              > "$output_file"
+          }
+
           charts='${{ steps.list-changed.outputs.charts }}'
-          echo "$charts" | jq -r '.[]' | while read -r chart; do
+          for chart in $(echo "$charts" | jq -r '.[]'); do
             if [[ -z "$chart" ]]; then
               continue
             fi
-            
-            echo "Processing chart: $chart"
+
             chart_name=$(basename "$chart")
-            
+            echo "Processing chart: $chart"
+
             echo "## Chart: $chart_name" >> diff_output.md
             echo "" >> diff_output.md
-            
-            # Prepare base version (already checked out to base-repo/)
+
             echo "Preparing base version..."
             if [[ -f "base-repo/$chart/Chart.lock" ]]; then
               rm "base-repo/$chart/Chart.lock"
             fi
             (cd base-repo && helm dependency update "$chart") || echo "No dependencies to update for base version"
-            
-            # Prepare PR version (current directory)
+
             echo "Preparing PR version..."
             if [[ -f "$chart/Chart.lock" ]]; then
               rm "$chart/Chart.lock"
             fi
             helm dependency update "$chart" || echo "No dependencies to update for PR version"
-            
-            # Create a temporary namespace for the diff
+
             namespace="helm-diff-${chart_name}"
             release_name="test-${chart_name}"
-            
-            # Run helm diff upgrade
+
             echo "Running helm diff for $chart_name..."
-            echo '```diff' >> diff_output.md
-            
-            # Render base version templates (excluding helm labels)
-            echo "# Base version (target branch: ${{ github.event.pull_request.base.ref }})" >> diff_output.md
-            helm template "$release_name" "base-repo/$chart" --namespace "$namespace" > base_templates_raw.yaml 2>/dev/null || {
-              echo "Failed to render base templates for $chart_name" >> diff_output.md
-            }
-            
-            # Render PR version templates (excluding helm labels)
-            echo "# PR version (source branch: ${{ github.event.pull_request.head.ref }})" >> diff_output.md
-            helm template "$release_name" "$chart" --namespace "$namespace" > pr_templates_raw.yaml 2>/dev/null || {
-              echo "Failed to render PR templates for $chart_name" >> diff_output.md
-            }
-            
-            # Generate diff between the two versions
-            if [[ -f base_templates_raw.yaml && -f pr_templates_raw.yaml ]]; then
-              # Install yq for YAML processing
-              sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-              sudo chmod +x /usr/local/bin/yq
-              
-              # Function to sort manifests by Group/Version/Kind and remove helm labels
-              sort_manifests() {
-                local input_file="$1"
-                local output_file="$2"
-                
-                # First remove helm labels, then split into individual manifests and sort them
-                yq eval 'del(.metadata.labels."helm.sh/chart")' "$input_file" | \
-                yq eval-all '. as $item ireduce ({}; . *+ {($item | (.apiVersion // "v1") + "/" + (.kind // "Unknown") + "/" + (.metadata.namespace // "default") + "/" + (.metadata.name // "unnamed")): $item})' - | \
-                yq eval 'to_entries | sort_by(.key) | map(.value) | .[]' - > "$output_file"
-              }
-              
-              # Sort both manifest files
+
+            base_ok=true
+            pr_ok=true
+            helm template "$release_name" "base-repo/$chart" --namespace "$namespace" > base_templates_raw.yaml 2>/dev/null || base_ok=false
+            helm template "$release_name" "$chart" --namespace "$namespace" > pr_templates_raw.yaml 2>/dev/null || pr_ok=false
+
+            if [[ "$base_ok" == true && "$pr_ok" == true ]]; then
               sort_manifests base_templates_raw.yaml base_templates.yaml
               sort_manifests pr_templates_raw.yaml pr_templates.yaml
-              
-              # Generate diff
-              diff -u base_templates.yaml pr_templates.yaml >> diff_output.md || true
-              
-              # Clean up temporary files
-              rm -f base_templates_raw.yaml pr_templates_raw.yaml
+
+              diff_result=$(diff -u base_templates.yaml pr_templates.yaml) || true
+              if [[ -n "$diff_result" ]]; then
+                echo '```diff' >> diff_output.md
+                echo "$diff_result" >> diff_output.md
+                echo '```' >> diff_output.md
+              else
+                echo "No template changes." >> diff_output.md
+              fi
+            elif [[ "$base_ok" == false && "$pr_ok" == true ]]; then
+              echo "<details>" >> diff_output.md
+              echo "<summary>New chart — full rendered output</summary>" >> diff_output.md
+              echo "" >> diff_output.md
+              echo '```yaml' >> diff_output.md
+              sort_manifests pr_templates_raw.yaml pr_templates.yaml
+              cat pr_templates.yaml >> diff_output.md
+              echo '```' >> diff_output.md
+              echo "</details>" >> diff_output.md
             else
-              echo "Could not generate diff for $chart_name - template rendering failed" >> diff_output.md
+              echo '> **Warning:** template rendering failed' >> diff_output.md
+              [[ "$base_ok" == false ]] && echo '> - Base version failed to render' >> diff_output.md
+              [[ "$pr_ok" == false ]] && echo '> - PR version failed to render' >> diff_output.md
             fi
-            
-            echo '```' >> diff_output.md
+
             echo "" >> diff_output.md
-            
-            # Clean up temporary files
-            rm -f base_templates.yaml pr_templates.yaml
+            rm -f base_templates_raw.yaml pr_templates_raw.yaml base_templates.yaml pr_templates.yaml
           done
-          
-          # Read the diff output and prepare it for GitHub comment
+
           if [[ -f diff_output.md ]]; then
             echo "diff_content<<EOF" >> $GITHUB_OUTPUT
             cat diff_output.md >> $GITHUB_OUTPUT
