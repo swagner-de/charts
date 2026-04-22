@@ -13,14 +13,16 @@ users: []
 
 # -- Mosquitto configuration file content
 config: |
-  listener 8883
+  listener 1883
   persistence_location /mosquitto/data/
-  certfile /tls/tls.crt
-  keyfile /tls/tls.key
   password_file /mosquitto/passwd/passwd
   allow_anonymous false
   log_dest stdout
   log_type all
+
+# -- TLS certificate secret name (e.g. from cert-manager)
+# Set to enable TLS volume mount at /tls
+tlsSecretName: ""
 
 # -- Persistent storage configuration
 persistence:
@@ -29,9 +31,6 @@ persistence:
     enabled: true
     size: 2Gi
     accessMode: ReadWriteOnce
-  # -- TLS certificate secret name (e.g. from cert-manager)
-  tls:
-    name: mosquitto-tls
 
 # -- Service configuration
 service:

@@ -67,8 +67,8 @@ service:
     controller: mosquitto
     primary: true
     ports:
-      smqtt:
-        port: 8883
+      mqtt:
+        port: {{ .Values.service.main.port | default 1883 }}
         protocol: TCP
 
 ingress:
@@ -135,13 +135,15 @@ persistence:
         main:
         - path: /mosquitto/config/
 
+{{- if .Values.tlsSecretName }}
   tls:
     type: secret
-    name: {{ .Values.persistence.tls.name }}
+    name: {{ .Values.tlsSecretName }}
     advancedMounts:
       mosquitto:
         main:
         - path: /tls
+{{- end }}
 
 {{ end }}
 
