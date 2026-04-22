@@ -28,7 +28,7 @@ tlsSecretName: ""
 persistence:
   # -- Data volume for mosquitto persistence
   data:
-    enabled: true
+    enabled: false
     size: 2Gi
     accessMode: ReadWriteOnce
 
