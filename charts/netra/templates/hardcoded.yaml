@@ -1,0 +1,85 @@
+{{- define "hardcoded" -}}
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_ADMIN
+        image:
+          repository: ghcr.io/consi/netra
+          tag: {{ .Chart.AppVersion | quote }}
+        args:
+        - --db-path
+        - /data/asndb.netra
+{{- if .Values.skipAsns }}
+        - --skip-asns
+        - {{ .Values.skipAsns | quote }}
+{{- end }}
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 1337
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+          readiness: *probe
+          startup: *probe
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 1337
+        protocol: TCP
+  netflow:
+    controller: main
+    primary: true
+    ports:
+      netflow:
+        port: 2055
+        protocol: UDP
+
+ingress:
+  main:
+    enabled: false
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    advancedMounts:
+      main:
+        main:
+        - path: /data
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

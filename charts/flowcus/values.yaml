@@ -1,0 +1,41 @@
+# -- Persistent storage configuration
+persistence:
+  # -- Flow data and settings volume
+  data:
+    # -- Enable persistent storage for flow data
+    enabled: true
+    # storageClass: my-storage-class
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+    # -- Volume size
+    size: 10Gi
+
+# route:
+#   main:
+#     enabled: true
+#     annotations:
+#     hostnames:
+#       - flowcus.mydomain
+#     parentRefs:
+#       - namespace: gateway
+#         name: mygateway
+#     rules:
+#       - matches:
+#           - path:
+#               type: PathPrefix
+#               value: /
+#         backendRefs:
+#           - name: flowcus
+#             port: 2137
+
+# controllers:
+#   main:
+#     containers:
+#       main:
+#         resources:
+#           requests:
+#             cpu: 100m
+#             memory: 128Mi
+#           limits:
+#             cpu: 500m
+#             memory: 512Mi
