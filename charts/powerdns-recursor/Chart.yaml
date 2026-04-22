@@ -2,12 +2,12 @@ apiVersion: v2
 name: powerdns-recursor
 description: PowerDNS recursive DNS resolver with DNSSEC validation
 type: application
-version: 0.1.12
+version: 0.1.13
 home: https://www.powerdns.com/recursor/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=powerdns/pdns-recursor-53
-appVersion: '5.3.5'
+appVersion: '5.3.6'
 dependencies:
   - name: common
     version: 4.6.2
