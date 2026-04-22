@@ -1,0 +1,153 @@
+{{- define "hardcoded" -}}
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1883
+    runAsGroup: 1883
+    fsGroup: 1883
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  mosquitto:
+    initContainers:
+      init:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: eclipse-mosquitto
+          tag: {{ printf "%s-openssl" .Chart.AppVersion | quote }}
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          touch passwd && chmod 0700 passwd
+          name=""; password=""
+          while IFS= read -r line; do
+            case "$line" in
+              *"username:"*) name=$(echo "$line" | sed 's/.*username: *//;s/ *$//') ;;
+              *"password:"*) password=$(echo "$line" | sed 's/.*password: *//;s/ *$//')
+                [ -n "$name" ] && [ -n "$password" ] && mosquitto_passwd -b passwd "$name" "$password"
+                name=""; password="" ;;
+            esac
+          done < /init/users
+        workingDir: /mosquitto/passwd
+    containers:
+      main:
+        name: mosquitto
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: eclipse-mosquitto
+          tag: {{ printf "%s-openssl" .Chart.AppVersion | quote }}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        probes:
+          liveness: &probe
+            enabled: false
+          readiness: *probe
+          startup: *probe
+
+service:
+  main:
+    controller: mosquitto
+    primary: true
+    ports:
+      mqtt:
+        port: {{ .Values.service.main.port | default 1883 }}
+        protocol: TCP
+
+ingress:
+  main:
+    enabled: false
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      mosquitto.conf: |
+{{ .Values.config | indent 8 }}
+
+secrets:
+  users:
+    enabled: {{ not .Values.existingUsersSecret }}
+    stringData:
+      users: |
+        {{- range .Values.users }}
+        - username: {{ .username }}
+          password: {{ .password }}
+        {{- end }}
+
+persistence:
+  data:
+    advancedMounts:
+      mosquitto:
+        main:
+        - path: /mosquitto/data
+
+  init:
+    type: secret
+{{- if .Values.existingUsersSecret }}
+    name: {{ .Values.existingUsersSecret }}
+{{- else }}
+    identifier: users
+{{- end }}
+    advancedMounts:
+      mosquitto:
+        init:
+        - path: /init/
+
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      mosquitto:
+        init:
+        - path: /tmp
+
+  passwd:
+    type: emptyDir
+    advancedMounts:
+      mosquitto:
+        main:
+        - path: /mosquitto/passwd/
+        init:
+        - path: /mosquitto/passwd/
+
+  config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      mosquitto:
+        main:
+        - path: /mosquitto/config/
+
+{{- if .Values.tlsSecretName }}
+  tls:
+    type: secret
+    name: {{ .Values.tlsSecretName }}
+    advancedMounts:
+      mosquitto:
+        main:
+        - path: /tls
+{{- end }}
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
