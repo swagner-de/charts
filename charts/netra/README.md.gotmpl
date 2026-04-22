@@ -1,0 +1,39 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Analyzes NetFlow v5/v9 and IPFIX data to map traffic to autonomous systems (ASNs)
+- Built-in real-time web dashboard with SSE updates
+- Prometheus-compatible metrics endpoint at `/metrics`
+- Automatic ASN database download and daily refresh from iptoasn.com
+- Works with MikroTik Traffic Flow (NetFlow v5/v9)
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## MikroTik Configuration
+
+Configure Traffic Flow on your MikroTik router to send NetFlow to this collector:
+
+```
+/ip traffic-flow set enabled=yes interfaces=all
+/ip traffic-flow target add dst-address=<netra-ip> port=2055 version=9
+```
+
+## Security
+- `runAsNonRoot: true`, UID/GID 65534 (nobody)
+- `readOnlyRootFilesystem: true`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+{{ template "chart.maintainersSection" . }}

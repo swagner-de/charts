@@ -1,0 +1,17 @@
+apiVersion: v2
+name: flowcus
+description: Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage
+type: application
+version: 0.1.0
+home: https://github.com/consi/flowcus
+sources:
+  - https://github.com/swagner-de/charts
+# renovate: image=ghcr.io/consi/flowcus
+appVersion: '0.10.7'
+dependencies:
+  - name: common
+    version: 4.6.2
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com
