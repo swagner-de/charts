@@ -1,6 +1,6 @@
 # homeassistant
 
-![Version: 1.9.7](https://img.shields.io/badge/Version-1.9.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.4.3](https://img.shields.io/badge/AppVersion-2026.4.3-informational?style=flat-square)
+![Version: 1.9.8](https://img.shields.io/badge/Version-1.9.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.4.4](https://img.shields.io/badge/AppVersion-2026.4.4-informational?style=flat-square)
 Home automation platform with optional LDAP, Matter bridge, and CNPG database support
 **Homepage:** <https://www.home-assistant.io/>
 
