@@ -1,0 +1,136 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Architecture
+
+The chart deploys the full Akvorado stack:
+
+```
+┌─────────────┐     ┌─────────┐     ┌─────────┐     ┌────────────┐
+│  Exporters  │────▶│  Inlet  │────▶│  Kafka  │────▶│   Outlet   │
+│ (NetFlow/   │     │         │     │         │     │ (enriches) │
+│  sFlow/BMP) │     └─────────┘     └─────────┘     └─────┬──────┘
+└─────────────┘                                            │
+                                                           ▼
+┌─────────────┐                                     ┌────────────┐
+│   Console   │◀────────────────────────────────────│ ClickHouse │
+│  (Web UI)   │                                     │            │
+└─────────────┘                                     └────────────┘
+        ▲
+        │
+┌───────┴─────┐
+│Orchestrator │  (coordinates all components, serves config)
+└─────────────┘
+```
+
+- **Inlet** — receives flows (NetFlow v5/v9, IPFIX, sFlow) via UDP
+- **Outlet** — enriches flows with SNMP metadata, GeoIP, routing info, then writes to ClickHouse
+- **Kafka** — message bus between inlet and outlet
+- **ClickHouse** — columnar store for flow data with automatic aggregation
+- **Console** — web UI for querying and visualizing flows
+- **Orchestrator** — coordinates configuration across all components
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Secrets
+
+When `existingSecret` is set, the chart reads credentials from a Kubernetes Secret:
+
+| Key | Used for |
+|-----|----------|
+| `snmpCommunity` | SNMP v2c community string for interface metadata |
+| `ipInfoToken` | IPInfo API token (when `geoip.provider=ipinfo`) |
+
+The secret is mounted into the orchestrator pod. A `render-config` init container substitutes the SNMP community into the configuration at startup.
+
+## GeoIP
+
+GeoIP enrichment runs as a sidecar container alongside the orchestrator, downloading and refreshing databases every 24h.
+
+**IPInfo** (recommended for ASN + Country):
+```yaml
+geoip:
+  enabled: true
+  provider: ipinfo
+existingSecret: my-akvorado-secret  # must contain key: ipInfoToken
+```
+
+**MaxMind** (GeoLite2):
+```yaml
+geoip:
+  enabled: true
+  provider: maxmind
+  existingSecret: my-geoip-secret  # keys: GEOIPUPDATE_ACCOUNT_ID, GEOIPUPDATE_LICENSE_KEY
+```
+
+## Grafana Integration
+
+When `grafana.enabled: true`, the chart creates ConfigMaps with sidecar labels for automatic discovery:
+
+- **Datasource** (`grafana_datasource: "1"`) — configures the Akvorado datasource pointing to the console API
+- **Dashboard** (`grafana_dashboard: "1"`) — provides a default dashboard with traffic-by-AS panels and a Sankey diagram
+
+**Required Grafana plugins** (add to your Grafana deployment):
+- `ovhcloud-akvorado-datasource`
+- `netsage-sankey-panel`
+
+## Network Classification
+
+Configure interface and exporter classifiers to categorize traffic:
+
+```yaml
+akvorado:
+  outlet:
+    core:
+      default-sampling-rate: 1  # set >0 if exporters don't advertise rate
+      exporter-classifiers:
+        - ClassifySite("mysite") && ClassifyRole("edge")
+      interface-classifiers:
+        - Interface.Name == "wan" && ClassifyConnectivity("transit") && ClassifyExternal()
+        - Interface.Name startsWith "wg" && ClassifyConnectivity("vpn") && ClassifyInternal()
+        - ClassifyInternal()
+```
+
+Assign ASNs to private networks:
+```yaml
+akvorado:
+  asns:
+    "64512": "My Network"
+  networks:
+    10.0.0.0/8:
+      name: private
+      role: internal
+      asn: 64512
+```
+
+## MikroTik Configuration
+
+Configure IPFIX traffic-flow on RouterOS 7:
+
+```
+/ip/traffic-flow set enabled=yes interfaces=all
+/ip/traffic-flow/target add dst-address=<inlet-ip> port=2055 version=9
+/snmp set enabled=yes
+/snmp/community set 0 name=<community> addresses=<inlet-pod-cidr>
+```
+
+## Security
+
+- `runAsNonRoot: true`, UID/GID 65534 (nobody)
+- `readOnlyRootFilesystem: true` (except ClickHouse, Kafka, GeoIP sidecar)
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+- NetworkPolicies restrict all inter-component traffic to required ports only
+
+{{ template "chart.maintainersSection" . }}

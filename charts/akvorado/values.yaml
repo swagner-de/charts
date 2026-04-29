@@ -1,0 +1,174 @@
+# -- SNMP configuration for metadata enrichment
+snmp:
+  # -- SNMP community string (used if existingSecret is empty)
+  community: "public"
+
+# -- Existing secret containing credentials (keys: snmpCommunity, ipInfoToken)
+# When set, the chart reads SNMP community and GeoIP token from this secret.
+existingSecret: ""
+
+# -- Akvorado configuration file content (akvorado.yaml)
+# This is passed directly to the orchestrator. Service references
+# (kafka brokers, clickhouse servers) are auto-injected by the chart.
+# Add your network classifiers, ASN overrides, SNMP credentials here.
+akvorado:
+  # -- Static ASN name overrides (displayed in console UI)
+  asns: {}
+    # 64501: "My Network"
+
+  # -- Network prefix classification
+  networks: {}
+    # 192.0.2.0/24:
+    #   name: customers
+    #   role: customers
+
+  # -- Remote network sources (Netbox, AWS, GCP, etc.)
+  networkSources: {}
+
+  # -- Inlet flow input configuration
+  inlet:
+    flow:
+      inputs:
+        - type: udp
+          decoder: netflow
+          listen: :2055
+          workers: 4
+          receive-buffer: 212992
+        - type: udp
+          decoder: netflow
+          listen: :4739
+          workers: 4
+          receive-buffer: 212992
+        - type: udp
+          decoder: sflow
+          listen: :6343
+          workers: 4
+          receive-buffer: 212992
+
+  # -- Outlet metadata/routing configuration
+  outlet:
+    metadata:
+      providers:
+        - type: snmp
+          # credentials are injected from snmp.community value
+    routing:
+      provider:
+        type: bmp
+        receive-buffer: 212992
+    core:
+      # -- Default sampling rate when exporter doesn't advertise one (0 = reject flows without rate)
+      default-sampling-rate: 0
+      exporter-classifiers: []
+      interface-classifiers: []
+
+  # -- Console configuration
+  console:
+    http:
+      cache:
+        type: memory
+
+  # -- ClickHouse data retention
+  resolutions:
+    - interval: 0
+      ttl: 360h        # 15 days raw
+    - interval: 1m
+      ttl: 168h        # 7 days
+    - interval: 5m
+      ttl: 2160h       # 90 days
+    - interval: 1h
+      ttl: 8640h       # 360 days
+
+# -- GeoIP database configuration
+geoip:
+  # -- Enable GeoIP enrichment (requires API credentials)
+  enabled: false
+  # -- Provider: maxmind or ipinfo
+  provider: maxmind
+  # -- Existing secret containing API credentials
+  # For maxmind: keys GEOIPUPDATE_ACCOUNT_ID and GEOIPUPDATE_LICENSE_KEY
+  # For ipinfo: key IPINFO_TOKEN
+  existingSecret: ""
+  # -- MaxMind edition IDs to download
+  maxmindEditionIds: "GeoLite2-ASN GeoLite2-Country"
+
+# -- ClickHouse configuration
+clickhouse:
+  persistence:
+    # -- Storage size for ClickHouse data
+    size: 50Gi
+    # storageClass: ""
+  # -- Maximum server memory usage (bytes, 0 = auto)
+  maxMemoryUsage: 0
+  auth:
+    # -- ClickHouse username for akvorado
+    username: akvorado
+    # -- Existing secret with ClickHouse password (key defined by existingSecretKey)
+    existingSecret: ""
+    # -- Key in the existing secret
+    existingSecretKey: password
+    # -- Password (used if existingSecret is empty; chart will create a Secret)
+    password: ""
+
+# -- Kafka configuration
+kafka:
+  persistence:
+    # -- Storage size for Kafka log dirs
+    size: 10Gi
+    # storageClass: ""
+  # -- JVM heap size for Kafka broker
+  heapSize: "256m"
+  # -- Number of topic partitions
+  topicPartitions: 8
+  # -- Retention in milliseconds (1 day)
+  retentionMs: 86400000
+
+# -- Inlet configuration
+inlet:
+  # -- Number of inlet replicas
+  replicas: 1
+
+# -- Outlet configuration
+outlet:
+  # -- Number of outlet replicas
+  replicas: 1
+
+# -- Console configuration
+console:
+  # -- Number of console replicas
+  replicas: 1
+
+# -- NetworkPolicy configuration
+networkPolicies:
+  # -- Enable NetworkPolicies for all components
+  enabled: true
+  # -- CIDR ranges allowed to send flows to inlet (UDP)
+  inletAllowCIDR:
+    - 0.0.0.0/0
+    - ::/0
+
+# -- HTTPRoute for console web UI
+# route:
+#   main:
+#     enabled: true
+#     hostnames:
+#       - akvorado.mydomain
+#     parentRefs:
+#       - namespace: gateway
+#         name: mygateway
+#     rules:
+#       - matches:
+#           - path:
+#               type: PathPrefix
+#               value: /
+#         backendRefs:
+#           - name: akvorado-console
+#             port: 8080
+
+# -- Grafana integration (requires Grafana sidecar for auto-discovery)
+grafana:
+  # -- Enable Grafana datasource and dashboard provisioning via sidecar
+  enabled: false
+  # -- Additional Grafana plugins required (add to your Grafana deployment)
+  # plugins:
+  #   - ovhcloud-akvorado-datasource
+  #   - netsage-sankey-panel
