@@ -172,7 +172,7 @@ grafana:
 # -- Prometheus metrics and ServiceMonitor
 metrics:
   # -- Enable ServiceMonitor resources (requires Prometheus Operator CRDs)
-  enabled: true
+  enabled: false
   # -- Additional Grafana plugins required (add to your Grafana deployment)
   # plugins:
   #   - ovhcloud-akvorado-datasource
