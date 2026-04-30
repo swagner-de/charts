@@ -742,6 +742,7 @@ configMaps:
         clickhousedb:
           servers:
             - {{ .Release.Name }}-clickhouse:9000
+          username: {{ .Values.clickhouse.auth.username }}
         clickhouse:
           orchestrator-url: http://{{ .Release.Name }}-orchestrator:8080
           {{- if .Values.akvorado.asns }}

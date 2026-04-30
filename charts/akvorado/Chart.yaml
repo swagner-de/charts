@@ -2,7 +2,7 @@ apiVersion: v2
 name: akvorado
 description: NetFlow/IPFIX/sFlow collector with ClickHouse analytics
 type: application
-version: 0.1.0
+version: 0.1.1
 home: https://github.com/akvorado/akvorado
 sources:
   - https://github.com/swagner-de/charts
