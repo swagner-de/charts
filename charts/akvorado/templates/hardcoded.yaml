@@ -551,6 +551,7 @@ service:
         port: 9092
         protocol: TCP
 
+{{- if .Values.metrics.enabled }}
 serviceMonitor:
   orchestrator:
     serviceName: {{ printf "%s-orchestrator" .Release.Name | quote }}
@@ -580,6 +581,7 @@ serviceMonitor:
         scheme: http
         path: /api/v0/console/metrics
         interval: 30s
+{{- end }}
 
 persistence:
   akvorado-config:

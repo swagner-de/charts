@@ -168,6 +168,11 @@ networkPolicies:
 grafana:
   # -- Enable Grafana datasource and dashboard provisioning via sidecar
   enabled: false
+
+# -- Prometheus metrics and ServiceMonitor
+metrics:
+  # -- Enable ServiceMonitor resources (requires Prometheus Operator CRDs)
+  enabled: true
   # -- Additional Grafana plugins required (add to your Grafana deployment)
   # plugins:
   #   - ovhcloud-akvorado-datasource
