@@ -28,7 +28,7 @@ jobs:
 
       - name: Commit updated docs
         run: |
-          if git diff --quiet -- 'charts/*/README.md'; then
+          if git diff --quiet -- 'charts/*/README.md' && [ -z "$(git ls-files --others --exclude-standard -- 'charts/*/README.md')" ]; then
             echo "Docs are up to date."
           else
             git config user.name "github-actions[bot]"
