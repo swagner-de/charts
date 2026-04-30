@@ -1,0 +1,313 @@
+{{- if .Values.grafana.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-grafana-datasource
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_datasource: "1"
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  akvorado-datasource.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Akvorado
+        type: ovhcloud-akvorado-datasource
+        access: proxy
+        url: http://{{ .Release.Name }}-console:8080
+        isDefault: false
+        editable: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-grafana-dashboard
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  akvorado.json: |-
+    {
+      "annotations": {
+        "list": []
+      },
+      "description": "Network flow analytics from Akvorado",
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "ovhcloud-akvorado-datasource",
+            "uid": "${DS_AKVORADO}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Bits per second",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 30,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "bps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "options": {
+            "legend": {
+              "calcs": ["mean", "max"],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "ovhcloud-akvorado-datasource",
+                "uid": "${DS_AKVORADO}"
+              },
+              "dimensions": ["SrcAS"],
+              "expression": "InIfBoundary = external",
+              "limit": 10,
+              "refId": "A",
+              "type": "timeseries",
+              "unit": "l3bps"
+            }
+          ],
+          "title": "Top Inbound Traffic by Source AS",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "ovhcloud-akvorado-datasource",
+            "uid": "${DS_AKVORADO}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Bits per second",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 30,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "bps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 10
+          },
+          "id": 2,
+          "options": {
+            "legend": {
+              "calcs": ["mean", "max"],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "ovhcloud-akvorado-datasource",
+                "uid": "${DS_AKVORADO}"
+              },
+              "dimensions": ["DstAS"],
+              "expression": "OutIfBoundary = external",
+              "limit": 10,
+              "refId": "A",
+              "type": "timeseries",
+              "unit": "l3bps"
+            }
+          ],
+          "title": "Top Outbound Traffic by Destination AS",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "ovhcloud-akvorado-datasource",
+            "uid": "${DS_AKVORADO}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 20
+          },
+          "id": 3,
+          "options": {
+            "color": "blue",
+            "iteration": 7,
+            "labelSize": 14,
+            "monochrome": false,
+            "nodeColor": "grey",
+            "nodePadding": 30,
+            "nodeWidth": 30
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "ovhcloud-akvorado-datasource",
+                "uid": "${DS_AKVORADO}"
+              },
+              "dimensions": ["SrcAS", "DstCountry"],
+              "expression": "InIfBoundary = external",
+              "limit": 15,
+              "refId": "A",
+              "type": "sankey",
+              "unit": "l3bps"
+            }
+          ],
+          "title": "Inbound Traffic: Source AS to Destination Country",
+          "type": "netsage-sankey-panel"
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["network", "flows", "akvorado"],
+      "templating": {
+        "list": [
+          {
+            "current": {},
+            "hide": 2,
+            "includeAll": false,
+            "name": "DS_AKVORADO",
+            "options": [],
+            "query": "ovhcloud-akvorado-datasource",
+            "refresh": 1,
+            "type": "datasource"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Akvorado - Network Flows",
+      "uid": "akvorado-flows",
+      "version": 1
+    }
+{{- end }}
