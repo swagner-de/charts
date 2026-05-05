@@ -2,12 +2,12 @@ apiVersion: v2
 name: qbittorrent
 description: BitTorrent client with web UI and optional VPN (gluetun) sidecar
 type: application
-version: 0.2.3
+version: 0.3.0
 home: https://www.qbittorrent.org/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/home-operations/qbittorrent
-appVersion: '5.1.4'
+appVersion: '5.2.0'
 dependencies:
   - name: common
     version: 4.6.2
