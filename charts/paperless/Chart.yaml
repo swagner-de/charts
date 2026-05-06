@@ -2,12 +2,12 @@ apiVersion: v2
 name: paperless
 description: Document management system with OCR and full-text search
 type: application
-version: 0.43.7
+version: 0.43.8
 home: https://docs.paperless-ngx.com/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/paperless-ngx/paperless-ngx
-appVersion: '2.20.14'
+appVersion: '2.20.15'
 dependencies:
   - name: common
     version: 4.6.2
