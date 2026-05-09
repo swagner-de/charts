@@ -905,6 +905,12 @@ networkpolicies:
                 matchLabels:
                   app.kubernetes.io/controller: clickhouse
                   app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Values.metrics.enabled }}
+            - namespaceSelector: {}
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vmagent
+{{- end }}
       egress:
         - ports:
             - port: 9092
