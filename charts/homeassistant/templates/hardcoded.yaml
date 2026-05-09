@@ -40,7 +40,7 @@ controllers:
         name: ldap
         image:
           repository: ghcr.io/swagner-de/home-assistant-ldap-helper
-          tag: v1.0.0
+          tag: v1.0.1
         securityContext:
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
