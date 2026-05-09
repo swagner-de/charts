@@ -143,6 +143,13 @@ persistence:
         main:
           - path: /matterbridge-init
 
+  venv:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /config/.venv
+
   tmp:
     type: emptyDir
     advancedMounts:
