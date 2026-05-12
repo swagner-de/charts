@@ -1,6 +1,6 @@
 # immich
 
-![Version: 0.7.11](https://img.shields.io/badge/Version-0.7.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.7.5](https://img.shields.io/badge/AppVersion-v2.7.5-informational?style=flat-square)
+![Version: 0.7.12](https://img.shields.io/badge/Version-0.7.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.7.5](https://img.shields.io/badge/AppVersion-v2.7.5-informational?style=flat-square)
 Self-hosted photo and video backup solution with machine learning
 **Homepage:** <https://immich.app/>
 
@@ -23,7 +23,7 @@ helm install immich oci://ghcr.io/swagner-de/charts/immich
 | Repository | Name | Version |
 |------------|------|---------|
 | https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
-| oci://registry-1.docker.io/cloudpirates | redis | 0.27.6 |
+| oci://registry-1.docker.io/cloudpirates | redis | 0.27.9 |
 
 ## Values
 
