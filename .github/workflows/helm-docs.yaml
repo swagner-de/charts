@@ -22,18 +22,41 @@ jobs:
           HELM_DOCS_VERSION="1.14.2"
           curl -sSL "https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz" | tar xz -C /usr/local/bin helm-docs
 
+      - name: Install yq
+        uses: mikefarah/yq@v4
+
       - name: Run helm-docs
         run: |
           helm-docs --chart-search-root charts --log-level warning
 
+      - name: Update root README charts table
+        run: |
+          {
+            echo "| Chart | Version | Description |"
+            echo "|-------|---------|-------------|"
+            for chart_yaml in charts/*/Chart.yaml; do
+              dir=$(dirname "$chart_yaml")
+              name=$(yq '.name' "$chart_yaml")
+              version=$(yq '.version' "$chart_yaml")
+              description=$(yq '.description // "—"' "$chart_yaml")
+              echo "| [$name]($dir) | \`$version\` | $description |"
+            done
+          } > /tmp/charts-table.md
+          awk '
+            /<!-- charts-table-start -->/ { print; system("cat /tmp/charts-table.md"); skip=1; next }
+            /<!-- charts-table-end -->/ { skip=0 }
+            !skip { print }
+          ' README.md > README.md.tmp
+          mv README.md.tmp README.md
+
       - name: Commit updated docs
         run: |
-          if git diff --quiet -- 'charts/*/README.md' && [ -z "$(git ls-files --others --exclude-standard -- 'charts/*/README.md')" ]; then
+          if git diff --quiet -- 'charts/*/README.md' README.md && [ -z "$(git ls-files --others --exclude-standard -- 'charts/*/README.md')" ]; then
             echo "Docs are up to date."
           else
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add charts/*/README.md
+            git add charts/*/README.md README.md
             git commit -m "docs: regenerate helm-docs READMEs"
             git push
           fi
