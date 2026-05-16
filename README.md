@@ -47,6 +47,12 @@ To customize the installation, create a `values.yaml` file and pass it during in
 helm install mealie oci://ghcr.io/swagner-de/charts/mealie --version 0.15.0 -f values.yaml
 ```
 
+## Security Scanning
+
+Container images used by all charts are scanned weekly for CVEs. Findings are uploaded to the [GitHub Security tab](../../security/code-scanning) with a combined risk score that weighs real-world exploitability (EPSS + CISA KEV) against raw CVSS impact.
+
+See [docs/cve-risk-scoring.md](docs/cve-risk-scoring.md) for details on the scoring methodology.
+
 ## Architecture
 
 All charts use the [bjw-s common library chart](https://bjw-s-labs.github.io/helm-charts/) (v4.x) as their base dependency. Each chart has a single `templates/hardcoded.yaml` that defines sensible defaults which are merged with user-provided values at render time.
