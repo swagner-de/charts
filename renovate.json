@@ -13,12 +13,18 @@
     {
       "matchManagers": ["helm-values", "helmfile", "helmv3"],
       "enabled": true,
-      "bumpVersion": "patch"
+      "bumpVersion": "patch",
+      "additionalBranchPrefix": "{{packageFileDir}}-",
+      "groupName": "{{packageFileDir}}"
     },
     {
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
       "automergeType": "pr"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false
     },
     {
       "matchFileNames": ["charts/**/templates/hardcoded.yaml"],
