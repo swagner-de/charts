@@ -1,6 +1,7 @@
 {{- define "hardcoded" -}}
 global:
   alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
 
 defaultPodOptions:
   securityContext:

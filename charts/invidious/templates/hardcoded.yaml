@@ -4,6 +4,9 @@
 {{ fail "postgres cannot be used via chart and CNPG"}}
 {{- end }}
 
+global:
+  createDefaultServiceAccount: false
+
 defaultPodOptions:
   securityContext:
     runAsNonRoot: true
