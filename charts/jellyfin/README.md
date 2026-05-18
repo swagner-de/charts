@@ -1,6 +1,6 @@
 # jellyfin
 
-![Version: 0.1.13](https://img.shields.io/badge/Version-0.1.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 10.11.8](https://img.shields.io/badge/AppVersion-10.11.8-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 10.11.8](https://img.shields.io/badge/AppVersion-10.11.8-informational?style=flat-square)
 Free software media server for streaming movies, TV, music, and more
 **Homepage:** <https://jellyfin.org/>
 
@@ -19,7 +19,7 @@ helm install jellyfin oci://ghcr.io/swagner-de/charts/jellyfin
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
 
 ## Values
 
