@@ -1,6 +1,6 @@
 # homeassistant
 
-![Version: 1.12.5](https://img.shields.io/badge/Version-1.12.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.5.2](https://img.shields.io/badge/AppVersion-2026.5.2-informational?style=flat-square)
+![Version: 1.13.0](https://img.shields.io/badge/Version-1.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.5.2](https://img.shields.io/badge/AppVersion-2026.5.2-informational?style=flat-square)
 Home automation platform with optional LDAP, Matter bridge, and CNPG database support
 **Homepage:** <https://www.home-assistant.io/>
 
@@ -20,7 +20,7 @@ helm install homeassistant oci://ghcr.io/swagner-de/charts/homeassistant
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
 
 ## Values
 
