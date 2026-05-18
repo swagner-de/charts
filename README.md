@@ -7,24 +7,24 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 <!-- charts-table-start -->
 | Chart | Version | Description |
 |-------|---------|-------------|
-| [adguard-home](charts/adguard-home) | `0.6.2` | DNS-level ad and tracker blocking with optional Prometheus exporter |
-| [akvorado](charts/akvorado) | `0.1.2` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
-| [arr-stack](charts/arr-stack) | `0.3.2` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
-| [flowcus](charts/flowcus) | `0.1.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
-| [homeassistant](charts/homeassistant) | `1.12.2` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
-| [homepage](charts/homepage) | `0.6.1` | Customizable application dashboard for your homelab |
-| [immich](charts/immich) | `0.7.12` | Self-hosted photo and video backup solution with machine learning |
-| [invidious](charts/invidious) | `0.4.16` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
-| [jellyfin](charts/jellyfin) | `0.1.11` | Free software media server for streaming movies, TV, music, and more |
-| [mealie](charts/mealie) | `0.18.1` | Self-hosted recipe manager and meal planner |
-| [mosquitto](charts/mosquitto) | `0.1.1` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
-| [netra](charts/netra) | `0.1.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.44.8` | Document management system with OCR and full-text search |
-| [powerdns-auth](charts/powerdns-auth) | `0.4.3` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
-| [powerdns-recursor](charts/powerdns-recursor) | `0.1.13` | PowerDNS recursive DNS resolver with DNSSEC validation |
-| [qbittorrent](charts/qbittorrent) | `0.3.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
-| [skel](charts/skel) | `0.1.7` | Skeleton chart template for creating new charts |
-| [zigbee2mqtt](charts/zigbee2mqtt) | `0.8.1` | Zigbee-to-MQTT bridge for smart home devices |
+| [adguard-home](charts/adguard-home) | `0.6.3` | DNS-level ad and tracker blocking with optional Prometheus exporter |
+| [akvorado](charts/akvorado) | `0.1.3` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
+| [arr-stack](charts/arr-stack) | `0.3.3` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
+| [flowcus](charts/flowcus) | `0.1.1` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
+| [homeassistant](charts/homeassistant) | `1.12.5` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
+| [homepage](charts/homepage) | `0.6.2` | Customizable application dashboard for your homelab |
+| [immich](charts/immich) | `0.7.13` | Self-hosted photo and video backup solution with machine learning |
+| [invidious](charts/invidious) | `0.4.17` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
+| [jellyfin](charts/jellyfin) | `0.1.12` | Free software media server for streaming movies, TV, music, and more |
+| [mealie](charts/mealie) | `0.18.2` | Self-hosted recipe manager and meal planner |
+| [mosquitto](charts/mosquitto) | `0.1.2` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
+| [netra](charts/netra) | `0.1.1` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
+| [paperless](charts/paperless) | `0.44.9` | Document management system with OCR and full-text search |
+| [powerdns-auth](charts/powerdns-auth) | `0.4.4` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
+| [powerdns-recursor](charts/powerdns-recursor) | `0.1.14` | PowerDNS recursive DNS resolver with DNSSEC validation |
+| [qbittorrent](charts/qbittorrent) | `0.3.1` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
+| [skel](charts/skel) | `0.1.8` | Skeleton chart template for creating new charts |
+| [zigbee2mqtt](charts/zigbee2mqtt) | `0.8.2` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
 ## Usage

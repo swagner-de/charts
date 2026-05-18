@@ -1,6 +1,6 @@
 # powerdns-auth
 
-![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.0.4](https://img.shields.io/badge/AppVersion-5.0.4-informational?style=flat-square)
+![Version: 0.4.4](https://img.shields.io/badge/Version-0.4.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.0.4](https://img.shields.io/badge/AppVersion-5.0.4-informational?style=flat-square)
 PowerDNS authoritative DNS server with LMDB backend and external-dns support
 **Homepage:** <https://www.powerdns.com/auth/>
 
