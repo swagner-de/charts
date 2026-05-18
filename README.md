@@ -14,10 +14,10 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [homeassistant](charts/homeassistant) | `1.13.0` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.7.0` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.7.14` | Self-hosted photo and video backup solution with machine learning |
-| [invidious](charts/invidious) | `0.4.18` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
+| [invidious](charts/invidious) | `0.5.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.2.0` | Free software media server for streaming movies, TV, music, and more |
-| [mealie](charts/mealie) | `0.18.3` | Self-hosted recipe manager and meal planner |
-| [mosquitto](charts/mosquitto) | `0.1.2` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
+| [mealie](charts/mealie) | `0.19.0` | Self-hosted recipe manager and meal planner |
+| [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [netra](charts/netra) | `0.1.1` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
 | [paperless](charts/paperless) | `0.44.10` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.4.4` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
