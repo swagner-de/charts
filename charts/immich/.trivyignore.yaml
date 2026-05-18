@@ -1,0 +1,3 @@
+misconfigurations:
+  - id: KSV-0014
+    statement: "Immich machine-learning container requires writable root filesystem for model cache"

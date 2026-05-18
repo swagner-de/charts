@@ -1,0 +1,5 @@
+misconfigurations:
+  - id: KSV-0014
+    statement: "PostgreSQL subchart and Paperless main container require writable root filesystem"
+  - id: KSV-0017
+    statement: "Paperless runs as privileged (TODO: replace with non-root image)"

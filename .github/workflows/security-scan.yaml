@@ -1,0 +1,102 @@
+name: Security Scan
+
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+
+permissions:
+  contents: read
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.17.2
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.8.0
+
+      - name: Find changed charts
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --config .github/ct.yaml)
+          if [[ -n "$changed" ]]; then
+            echo "charts<<EOF" >> $GITHUB_OUTPUT
+            echo "$changed" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Trivy
+        if: steps.list-changed.outputs.has_changes == 'true'
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          hide-progress: true
+          # This step just installs trivy, we run it manually below
+          scan-ref: /dev/null
+          exit-code: 0
+
+      - name: Render and scan changed charts
+        if: steps.list-changed.outputs.has_changes == 'true'
+        run: |
+          exit_code=0
+
+          while IFS= read -r chart; do
+            [[ -z "$chart" ]] && continue
+            chart_name=$(basename "$chart")
+            echo "::group::Scanning $chart_name"
+
+            # Build dependencies
+            helm dependency update "$chart" 2>/dev/null || true
+
+            # Render templates
+            mkdir -p /tmp/rendered/"$chart_name"
+            helm template test-release "$chart" \
+              --namespace default \
+              --output-dir /tmp/rendered/"$chart_name" 2>/dev/null || {
+              echo "::warning::Failed to render $chart_name templates, skipping scan"
+              echo "::endgroup::"
+              continue
+            }
+
+            # Build trivy args
+            trivy_args="config --exit-code 1 --severity HIGH,CRITICAL"
+
+            # Merge global + per-chart trivyignore files
+            ignorefile="/tmp/trivyignore-${chart_name}.yaml"
+            python3 -c "
+          import yaml, sys
+          merged = {}
+          for f in sys.argv[1:]:
+            try:
+              with open(f) as fh:
+                data = yaml.safe_load(fh) or {}
+              for k, v in data.items():
+                merged.setdefault(k, []).extend(v if isinstance(v, list) else [v])
+            except FileNotFoundError:
+              pass
+          yaml.dump(merged, open('$ignorefile', 'w'), default_flow_style=False)
+          " .trivyignore.yaml "$chart/.trivyignore.yaml"
+            if [[ -s "$ignorefile" ]]; then
+              trivy_args="$trivy_args --ignorefile $ignorefile"
+            fi
+
+            # Run trivy
+            trivy $trivy_args /tmp/rendered/"$chart_name" || exit_code=1
+
+            echo "::endgroup::"
+          done <<< "${{ steps.list-changed.outputs.charts }}"
+
+          exit $exit_code

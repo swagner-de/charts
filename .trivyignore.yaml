@@ -1,0 +1,17 @@
+# Trivy ignore rules for security scanning
+# Docs: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/#by-inline-comments
+#
+# Add exceptions here to suppress findings globally.
+# For per-chart exceptions, create a .trivyignore.yaml in the chart directory.
+#
+# Format:
+# vulnerabilities:
+#   - id: CVE-2024-XXXXX     # suppress a specific CVE
+#
+# misconfigurations:
+#   - id: KSV001             # e.g. "Process can elevate its own privileges"
+#     paths:                  # optional: only suppress for specific paths
+#       - charts/jellyfin/**
+#     statement: "Jellyfin requires privileged mode for GPU passthrough"
+
+# No global exceptions — use per-chart .trivyignore.yaml files instead.

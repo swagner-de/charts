@@ -1,0 +1,3 @@
+misconfigurations:
+  - id: KSV-0014
+    statement: "ClickHouse and Kafka require writable root filesystems"
