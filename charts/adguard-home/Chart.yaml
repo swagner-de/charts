@@ -2,7 +2,7 @@ apiVersion: v2
 name: adguard-home
 description: DNS-level ad and tracker blocking with optional Prometheus exporter
 type: application
-version: 0.6.2
+version: 0.6.3
 home: https://github.com/AdguardTeam/AdGuardHome
 sources:
   - https://github.com/swagner-de/charts

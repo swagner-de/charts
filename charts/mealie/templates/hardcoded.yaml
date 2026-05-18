@@ -5,6 +5,7 @@
 {{- end }}
 global:
   alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
 
 defaultPodOptions:
   securityContext:
