@@ -15,7 +15,8 @@
       "enabled": true,
       "bumpVersion": "patch",
       "additionalBranchPrefix": "{{packageFileDir}}-",
-      "groupName": "{{packageFileDir}}"
+      "groupName": "{{packageFileDir}}",
+      "commitMessageSuffix": "({{packageFileDir}})"
     },
     {
       "matchUpdateTypes": ["minor", "patch"],
