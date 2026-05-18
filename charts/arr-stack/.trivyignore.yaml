@@ -1,0 +1,3 @@
+misconfigurations:
+  - id: KSV-0014
+    statement: "FlareSolverr requires a writable root filesystem for Chrome/Chromium"

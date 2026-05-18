@@ -1,0 +1,5 @@
+misconfigurations:
+  - id: KSV-0005
+    statement: "Zigbee2mqtt needs SYS_ADMIN capability for USB device access"
+  - id: KSV-0017
+    statement: "Zigbee2mqtt requires privileged mode for USB device access"

@@ -1,0 +1,3 @@
+misconfigurations:
+  - id: KSV-0017
+    statement: "Gluetun VPN sidecar requires privileged mode for TUN device creation"
