@@ -2,7 +2,7 @@ apiVersion: v2
 name: flowcus
 description: Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage
 type: application
-version: 0.1.1
+version: 0.1.2
 home: https://github.com/consi/flowcus
 sources:
   - https://github.com/swagner-de/charts

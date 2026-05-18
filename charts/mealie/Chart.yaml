@@ -2,7 +2,7 @@ apiVersion: v2
 name: mealie
 description: Self-hosted recipe manager and meal planner
 type: application
-version: 0.18.2
+version: 0.18.3
 home: https://mealie.io/
 sources:
   - https://github.com/swagner-de/charts
