@@ -12,7 +12,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [arr-stack](charts/arr-stack) | `0.4.0` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
 | [flowcus](charts/flowcus) | `0.1.2` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [homeassistant](charts/homeassistant) | `1.13.0` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
-| [homepage](charts/homepage) | `0.6.2` | Customizable application dashboard for your homelab |
+| [homepage](charts/homepage) | `0.7.0` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.7.14` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.4.18` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.2.0` | Free software media server for streaming movies, TV, music, and more |
