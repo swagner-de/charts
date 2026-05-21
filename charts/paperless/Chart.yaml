@@ -2,7 +2,7 @@ apiVersion: v2
 name: paperless
 description: Document management system with OCR and full-text search
 type: application
-version: 0.44.10
+version: 0.45.0
 home: https://docs.paperless-ngx.com/
 sources:
   - https://github.com/swagner-de/charts
@@ -17,7 +17,7 @@ dependencies:
     version: 0.19.4
     condition: postgres.enabled
   - name: redis
-    version: 0.27.9
+    version: 0.28.0
     repository: oci://registry-1.docker.io/cloudpirates
     condition: redis.enabled
 maintainers:
