@@ -15,7 +15,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [homepage](charts/homepage) | `0.7.0` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.7.14` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.5.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
-| [jellyfin](charts/jellyfin) | `0.2.0` | Free software media server for streaming movies, TV, music, and more |
+| [jellyfin](charts/jellyfin) | `0.2.1` | Free software media server for streaming movies, TV, music, and more |
 | [mealie](charts/mealie) | `0.20.0` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [netra](charts/netra) | `0.1.1` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
