@@ -86,9 +86,9 @@ cnpg:
 # rawResources:
 #   db:
 #     enabled: true
-#     apiVersion: postgresql.cnpg.io/v1
-#     kind: Cluster
-#     spec:
+#     manifest:
+#       apiVersion: postgresql.cnpg.io/v1
+#       kind: Cluster
 #       spec:
 #         instances: 1
 #         imageCatalogRef:
@@ -99,14 +99,13 @@ cnpg:
 #         storage:
 #           size: 5Gi
 #           storageClassName: "standard"
-
-
+#
 # Activate this if your run matterbridge and want to layer 2 attach it to your home network. This is required for mDNS to work
 #   matterbridge:
 #     enabled: true
-#     kind: NetworkAttachmentDefinition
-#     apiVersion: "k8s.cni.cncf.io/v1"
-#     spec:
+#     manifest:
+#       kind: NetworkAttachmentDefinition
+#       apiVersion: "k8s.cni.cncf.io/v1"
 #       spec:
 #         config: |
 #           {

@@ -13,7 +13,8 @@ defaultPodOptions:
 # Configure options applied to all pods
 controllers:
   main:
-    automountServiceAccountToken: true
+    pod:
+      automountServiceAccountToken: true
     serviceAccount:
       identifier: homepage
     containers:
