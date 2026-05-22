@@ -23,8 +23,8 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [powerdns-auth](charts/powerdns-auth) | `0.4.5` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.1.14` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.3.2` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
-| [skel](charts/skel) | `0.1.8` | Skeleton chart template for creating new charts |
-| [zigbee2mqtt](charts/zigbee2mqtt) | `0.8.3` | Zigbee-to-MQTT bridge for smart home devices |
+| [skel](charts/skel) | `0.2.0` | Skeleton chart template for creating new charts |
+| [zigbee2mqtt](charts/zigbee2mqtt) | `0.9.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
 ## Usage
