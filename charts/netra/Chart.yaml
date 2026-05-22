@@ -2,7 +2,7 @@ apiVersion: v2
 name: netra
 description: ASN traffic analysis dashboard for NetFlow/IPFIX flow data
 type: application
-version: 0.1.1
+version: 0.2.0
 home: https://github.com/consi/netra
 sources:
   - https://github.com/swagner-de/charts
@@ -10,7 +10,7 @@ sources:
 appVersion: '1.0.8'
 dependencies:
   - name: common
-    version: 4.6.2
+    version: 5.0.1
     repository: https://bjw-s-labs.github.io/helm-charts/
 maintainers:
   - name: swagner-de
