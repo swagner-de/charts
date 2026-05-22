@@ -11,7 +11,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [akvorado](charts/akvorado) | `0.2.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.4.0` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
 | [flowcus](charts/flowcus) | `0.2.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
-| [homeassistant](charts/homeassistant) | `1.13.1` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
+| [homeassistant](charts/homeassistant) | `1.13.2` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.7.0` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.8.0` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.5.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
