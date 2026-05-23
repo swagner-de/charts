@@ -1,6 +1,6 @@
 # powerdns-auth
 
-![Version: 0.4.5](https://img.shields.io/badge/Version-0.4.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.0.5](https://img.shields.io/badge/AppVersion-5.0.5-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.0.5](https://img.shields.io/badge/AppVersion-5.0.5-informational?style=flat-square)
 PowerDNS authoritative DNS server with LMDB backend and external-dns support
 **Homepage:** <https://www.powerdns.com/auth/>
 
@@ -21,7 +21,7 @@ helm install powerdns-auth oci://ghcr.io/swagner-de/charts/powerdns-auth
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 4.6.2 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
 
 ## Values
 
