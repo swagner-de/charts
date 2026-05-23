@@ -1,0 +1,22 @@
+cnpg:
+  enabled: true
+  clusterName: test-db
+
+postgres:
+  enabled: false
+
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        imageCatalogRef:
+          apiGroup: postgresql.cnpg.io
+          kind: ClusterImageCatalog
+          name: postgresql
+          major: 16
+        storage:
+          size: 1Gi
