@@ -1,3 +1,11 @@
+cnpg:
+  enabled: true
+  clusterName: db
+  prependReleaseName: true
+
+postgres:
+  enabled: false
+
 rawResources:
   db:
     enabled: true

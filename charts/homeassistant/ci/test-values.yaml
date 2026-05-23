@@ -1,6 +1,7 @@
 cnpg:
   enabled: true
-  clusterName: test-db
+  clusterName: db
+  prependReleaseName: true
 
 rawResources:
   db:
@@ -10,28 +11,5 @@ rawResources:
       kind: Cluster
       spec:
         instances: 1
-        imageCatalogRef:
-          apiGroup: postgresql.cnpg.io
-          kind: ClusterImageCatalog
-          name: postgresql
-          major: 17
         storage:
           size: 1Gi
-  matterbridge:
-    enabled: true
-    manifest:
-      apiVersion: k8s.cni.cncf.io/v1
-      kind: NetworkAttachmentDefinition
-      spec:
-        config: |
-          {
-            "cniVersion": "0.3.1",
-            "type": "bridge",
-            "bridge": "br-test",
-            "ipam": {
-              "type": "static",
-              "addresses": [
-                {"address": "192.168.1.100/24"}
-              ]
-            }
-          }

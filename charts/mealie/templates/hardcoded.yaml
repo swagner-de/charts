@@ -44,27 +44,35 @@ controllers:
           POSTGRES_PORT: "5432"
 {{ end }}
 {{ if .Values.cnpg.enabled }}
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
         env:
           DB_ENGINE: postgres
           POSTGRES_SERVER:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                name: {{ printf "%s-app" $cnpgName | quote }}
                 key: host
           POSTGRES_DB:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                name: {{ printf "%s-app" $cnpgName | quote }}
                 key: dbname
           POSTGRES_USER:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                name: {{ printf "%s-app" $cnpgName | quote }}
                 key: user
           POSTGRES_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                name: {{ printf "%s-app" $cnpgName | quote }}
                 key: password
 {{- end }}
         envFrom:

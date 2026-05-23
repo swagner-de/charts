@@ -134,28 +134,36 @@ controllers:
                 key: postgres-password
 {{- end }}
 {{- if .Values.cnpg.enabled }}
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
           PAPERLESS_DBENGINE: postgres
           PAPERLESS_DBSSLMODE: verify-full
           PAPERLESS_DBSSLROOTCERT: "/dbcerts/ca.crt"
           PAPERLESS_DBHOST:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName }}
+                name: {{ printf "%s-app" $cnpgName }}
                 key: host
           PAPERLESS_DBNAME:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName }}
+                name: {{ printf "%s-app" $cnpgName }}
                 key: dbname
           PAPERLESS_DBUSER:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName }}
+                name: {{ printf "%s-app" $cnpgName }}
                 key: user
           PAPERLESS_DBPASS:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName }}
+                name: {{ printf "%s-app" $cnpgName }}
                 key: password
 {{- end }}
 {{- range $k, $v := .Values.paperless.config }}
@@ -294,10 +302,18 @@ persistence:
         - path: /tmp
 
 {{- if .Values.cnpg.enabled }}
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
   dbcerts:
     enabled: true
     type: secret
-    name: {{ printf "%s-ca" .Values.cnpg.clusterName }}
+    name: {{ printf "%s-ca" $cnpgName }}
     advancedMounts:
       main:
         main:

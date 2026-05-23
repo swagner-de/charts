@@ -145,6 +145,8 @@ cnpg:
   enabled: false
   # -- CNPG cluster name
   clusterName: mealie-db
+  # -- Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources)
+  prependReleaseName: false
 
 # In case of CNPG
 # rawResources:
