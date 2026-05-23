@@ -28,8 +28,16 @@ controllers:
           repository: alpine
           tag: 3.23.4
         command: ["sh"]
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
         envFrom:
-          - secret: {{ .Values.cnpg.clusterName }}-app
+          - secret: {{ $cnpgName }}-app
         args:
         - -c
         - |
@@ -158,9 +166,17 @@ persistence:
         main:
         - path: /tmp
 {{ if .Values.cnpg.enabled }}
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
   certs:
     type: secret
-    name: {{ .Values.cnpg.clusterName }}-ca
+    name: {{ $cnpgName }}-ca
     advancedMounts:
       main:
         main:

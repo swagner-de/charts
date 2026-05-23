@@ -81,6 +81,8 @@ cnpg:
   enabled: false
   # -- CNPG cluster name
   clusterName: homeassistant-db
+  # -- Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources)
+  prependReleaseName: false
 
 
 # rawResources:
