@@ -18,7 +18,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [jellyfin](charts/jellyfin) | `0.2.1` | Free software media server for streaming movies, TV, music, and more |
 | [mealie](charts/mealie) | `0.20.3` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
-| [netra](charts/netra) | `0.1.1` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
+| [netra](charts/netra) | `0.2.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
 | [paperless](charts/paperless) | `0.45.0` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.5.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.1.14` | PowerDNS recursive DNS resolver with DNSSEC validation |
