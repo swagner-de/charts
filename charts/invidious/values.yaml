@@ -90,9 +90,9 @@ cnpg:
 # rawResources:
 #   db:
 #     enabled: true
-#     apiVersion: postgresql.cnpg.io/v1
-#     kind: Cluster
-#     spec:
+#     manifest:
+#       apiVersion: postgresql.cnpg.io/v1
+#       kind: Cluster
 #       spec:
 #         instances: 1
 #         imageCatalogRef:

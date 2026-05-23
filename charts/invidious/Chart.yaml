@@ -4,7 +4,7 @@ description: Privacy-focused alternative YouTube frontend with companion service
 maintainers:
   - name: swagner-de
     email: swagner-de@users.noreply.github.com
-version: 0.5.2
+version: 0.5.3
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=quay.io/invidious/invidious
