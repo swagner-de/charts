@@ -1,6 +1,6 @@
 # mealie
 
-![Version: 0.20.3](https://img.shields.io/badge/Version-0.20.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.18.0](https://img.shields.io/badge/AppVersion-v3.18.0-informational?style=flat-square)
+![Version: 0.20.4](https://img.shields.io/badge/Version-0.20.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.18.0](https://img.shields.io/badge/AppVersion-v3.18.0-informational?style=flat-square)
 Self-hosted recipe manager and meal planner
 **Homepage:** <https://mealie.io/>
 
@@ -28,9 +28,10 @@ helm install mealie oci://ghcr.io/swagner-de/charts/mealie
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cnpg | object | `{"clusterName":"mealie-db","enabled":false}` | CloudNativePG database configuration |
+| cnpg | object | `{"clusterName":"mealie-db","enabled":false,"prependReleaseName":false}` | CloudNativePG database configuration |
 | cnpg.clusterName | string | `"mealie-db"` | CNPG cluster name |
 | cnpg.enabled | bool | `false` | Enable CNPG operator |
+| cnpg.prependReleaseName | bool | `false` | Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources) |
 | config | object | `{"ALLOW_SIGNUP":"false"}` | Mealie application configuration |
 | config.ALLOW_SIGNUP | string | `"false"` | Allow new user signups |
 | db | object | `{"POSTGRES_DB":"mealie","POSTGRES_PASSWORD":"CHANGEME","POSTGRES_USER":"mealie"}` | Database credentials |

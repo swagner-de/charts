@@ -11,15 +11,15 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [akvorado](charts/akvorado) | `0.2.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.4.0` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
 | [flowcus](charts/flowcus) | `0.2.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
-| [homeassistant](charts/homeassistant) | `1.13.3` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
+| [homeassistant](charts/homeassistant) | `1.13.4` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.7.1` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.8.0` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.5.3` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.2.2` | Free software media server for streaming movies, TV, music, and more |
-| [mealie](charts/mealie) | `0.20.3` | Self-hosted recipe manager and meal planner |
+| [mealie](charts/mealie) | `0.20.4` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [netra](charts/netra) | `0.2.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.46.0` | Document management system with OCR and full-text search |
+| [paperless](charts/paperless) | `0.46.1` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.5.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.2.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.3.2` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |

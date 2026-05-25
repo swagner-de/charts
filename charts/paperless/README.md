@@ -1,6 +1,6 @@
 # paperless
 
-![Version: 0.46.0](https://img.shields.io/badge/Version-0.46.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.15](https://img.shields.io/badge/AppVersion-2.20.15-informational?style=flat-square)
+![Version: 0.46.1](https://img.shields.io/badge/Version-0.46.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.15](https://img.shields.io/badge/AppVersion-2.20.15-informational?style=flat-square)
 Document management system with OCR and full-text search
 **Homepage:** <https://docs.paperless-ngx.com/>
 
@@ -30,9 +30,10 @@ helm install paperless oci://ghcr.io/swagner-de/charts/paperless
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cnpg | object | `{"clusterName":"paperless-db","enabled":false}` | CloudNativePG database configuration |
+| cnpg | object | `{"clusterName":"paperless-db","enabled":false,"prependReleaseName":false}` | CloudNativePG database configuration |
 | cnpg.clusterName | string | `"paperless-db"` | CNPG cluster name |
 | cnpg.enabled | bool | `false` | Enable CNPG operator |
+| cnpg.prependReleaseName | bool | `false` | Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources) |
 | ingress | object | `{"main":{"enabled":false}}` | Ingress configuration |
 | ingress.main.enabled | bool | `false` | Enable ingress |
 | paperless | object | `{"admin":{"existingSecret":""},"config":null}` | Paperless-ngx application configuration |

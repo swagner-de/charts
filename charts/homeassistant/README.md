@@ -1,6 +1,6 @@
 # homeassistant
 
-![Version: 1.13.3](https://img.shields.io/badge/Version-1.13.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.5.4](https://img.shields.io/badge/AppVersion-2026.5.4-informational?style=flat-square)
+![Version: 1.13.4](https://img.shields.io/badge/Version-1.13.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.5.4](https://img.shields.io/badge/AppVersion-2026.5.4-informational?style=flat-square)
 Home automation platform with optional LDAP, Matter bridge, and CNPG database support
 **Homepage:** <https://www.home-assistant.io/>
 
@@ -26,9 +26,10 @@ helm install homeassistant oci://ghcr.io/swagner-de/charts/homeassistant
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cnpg | object | `{"clusterName":"homeassistant-db","enabled":false}` | CloudNativePG database configuration |
+| cnpg | object | `{"clusterName":"homeassistant-db","enabled":false,"prependReleaseName":false}` | CloudNativePG database configuration |
 | cnpg.clusterName | string | `"homeassistant-db"` | CNPG cluster name |
 | cnpg.enabled | bool | `false` | Enable CNPG operator for database |
+| cnpg.prependReleaseName | bool | `false` | Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources) |
 | controllers | object | `{"main":{"containers":{"ldap":{"enabled":false},"main":{"env":[{"name":"TZ","value":"Europe/Berlin"}]}}}}` | Controller configuration |
 | controllers.main.containers.ldap | object | `{"enabled":false}` | LDAP authentication sidecar |
 | controllers.main.containers.ldap.enabled | bool | `false` | Enable LDAP sidecar |
