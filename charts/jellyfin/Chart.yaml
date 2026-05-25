@@ -2,12 +2,12 @@ apiVersion: v2
 name: jellyfin
 description: Free software media server for streaming movies, TV, music, and more
 type: application
-version: 0.2.1
+version: 0.2.2
 home: https://jellyfin.org/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=jellyfin/jellyfin
-appVersion: '10.11.9'
+appVersion: '10.11.10'
 dependencies:
   - name: common
     version: 5.0.1
