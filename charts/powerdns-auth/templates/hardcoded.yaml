@@ -73,7 +73,8 @@ controllers:
     enabled: {{ .Values.externalDNS.enabled }}
     serviceAccount:
       identifier: powerdns-auth
-    automountServiceAccountToken: true
+    pod:
+      automountServiceAccountToken: true
     containers:
       main:
         securityContext:
