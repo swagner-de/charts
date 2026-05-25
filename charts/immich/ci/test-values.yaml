@@ -1,3 +1,7 @@
 serviceMonitor:
   main:
     enabled: false
+
+controllers:
+  machine-learning:
+    enabled: false
