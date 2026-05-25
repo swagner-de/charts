@@ -68,25 +68,29 @@ controllers:
                 key: redis-password
 {{-   end }}
 {{-   end }}
+{{- $cnpgName := printf "%s-%s" .Release.Name .Values.cnpgClusterName }}
+{{- if not (contains .Chart.Name .Release.Name) }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpgClusterName }}
+{{- end }}
           DB_HOSTNAME:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-%s-app" .Release.Name .Values.cnpgClusterName }}
+                name: {{ printf "%s-app" $cnpgName }}
                 key: host
           DB_USERNAME:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-%s-app" .Release.Name .Values.cnpgClusterName }}
+                name: {{ printf "%s-app" $cnpgName }}
                 key: user
           DB_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-%s-app" .Release.Name .Values.cnpgClusterName }}
+                name: {{ printf "%s-app" $cnpgName }}
                 key: password
           DB_DATABASE_NAME:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-%s-app" .Release.Name .Values.cnpgClusterName }}
+                name: {{ printf "%s-app" $cnpgName }}
                 key: dbname
         image:
           repository: ghcr.io/immich-app/immich-server
