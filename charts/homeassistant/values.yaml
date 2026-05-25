@@ -139,6 +139,20 @@ cnpg:
 #             name: home-assistant-prometheus
 #             key: token
 
+# -- HA MCP Server configuration
+hamcp:
+  # -- Enable HA MCP Server controller
+  enabled: false
+  # -- MCP secret path (used when secretName is not set)
+  secretPath: /private
+  # -- Home Assistant URL (used when secretName is not set)
+  # homeassistantUrl: "http://homeassistant:8123"
+  # -- Home Assistant token (used when secretName is not set)
+  # homeassistantToken: ""
+  # -- Secret name containing HOMEASSISTANT_URL, HOMEASSISTANT_TOKEN, and MCP_SECRET_PATH
+  # -- When set, all env vars are loaded from this secret (overrides inline values above)
+  # secretName: homeassistant-mcp
+
 # -- Matterbridge configuration
 matterbridge:
   # -- Enable Matter bridge controller
