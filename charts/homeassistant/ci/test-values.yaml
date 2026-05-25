@@ -3,6 +3,9 @@ cnpg:
   clusterName: db
   prependReleaseName: true
 
+hamcp:
+  enabled: false
+
 rawResources:
   db:
     enabled: true

@@ -99,6 +99,55 @@ controllers:
               failureThreshold: 3
           readiness: *probe
           startup: *probe
+  ha-mcp:
+    enabled: {{ .Values.hamcp.enabled | default false }}
+    containers:
+      main:
+        name: ha-mcp
+        image:
+          repository: ghcr.io/homeassistant-ai/ha-mcp
+          tag: latest
+        command: ha-mcp-web
+{{- if .Values.hamcp.secretName }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.hamcp.secretName }}
+{{- end }}
+        env:
+          - name: MCP_SECRET_PATH
+            value: {{ .Values.hamcp.secretPath | default "/private" }}
+{{- if .Values.hamcp.homeassistantUrl }}
+          - name: HOMEASSISTANT_URL
+            value: {{ .Values.hamcp.homeassistantUrl | quote }}
+{{- end }}
+{{- if .Values.hamcp.homeassistantToken }}
+          - name: HOMEASSISTANT_TOKEN
+            value: {{ .Values.hamcp.homeassistantToken | quote }}
+{{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          limits:
+            memory: 256Mi
+        probes:
+          liveness: &hamcpprobe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                port: 8086
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *hamcpprobe
+          startup: *hamcpprobe
   matterbridge:
     enabled: {{ .Values.matterbridge.enabled | default false }}
     containers:
@@ -134,6 +183,14 @@ persistence:
           - path: /config
         init:
           - path: /config
+  ha-mcp-tmp:
+    enabled: {{ .Values.hamcp.enabled | default false }}
+    type: emptyDir
+    advancedMounts:
+      ha-mcp:
+        main:
+        - path: /tmp
+
   matterbridge:
     enabled: {{ .Values.matterbridge.enabled | default false }}
     type: persistentVolumeClaim
@@ -233,6 +290,13 @@ service:
     ports:
       http:
         port: 8123
+        protocol: TCP
+  ha-mcp:
+    enabled: {{ .Values.hamcp.enabled | default false }}
+    controller: ha-mcp
+    ports:
+      http:
+        port: 8086
         protocol: TCP
   matterbridge:
     enabled: {{ .Values.matterbridge.enabled | default false }}
