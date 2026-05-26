@@ -140,7 +140,7 @@ controllers:
             enabled: true
             custom: true
             spec:
-              httpGet:
+              tcpSocket:
                 port: 8086
               initialDelaySeconds: 0
               periodSeconds: 10
