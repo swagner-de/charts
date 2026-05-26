@@ -9,7 +9,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 |-------|---------|-------------|
 | [adguard-home](charts/adguard-home) | `0.7.2` | DNS-level ad and tracker blocking with optional Prometheus exporter |
 | [akvorado](charts/akvorado) | `0.2.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
-| [arr-stack](charts/arr-stack) | `0.4.0` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
+| [arr-stack](charts/arr-stack) | `0.5.0` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
 | [flowcus](charts/flowcus) | `0.2.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [homeassistant](charts/homeassistant) | `1.14.1` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.7.1` | Customizable application dashboard for your homelab |

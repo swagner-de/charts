@@ -1,6 +1,6 @@
 # arr-stack
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr
 **Homepage:** <https://wiki.servarr.com/>
 
@@ -47,11 +47,11 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 | configarr.secrets | object | `{"data":{},"existingSecret":""}` | Configarr secrets configuration |
 | configarr.secrets.data | object | `{}` | Secret data key-value pairs |
 | configarr.secrets.existingSecret | string | `""` | Use an existing secret for Configarr |
-| flaresolverr | object | `{"enabled":true,"image":{"repository":"ghcr.io/flaresolverr/flaresolverr","tag":"v3.4.6"},"port":8191}` | Flaresolverr Cloudflare bypass proxy configuration |
+| flaresolverr | object | `{"enabled":true,"image":{"repository":"ghcr.io/flaresolverr/flaresolverr","tag":"v3.5.0"},"port":8191}` | Flaresolverr Cloudflare bypass proxy configuration |
 | flaresolverr.enabled | bool | `true` | Enable Flaresolverr |
-| flaresolverr.image | object | `{"repository":"ghcr.io/flaresolverr/flaresolverr","tag":"v3.4.6"}` | Container image configuration |
+| flaresolverr.image | object | `{"repository":"ghcr.io/flaresolverr/flaresolverr","tag":"v3.5.0"}` | Container image configuration |
 | flaresolverr.image.repository | string | `"ghcr.io/flaresolverr/flaresolverr"` | Image repository |
-| flaresolverr.image.tag | string | `"v3.4.6"` | Image tag |
+| flaresolverr.image.tag | string | `"v3.5.0"` | Image tag |
 | flaresolverr.port | int | `8191` | Service port |
 | prowlarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.3.7.5365"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":9696}` | Prowlarr indexer management configuration |
 | prowlarr.enabled | bool | `true` | Enable Prowlarr |
