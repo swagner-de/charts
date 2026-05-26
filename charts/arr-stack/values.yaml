@@ -83,7 +83,7 @@ flaresolverr:
     # -- Image repository
     repository: ghcr.io/flaresolverr/flaresolverr
     # -- Image tag
-    tag: 'v3.4.6'
+    tag: 'v3.5.0'
 
 # -- Bazarr subtitle management configuration
 bazarr:
