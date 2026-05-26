@@ -1,6 +1,6 @@
 # homeassistant
 
-![Version: 1.13.4](https://img.shields.io/badge/Version-1.13.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.5.4](https://img.shields.io/badge/AppVersion-2026.5.4-informational?style=flat-square)
+![Version: 1.14.0](https://img.shields.io/badge/Version-1.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.5.4](https://img.shields.io/badge/AppVersion-2026.5.4-informational?style=flat-square)
 Home automation platform with optional LDAP, Matter bridge, and CNPG database support
 **Homepage:** <https://www.home-assistant.io/>
 
@@ -34,6 +34,9 @@ helm install homeassistant oci://ghcr.io/swagner-de/charts/homeassistant
 | controllers.main.containers.ldap | object | `{"enabled":false}` | LDAP authentication sidecar |
 | controllers.main.containers.ldap.enabled | bool | `false` | Enable LDAP sidecar |
 | controllers.main.containers.main.env | list | `[{"name":"TZ","value":"Europe/Berlin"}]` | Environment variables |
+| hamcp | object | `{"enabled":false,"secretPath":"/private"}` | HA MCP Server configuration |
+| hamcp.enabled | bool | `false` | Enable HA MCP Server controller |
+| hamcp.secretPath | string | `"/private"` | MCP secret path (used when secretName is not set) |
 | ingress | object | `{"main":{"enabled":false}}` | Ingress configuration |
 | ingress.main.enabled | bool | `false` | Enable ingress |
 | ldapSecret | string | `"homeassistant-ldap"` | External secret or define the secrets below |
