@@ -1,0 +1,43 @@
+# -- Global Samba server settings
+samba:
+  # -- NT workgroup name
+  workgroup: WORKGROUP
+  # -- Server description string
+  serverString: "Samba on Kubernetes"
+  # -- Samba log level (0-10)
+  logLevel: 0
+  # -- Space-separated CIDR list of permitted hosts
+  hostsAllow: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
+
+# -- User accounts. Passwords are NOT here — they come from a Secret mounted at /run/secrets/<name>
+# @default -- []
+users: []
+# Example:
+# - name: alice
+#   group: alice    # defaults to name if omitted
+#   uid: 1000
+#   gid: 1000
+
+# -- Share definitions
+# @default -- []
+shares: []
+# Example:
+# - name: alice-private
+#   path: /data/alice
+#   validUsers: [alice]    # empty list = guest/public access
+#   writeable: true
+#   browseable: true
+#   timeMachine: true      # enables fruit:time machine = yes for this share
+#   timeMachineMaxSize: "500 G"   # optional, only when timeMachine: true
+#   encrypt: required      # required | desired | off (default: off)
+
+# -- Persistent storage for /data (all share subdirs live here)
+persistence:
+  data:
+    enabled: true
+    size: 100Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+
+# -- MetalLB LoadBalancer IP (set in cluster overlay)
+loadBalancerIP: ""

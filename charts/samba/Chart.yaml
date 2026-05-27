@@ -1,0 +1,16 @@
+apiVersion: v2
+name: samba
+description: Multi-user Samba SMB file server with per-share encryption and Time Machine support
+type: application
+version: 0.1.0
+# renovate: image=ghcr.io/crazy-max/samba
+appVersion: '4.22.8-r1'
+sources:
+  - https://github.com/swagner-de/charts
+dependencies:
+  - name: common
+    version: 5.0.1
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com
