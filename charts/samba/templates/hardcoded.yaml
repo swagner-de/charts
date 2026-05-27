@@ -1,0 +1,220 @@
+{{- define "hardcoded" -}}
+
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    fsGroup: 0
+
+controllers:
+  main:
+    type: statefulset
+    initContainers:
+      init-dirs:
+        image:
+          repository: busybox
+          tag: "1.37.0"
+        securityContext:
+          runAsUser: 0
+          allowPrivilegeEscalation: true
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - CHOWN
+            - FOWNER
+            - DAC_OVERRIDE
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+{{ range $.Values.shares -}}
+{{ $share := . -}}
+{{ $validUsers := $share.validUsers | default list -}}
+{{ if eq (len $validUsers) 0 }}
+          mkdir -p {{ $share.path }}
+          chown 0:0 {{ $share.path }}
+          chmod 755 {{ $share.path }}
+{{ else if eq (len $validUsers) 1 }}
+{{ $uname := index $validUsers 0 -}}
+{{ $uid := 0 -}}
+{{ $gid := 0 -}}
+{{ range $.Values.users -}}
+{{ if eq .name $uname -}}
+{{ $uid = .uid -}}
+{{ $gid = .gid -}}
+{{ end -}}
+{{ end }}
+          mkdir -p {{ $share.path }}
+          chown {{ $uid }}:{{ $gid }} {{ $share.path }}
+          chmod 700 {{ $share.path }}
+{{ else }}
+          mkdir -p {{ $share.path }}
+          chown 0:0 {{ $share.path }}
+          chmod 1777 {{ $share.path }}
+{{ end -}}
+{{ end }}
+
+    containers:
+      main:
+        image:
+          repository: ghcr.io/crazy-max/samba
+          tag: {{ .Chart.AppVersion | quote }}
+        securityContext:
+          runAsUser: 0
+          allowPrivilegeEscalation: true
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+            - SETUID
+            - SETGID
+            - DAC_READ_SEARCH
+        env:
+          SAMBA_WORKGROUP: {{ .Values.samba.workgroup | quote }}
+          SAMBA_SERVER_STRING: {{ .Values.samba.serverString | quote }}
+          SAMBA_LOG_LEVEL: {{ .Values.samba.logLevel | toString | quote }}
+          SAMBA_HOSTS_ALLOW: {{ .Values.samba.hostsAllow | quote }}
+          AVAHI_ENABLE: "0"
+          WSDD2_ENABLE: "0"
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 445
+              initialDelaySeconds: 15
+              periodSeconds: 20
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 445
+              initialDelaySeconds: 5
+              periodSeconds: 10
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 445
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 12
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+
+service:
+  main:
+    controller: main
+    primary: true
+    type: LoadBalancer
+    {{- if .Values.loadBalancerIP }}
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: {{ .Values.loadBalancerIP | quote }}
+    {{- end }}
+    ports:
+      smb:
+        port: 445
+        protocol: TCP
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      config.yml: |
+        auth:
+{{ range .Values.users }}
+        - user: {{ .name }}
+          group: {{ .group | default .name }}
+          uid: {{ .uid }}
+          gid: {{ .gid }}
+          password_file: /run/secrets/{{ .name }}
+{{ end }}
+        global:
+        - "server min protocol = SMB3"
+        - "ntlm auth = ntlmv2-only"
+{{ range .Values.shares }}
+{{ if eq (.encrypt | default "off") "required" }}
+        - "[{{ .name }}]\nsmb encrypt = required"
+{{ else if eq (.encrypt | default "off") "desired" }}
+        - "[{{ .name }}]\nsmb encrypt = desired"
+{{ end }}
+{{ if eq ((.timeMachine) | toString) "false" }}
+        - "[{{ .name }}]\nfruit:time machine = no"
+{{ end }}
+{{ if and (.timeMachine | default false) .timeMachineMaxSize }}
+        - "[{{ .name }}]\nfruit:time machine max size = {{ .timeMachineMaxSize }}"
+{{ end }}
+{{ end }}
+        share:
+{{ range .Values.shares }}
+{{ $validUsers := .validUsers | default list }}
+        - name: {{ .name }}
+          path: {{ .path }}
+          browsable: {{ if .browseable }}yes{{ else }}no{{ end }}
+          readonly: {{ if .writeable }}no{{ else }}yes{{ end }}
+          guestok: {{ if eq (len $validUsers) 0 }}yes{{ else }}no{{ end }}
+{{ if gt (len $validUsers) 0 }}
+          validusers: {{ join "," $validUsers }}
+          writelist: {{ join "," $validUsers }}
+{{ end }}
+          veto: no
+{{ end }}
+
+persistence:
+  data:
+    advancedMounts:
+      main:
+        main:
+        - path: /data
+        init-dirs:
+        - path: /data
+
+  config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        main:
+        - path: /data/config.yml
+          subPath: config.yml
+
+  secrets:
+    type: secret
+    name: samba-passwords
+    defaultMode: 0400
+    advancedMounts:
+      main:
+        main:
+        - path: /run/secrets
+
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /tmp
+
+  run:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /run
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
