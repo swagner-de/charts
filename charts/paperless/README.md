@@ -1,6 +1,6 @@
 # paperless
 
-![Version: 0.46.6](https://img.shields.io/badge/Version-0.46.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.15](https://img.shields.io/badge/AppVersion-2.20.15-informational?style=flat-square)
+![Version: 0.47.0](https://img.shields.io/badge/Version-0.47.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.15](https://img.shields.io/badge/AppVersion-2.20.15-informational?style=flat-square)
 Document management system with OCR and full-text search
 **Homepage:** <https://docs.paperless-ngx.com/>
 
