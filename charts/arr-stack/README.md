@@ -1,6 +1,6 @@
 # arr-stack
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr
 **Homepage:** <https://wiki.servarr.com/>
 
@@ -53,11 +53,11 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 | flaresolverr.image.repository | string | `"ghcr.io/flaresolverr/flaresolverr"` | Image repository |
 | flaresolverr.image.tag | string | `"v3.5.0"` | Image tag |
 | flaresolverr.port | int | `8191` | Service port |
-| prowlarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.3.7.5365"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":9696}` | Prowlarr indexer management configuration |
+| prowlarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.4.0.5391"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":9696}` | Prowlarr indexer management configuration |
 | prowlarr.enabled | bool | `true` | Enable Prowlarr |
-| prowlarr.image | object | `{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.3.7.5365"}` | Container image configuration |
+| prowlarr.image | object | `{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.4.0.5391"}` | Container image configuration |
 | prowlarr.image.repository | string | `"ghcr.io/home-operations/prowlarr"` | Image repository |
-| prowlarr.image.tag | string | `"2.3.7.5365"` | Image tag |
+| prowlarr.image.tag | string | `"2.4.0.5391"` | Image tag |
 | prowlarr.persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
 | prowlarr.persistence.config.mountPath | string | `"/config"` | Mount path inside the container |
 | prowlarr.persistence.config.size | string | `"100Mi"` | Volume size |
