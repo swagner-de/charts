@@ -1,6 +1,6 @@
 # arr-stack
 
-![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.6.1](https://img.shields.io/badge/Version-0.6.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr
 **Homepage:** <https://wiki.servarr.com/>
 
@@ -63,11 +63,11 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 | prowlarr.persistence.config.size | string | `"100Mi"` | Volume size |
 | prowlarr.persistence.config.type | string | `"persistentVolumeClaim"` | Volume type |
 | prowlarr.port | int | `9696` | Service port |
-| radarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/radarr","tag":"6.2.0"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":7878}` | Radarr movie management configuration |
+| radarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/radarr","tag":"6.2.1"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":7878}` | Radarr movie management configuration |
 | radarr.enabled | bool | `true` | Enable Radarr |
-| radarr.image | object | `{"repository":"ghcr.io/home-operations/radarr","tag":"6.2.0"}` | Container image configuration |
+| radarr.image | object | `{"repository":"ghcr.io/home-operations/radarr","tag":"6.2.1"}` | Container image configuration |
 | radarr.image.repository | string | `"ghcr.io/home-operations/radarr"` | Image repository |
-| radarr.image.tag | string | `"6.2.0"` | Image tag |
+| radarr.image.tag | string | `"6.2.1"` | Image tag |
 | radarr.persistence | object | `{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}}` | Persistence configuration |
 | radarr.persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
 | radarr.persistence.config.mountPath | string | `"/config"` | Mount path inside the container |
