@@ -34,7 +34,7 @@ radarr:
     # -- Image repository
     repository: ghcr.io/home-operations/radarr
     # -- Image tag
-    tag: '6.2.0'
+    tag: '6.2.1'
   # -- Persistence configuration
   persistence:
     config:
