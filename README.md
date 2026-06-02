@@ -24,7 +24,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [powerdns-recursor](charts/powerdns-recursor) | `0.2.1` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.4.1` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
 | [skel](charts/skel) | `0.2.0` | Skeleton chart template for creating new charts |
-| [zigbee2mqtt](charts/zigbee2mqtt) | `0.9.0` | Zigbee-to-MQTT bridge for smart home devices |
+| [zigbee2mqtt](charts/zigbee2mqtt) | `0.10.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
 ## Usage
