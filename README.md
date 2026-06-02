@@ -19,7 +19,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [mealie](charts/mealie) | `0.21.2` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [netra](charts/netra) | `0.2.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.47.2` | Document management system with OCR and full-text search |
+| [paperless](charts/paperless) | `0.48.0` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.5.1` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.2.1` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.4.1` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
