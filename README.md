@@ -7,7 +7,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 <!-- charts-table-start -->
 | Chart | Version | Description |
 |-------|---------|-------------|
-| [adguard-home](charts/adguard-home) | `0.7.2` | DNS-level ad and tracker blocking with optional Prometheus exporter |
+| [adguard-home](charts/adguard-home) | `0.7.3` | DNS-level ad and tracker blocking with optional Prometheus exporter |
 | [akvorado](charts/akvorado) | `0.3.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.6.1` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
 | [flowcus](charts/flowcus) | `0.2.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
