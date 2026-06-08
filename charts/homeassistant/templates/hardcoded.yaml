@@ -164,8 +164,10 @@ controllers:
                 fieldPath: status.podIPs
           - name: MDNS_INTERFACE
             value: {{ .Values.matterbridge.mdns_interface }}
+          - name: NPM_CONFIG_PREFIX
+            value: /nonexistent/.npm-global
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: false
           allowPrivilegeEscalation: false
           seccompProfile:
             type: RuntimeDefault
@@ -173,7 +175,7 @@ controllers:
             drop:
             - ALL
             add:
-            - NET_RAW 
+            - NET_RAW
 persistence:
   config:
     type: persistentVolumeClaim
@@ -272,11 +274,16 @@ configMaps:
 
         ARGS="
         --logger debug
+        --docker
         --mdnsinterface $MDNS_INTERFACE
         "
 
         #[ -n "$IPV4" ] && ARGS="$ARGS --ipv4address $IPV4"
         #[ -n "$IPV6" ] && ARGS="$ARGS --ipv6address $IPV6"
+
+        mkdir -p "$NPM_CONFIG_PREFIX/lib/node_modules"
+        rm -rf "$NPM_CONFIG_PREFIX/lib/node_modules/matterbridge"
+        ln -sf /usr/local/lib/node_modules/matterbridge "$NPM_CONFIG_PREFIX/lib/node_modules/matterbridge"
 
         echo "Starting matterbridge with args:"
         echo "$ARGS"
