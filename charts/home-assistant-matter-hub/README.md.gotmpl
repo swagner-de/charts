@@ -1,0 +1,30 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Matter bridge exposing Home Assistant devices to Matter controllers
+- Layer 2 network attachment support for mDNS
+- Built-in network policy restricting egress to Home Assistant only (no internet)
+- Web UI on port 8482
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsNonRoot: true`, UID/GID 65534
+- `readOnlyRootFilesystem: false`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped except `NET_RAW` (required for mDNS)
+- Seccomp profile: `RuntimeDefault`
+- Network policy: egress only to Home Assistant pods, no internet access
+
+{{ template "chart.maintainersSection" . }}

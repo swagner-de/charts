@@ -1,0 +1,27 @@
+# -- Persistent storage configuration
+persistence:
+  data:
+    # -- Enable data persistence
+    enabled: true
+    # -- Volume size
+    size: 1Gi
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+
+# -- Log level (info, warn, error, debug)
+logLevel: info
+
+# -- mDNS network interface (e.g. net1 for Multus)
+# mdnsInterface: net1
+
+# -- Home Assistant URL (used when secretName is not set)
+# homeAssistantUrl: "http://homeassistant:8123"
+
+# -- Home Assistant long-lived access token (used when secretName is not set)
+# homeAssistantAccessToken: ""
+
+# -- Secret name containing HAMH_HOME_ASSISTANT_URL and HAMH_HOME_ASSISTANT_ACCESS_TOKEN
+# secretName: home-assistant-matter-hub
+
+# -- Release name of the Home Assistant instance (used for network policy egress target)
+homeAssistantReleaseName: homeassistant
