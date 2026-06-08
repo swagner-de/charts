@@ -1,6 +1,6 @@
 # homeassistant
 
-![Version: 1.16.1](https://img.shields.io/badge/Version-1.16.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.6.1](https://img.shields.io/badge/AppVersion-2026.6.1-informational?style=flat-square)
+![Version: 1.17.0](https://img.shields.io/badge/Version-1.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.6.1](https://img.shields.io/badge/AppVersion-2026.6.1-informational?style=flat-square)
 Home automation platform with optional LDAP, Matter bridge, and CNPG database support
 **Homepage:** <https://www.home-assistant.io/>
 
@@ -56,11 +56,20 @@ helm install homeassistant oci://ghcr.io/swagner-de/charts/homeassistant
 | secrets.prometheus.enabled | bool | `false` | Enable Prometheus secret creation |
 | secrets.prometheus.stringData | object | `{"token":""}` | Prometheus secret data |
 
+## Matterbridge non-root plugin installs
+
+The matterbridge container runs as `nobody` (UID 65534) but plugins are installed globally
+via `npm install -g`. Since `/usr/local/lib/node_modules/` is owned by root in the upstream
+image, the init script redirects npm's global prefix to a writable path on the PVC
+(`NPM_CONFIG_PREFIX=/nonexistent/.npm-global`) and symlinks the core `matterbridge` package
+from the image into the custom prefix so plugins can resolve their `matterbridge` peer
+dependency. The `--docker` flag skips `sudo` for npm operations.
+
 ## Security
 - `runAsNonRoot: true`, UID/GID 568
-- `readOnlyRootFilesystem: true`
+- `readOnlyRootFilesystem: true` (matterbridge: `false` — npm needs to write to the overlay)
 - `allowPrivilegeEscalation: false`
-- All capabilities dropped
+- All capabilities dropped (matterbridge adds `NET_RAW` for mDNS)
 - Seccomp profile: `RuntimeDefault`
 
 ## Maintainers

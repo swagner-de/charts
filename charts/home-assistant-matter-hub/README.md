@@ -1,31 +1,48 @@
-# skel
+# home-assistant-matter-hub
 
-A skeleton chart template for creating new charts in this repository.
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.46](https://img.shields.io/badge/AppVersion-2.0.46-informational?style=flat-square)
+Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment
+**Homepage:** <https://riddix.github.io/home-assistant-matter-hub/>
 
-## Usage
+## Features
+- Matter bridge exposing Home Assistant devices to Matter controllers
+- Layer 2 network attachment support for mDNS
+- Built-in network policy restricting egress to Home Assistant only (no internet)
+- Web UI on port 8482
 
-Copy this chart as a starting point for a new application:
+## Install
 
 ```bash
-cp -r charts/skel charts/my-new-chart
+helm install home-assistant-matter-hub oci://ghcr.io/swagner-de/charts/home-assistant-matter-hub
 ```
 
-Then update:
+## Requirements
 
-1. **`Chart.yaml`** — Set chart name, description, version, appVersion, and home URL.
-2. **`templates/hardcoded.yaml`** — Replace the alpine container with your application's image and configuration.
-3. **`values.yaml`** — Define user-configurable defaults.
-4. **`README.md`** — Document configuration options and security settings.
+| Repository | Name | Version |
+|------------|------|---------|
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
 
-## What's Included
+## Values
 
-The skeleton provides a working chart with:
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| homeAssistantReleaseName | string | `"homeassistant"` | Release name of the Home Assistant instance (used for network policy egress target) |
+| logLevel | string | `"info"` | Log level (info, warn, error, debug) |
+| persistence | object | `{"data":{"accessMode":"ReadWriteOnce","enabled":true,"size":"1Gi"}}` | Persistent storage configuration |
+| persistence.data.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
+| persistence.data.enabled | bool | `true` | Enable data persistence |
+| persistence.data.size | string | `"1Gi"` | Volume size |
 
-- Security-hardened defaults (non-root, read-only filesystem, all capabilities dropped)
-- Example init container
-- ConfigMap and Secret from values
-- Persistence volume mount
-- Service definition
-- Probe placeholders (disabled by default)
+## Security
+- `runAsNonRoot: true`, UID/GID 65534
+- `readOnlyRootFilesystem: false`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped except `NET_RAW` (required for mDNS)
+- Seccomp profile: `RuntimeDefault`
+- Network policy: egress only to Home Assistant pods, no internet access
 
-See [CONTRIBUTING.md](../../CONTRIBUTING.md) for the full guide on adding new charts.
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| swagner-de | <swagner-de@users.noreply.github.com> |  |
