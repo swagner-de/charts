@@ -1,0 +1,140 @@
+{{- define "hardcoded" -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    initContainers:
+      patch-settings:
+        image:
+          repository: ghcr.io/music-assistant/server
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          - name: PUBLISH_IP
+            value: {{ .Values.publishIP | default "" | quote }}
+          - name: BASE_URL
+            value: {{ .Values.baseURL | default "" | quote }}
+        command:
+          - python3
+          - -c
+          - |
+            import json, os, socket
+            settings_path = "/data/settings.json"
+            if not os.path.exists(settings_path):
+                exit(0)
+            pod_ip = socket.gethostbyname(socket.gethostname())
+            publish_ip = os.environ.get("PUBLISH_IP")
+            base_url = os.environ.get("BASE_URL")
+            with open(settings_path) as f:
+                d = json.load(f)
+            ws = d.setdefault("core", {}).setdefault("webserver", {}).setdefault("values", {})
+            ws["bind_ip"] = pod_ip
+            ws["bind_port"] = 8095
+            if base_url:
+                ws["base_url"] = base_url
+            if publish_ip:
+                st = d.setdefault("core", {}).setdefault("streams", {})
+                st.setdefault("domain", "streams")
+                st.setdefault("values", {})["publish_ip"] = publish_ip
+            with open(settings_path, "w") as f:
+                json.dump(d, f, indent=2)
+            msg = f"Patched webserver bind_ip={pod_ip} bind_port=8095"
+            if base_url:
+                msg += f" base_url={base_url}"
+            if publish_ip:
+                msg += f" streams publish_ip={publish_ip}"
+            print(msg)
+        securityContext:
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+    containers:
+      main:
+        image:
+          repository: ghcr.io/music-assistant/server
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          - name: LOG_LEVEL
+            value: {{ .Values.logLevel | default "info" }}
+        securityContext:
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_RAW
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                port: 8095
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                port: 8095
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              timeoutSeconds: 1
+              failureThreshold: 30
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 8095
+        protocol: TCP
+      streaming:
+        port: 8097
+        protocol: TCP
+
+ingress:
+  main:
+    enabled: false
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    advancedMounts:
+      main:
+        patch-settings:
+        - path: /data
+        main:
+        - path: /data
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

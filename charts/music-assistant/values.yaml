@@ -1,0 +1,8 @@
+persistence:
+  data:
+    enabled: true
+    size: 10Gi
+    # storageClass: ""
+    accessMode: ReadWriteOnce
+
+logLevel: info
