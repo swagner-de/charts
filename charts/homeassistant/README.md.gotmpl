@@ -19,11 +19,20 @@ helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ te
 
 {{ template "chart.valuesSection" . }}
 
+## Matterbridge non-root plugin installs
+
+The matterbridge container runs as `nobody` (UID 65534) but plugins are installed globally
+via `npm install -g`. Since `/usr/local/lib/node_modules/` is owned by root in the upstream
+image, the init script redirects npm's global prefix to a writable path on the PVC
+(`NPM_CONFIG_PREFIX=/nonexistent/.npm-global`) and symlinks the core `matterbridge` package
+from the image into the custom prefix so plugins can resolve their `matterbridge` peer
+dependency. The `--docker` flag skips `sudo` for npm operations.
+
 ## Security
 - `runAsNonRoot: true`, UID/GID 568
-- `readOnlyRootFilesystem: true`
+- `readOnlyRootFilesystem: true` (matterbridge: `false` — npm needs to write to the overlay)
 - `allowPrivilegeEscalation: false`
-- All capabilities dropped
+- All capabilities dropped (matterbridge adds `NET_RAW` for mDNS)
 - Seccomp profile: `RuntimeDefault`
 
 {{ template "chart.maintainersSection" . }}
