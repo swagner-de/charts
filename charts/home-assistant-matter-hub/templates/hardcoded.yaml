@@ -1,0 +1,127 @@
+{{- define "hardcoded" -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/riddix/home-assistant-matter-hub
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          - name: HAMH_HTTP_PORT
+            value: "8482"
+          - name: HAMH_LOG_LEVEL
+            value: {{ .Values.logLevel | default "info" }}
+{{- if .Values.mdnsInterface }}
+          - name: HAMH_MDNS_NETWORK_INTERFACE
+            value: {{ .Values.mdnsInterface }}
+{{- end }}
+{{- if .Values.homeAssistantUrl }}
+          - name: HAMH_HOME_ASSISTANT_URL
+            value: {{ .Values.homeAssistantUrl | quote }}
+{{- end }}
+{{- if .Values.homeAssistantAccessToken }}
+          - name: HAMH_HOME_ASSISTANT_ACCESS_TOKEN
+            value: {{ .Values.homeAssistantAccessToken | quote }}
+{{- end }}
+{{- if .Values.secretName }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secretName }}
+{{- end }}
+        securityContext:
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_RAW
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 8482
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 8482
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              timeoutSeconds: 1
+              failureThreshold: 30
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 8482
+        protocol: TCP
+
+ingress:
+  main:
+    enabled: false
+
+networkpolicies:
+  main:
+    enabled: true
+    controller: main
+    policyTypes:
+      - Egress
+    rules:
+      egress:
+        - ports:
+          - protocol: UDP
+            port: 53
+          - protocol: TCP
+            port: 53
+        - to:
+          - podSelector:
+              matchLabels:
+                app.kubernetes.io/controller: main
+                app.kubernetes.io/instance: {{ .Values.homeAssistantReleaseName | default "homeassistant" }}
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    advancedMounts:
+      main:
+        main:
+        - path: /data
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

@@ -1,0 +1,5 @@
+misconfigurations:
+  - id: KSV-0014
+    statement: "HAMH writes Matter state and SQLite database to /data"
+  - id: KSV-0119
+    statement: "NET_RAW required for mDNS Matter device discovery"
