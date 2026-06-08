@@ -1,0 +1,5 @@
+misconfigurations:
+  - id: KSV-0014
+    statement: "Music Assistant writes settings.json and cache to /data"
+  - id: KSV-0119
+    statement: "NET_RAW required for mDNS player discovery"

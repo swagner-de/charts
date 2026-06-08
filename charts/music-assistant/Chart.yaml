@@ -1,0 +1,18 @@
+apiVersion: v2
+name: music-assistant
+description: Music Assistant - free, opensource Media player for your local music and online music providers
+type: application
+# renovate: image=ghcr.io/music-assistant/server
+appVersion: '2.8.8'
+version: 0.1.0
+home: https://www.music-assistant.io/
+sources:
+  - https://github.com/music-assistant/server
+  - https://github.com/swagner-de/charts
+dependencies:
+  - name: common
+    version: 5.0.1
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com

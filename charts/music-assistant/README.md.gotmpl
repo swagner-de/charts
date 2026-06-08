@@ -1,0 +1,28 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Web UI on port 8095
+- Audio streaming on port 8097
+- Layer 2 network attachment support for mDNS player discovery
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsNonRoot: true`, UID/GID 65534
+- `readOnlyRootFilesystem: false`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped except `NET_RAW` (required for mDNS)
+- Seccomp profile: `RuntimeDefault`
+
+{{ template "chart.maintainersSection" . }}
