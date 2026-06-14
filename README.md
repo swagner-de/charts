@@ -19,7 +19,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [jellyfin](charts/jellyfin) | `0.2.3` | Free software media server for streaming movies, TV, music, and more |
 | [mealie](charts/mealie) | `0.21.2` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
-| [music-assistant](charts/music-assistant) | `0.2.0` | Music Assistant - free, opensource Media player for your local music and online music providers |
+| [music-assistant](charts/music-assistant) | `0.2.1` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.2.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
 | [paperless](charts/paperless) | `0.50.2` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.5.1` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
