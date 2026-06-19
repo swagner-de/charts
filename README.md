@@ -12,7 +12,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [arr-stack](charts/arr-stack) | `0.6.3` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
 | [flowcus](charts/flowcus) | `0.2.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.1.1` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
-| [homeassistant](charts/homeassistant) | `1.19.2` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
+| [homeassistant](charts/homeassistant) | `1.19.3` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.7.2` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.12.3` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.5.3` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
