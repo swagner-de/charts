@@ -2,12 +2,12 @@ apiVersion: v2
 name: powerdns-auth
 description: PowerDNS authoritative DNS server with LMDB backend and external-dns support
 type: application
-version: 0.5.1
+version: 0.5.2
 home: https://www.powerdns.com/auth/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=powerdns/pdns-auth-50
-appVersion: '5.0.5'
+appVersion: '5.0.6'
 dependencies:
   - name: common
     version: 5.0.1
