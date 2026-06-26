@@ -2,7 +2,7 @@ apiVersion: v2
 name: arr-stack
 description: Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr
 type: application
-version: 0.6.4
+version: 0.6.5
 home: https://wiki.servarr.com/
 sources:
   - https://github.com/swagner-de/charts
