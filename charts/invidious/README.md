@@ -1,6 +1,6 @@
 # invidious
 
-![Version: 0.5.3](https://img.shields.io/badge/Version-0.5.3-informational?style=flat-square) ![AppVersion: 2.20260207.0](https://img.shields.io/badge/AppVersion-2.20260207.0-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![AppVersion: 2.20260207.0](https://img.shields.io/badge/AppVersion-2.20260207.0-informational?style=flat-square)
 Privacy-focused alternative YouTube frontend with companion service and PostgreSQL
 **Homepage:** <https://github.com/iv-org/invidious>
 
@@ -27,13 +27,14 @@ helm install invidious oci://ghcr.io/swagner-de/charts/invidious
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cnpg | object | `{"clusterName":"invidious","enabled":false}` | CloudNativePG database configuration |
+| cnpg | object | `{"clusterName":"invidious","enabled":false,"prependReleaseName":false}` | CloudNativePG database configuration |
 | cnpg.clusterName | string | `"invidious"` | CNPG cluster name |
 | cnpg.enabled | bool | `false` | Enable CNPG operator |
+| cnpg.prependReleaseName | bool | `false` | Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources) |
 | companion | object | `{}` | Companion service configuration |
 | companionKey | object | `{"value":"CHANGEMEplease16"}` | Companion service shared secret (exactly 16 alphanumeric characters) |
 | companionKey.value | string | `"CHANGEMEplease16"` | Companion key value |
-| config | object | `{"captcha_enabled":false,"domain":"mydomain.example","enable_user_notifications":true,"external_port":443,"hsts":true,"https_only":true,"log_level":"debug","login_enabled":true,"popular_enabled":true,"registration_enabled":true,"statistics_enabled":true}` | Invidious application configuration |
+| config | object | `{"captcha_enabled":false,"domain":"mydomain.example","enable_user_notifications":true,"external_port":443,"hsts":true,"https_only":true,"log_level":"debug","login_enabled":true,"popular_enabled":true,"registration_enabled":true,"statistics_enabled":true}` | Invidious application configuration (rendered into the config file) |
 | config.captcha_enabled | bool | `false` | Enable captcha |
 | config.domain | string | `"mydomain.example"` | Public domain name |
 | config.enable_user_notifications | bool | `true` | Enable user notifications |
@@ -45,6 +46,12 @@ helm install invidious oci://ghcr.io/swagner-de/charts/invidious
 | config.popular_enabled | bool | `true` | Enable popular feed |
 | config.registration_enabled | bool | `true` | Allow registration |
 | config.statistics_enabled | bool | `true` | Enable statistics |
+| configSource | object | `{"pvc":{"accessMode":"ReadWriteOnce","size":"32Mi","storageClass":""},"type":"configMap"}` | How the invidious config is delivered to the pod |
+| configSource.pvc | object | `{"accessMode":"ReadWriteOnce","size":"32Mi","storageClass":""}` | PVC settings (only used when type=pvc) |
+| configSource.pvc.accessMode | string | `"ReadWriteOnce"` | Access mode |
+| configSource.pvc.size | string | `"32Mi"` | Storage size for the config PVC |
+| configSource.pvc.storageClass | string | `""` | StorageClass (empty = cluster default) |
+| configSource.type | string | `"configMap"` | Source type: `configMap` renders an immutable ConfigMap from .Values.config. `pvc` provisions a PVC, seeds it from the rendered config on first start, and leaves further edits to the user (re-seed by deleting the PVC). |
 | hmacKey | object | `{"value":"CHANGEME"}` | HMAC signing key configuration |
 | hmacKey.value | string | `"CHANGEME"` | HMAC key value |
 | ingress | object | `{"main":{"enabled":false}}` | Ingress configuration |
