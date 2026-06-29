@@ -4,6 +4,12 @@
 {{ fail "postgres cannot be used via chart and CNPG"}}
 {{- end }}
 
+{{- $configType := .Values.configSource.type | default "configMap" }}
+{{- if not (or (eq $configType "configMap") (eq $configType "pvc")) }}
+{{- fail (printf "configSource.type must be 'configMap' or 'pvc', got %q" $configType) }}
+{{- end }}
+{{- $isPvc := eq $configType "pvc" }}
+
 global:
   createDefaultServiceAccount: false
   alwaysAppendIdentifierToResourceName: true
@@ -20,6 +26,35 @@ controllers:
   main:
     enabled: true
     strategy: RollingUpdate
+{{- if $isPvc }}
+    initContainers:
+      seed-config:
+        image:
+          repository: quay.io/invidious/invidious
+          tag: {{ .Chart.AppVersion | quote }}
+        command: ["sh", "-c"]
+        args:
+        - |
+          set -e
+          # Refresh image-provided SQL templates so they stay in sync with the app version.
+          rm -rf /seed/sql
+          cp -r /invidious/config/sql /seed/sql
+          # Seed config.yml from chart-rendered default only on first start.
+          if [ ! -f /seed/config.yml ]; then
+            cp /default/config.yml /seed/config.yml
+            echo "Seeded config.yml from default"
+          else
+            echo "config.yml already present; not overwriting"
+          fi
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+{{- end }}
     containers:
       main:
         image:
@@ -66,17 +101,9 @@ controllers:
               - DB_FQDN_URI
 {{- end }}
 {{ if .Values.postgres.enabled }}
-          INVIDIOUS_DATABASE_URL: 
+          INVIDIOUS_DATABASE_URL:
             value: postgres://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ printf "%s-postgres" .Release.Name }}:5432/{{ .Values.postgres.auth.database }}
 {{ end }}
-          INVIDIOUS_CONFIG: |
-            check_tables: true
-            invidious_companion:
-              - private_url: "http://{{.Release.Name}}-companion:8282/companion"
-{{- if .Values.companion.publicUrl }}
-                public_url: {{ .Values.companion.publicUrl }}
-{{- end }}
-{{ .Values.config | toYaml | indent 12 }}
         securityContext:
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
@@ -150,6 +177,40 @@ persistence:
         companion:
         - path: /var/tmp/
 
+{{- if $isPvc }}
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: {{ .Values.configSource.pvc.accessMode }}
+    size: {{ .Values.configSource.pvc.size }}
+{{- with .Values.configSource.pvc.storageClass }}
+    storageClass: {{ . | quote }}
+{{- end }}
+    advancedMounts:
+      main:
+        main:
+        - path: /invidious/config
+        seed-config:
+        - path: /seed
+  config-default:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        seed-config:
+        - path: /default/config.yml
+          subPath: config.yml
+{{- else }}
+  config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        main:
+        - path: /invidious/config/config.yml
+          subPath: config.yml
+{{- end }}
+
 {{ if .Values.cnpg.enabled }}
 {{- $cnpgName := .Values.cnpg.clusterName }}
 {{- if .Values.cnpg.prependReleaseName }}
@@ -168,6 +229,19 @@ persistence:
         - path: /certs/ca.crt
           subPath: ca.crt
 {{ end }}
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      config.yml: |
+        check_tables: true
+        invidious_companion:
+          - private_url: "http://{{ .Release.Name }}-companion:8282/companion"
+{{- if .Values.companion.publicUrl }}
+            public_url: {{ .Values.companion.publicUrl }}
+{{- end }}
+{{ .Values.config | toYaml | indent 8 }}
 
 secrets:
   dummy:

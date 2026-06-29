@@ -52,7 +52,22 @@ hmacKey:
 companion: {}
   # publicUrl: https://companion.mydomain.example
 
-# -- Invidious application configuration
+# -- How the invidious config is delivered to the pod
+configSource:
+  # -- Source type: `configMap` renders an immutable ConfigMap from .Values.config.
+  # `pvc` provisions a PVC, seeds it from the rendered config on first start,
+  # and leaves further edits to the user (re-seed by deleting the PVC).
+  type: configMap
+  # -- PVC settings (only used when type=pvc)
+  pvc:
+    # -- Storage size for the config PVC
+    size: 32Mi
+    # -- Access mode
+    accessMode: ReadWriteOnce
+    # -- StorageClass (empty = cluster default)
+    storageClass: ""
+
+# -- Invidious application configuration (rendered into the config file)
 config:
   # -- External port
   external_port: 443
