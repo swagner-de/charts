@@ -2,7 +2,7 @@ apiVersion: v2
 name: mealie
 description: Self-hosted recipe manager and meal planner
 type: application
-version: 0.22.1
+version: 0.22.3
 home: https://mealie.io/
 sources:
   - https://github.com/swagner-de/charts
@@ -14,7 +14,7 @@ dependencies:
     repository: https://bjw-s-labs.github.io/helm-charts/
   - name: postgres
     repository: oci://registry-1.docker.io/cloudpirates
-    version: 0.19.5
+    version: 0.19.6
     condition: postgres.enabled
 maintainers:
   - name: swagner-de
