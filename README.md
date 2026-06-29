@@ -21,7 +21,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [music-assistant](charts/music-assistant) | `0.2.4` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.2.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.50.5` | Document management system with OCR and full-text search |
+| [paperless](charts/paperless) | `0.50.7` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.5.2` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.2.2` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.4.2` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
