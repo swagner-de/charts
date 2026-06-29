@@ -6,6 +6,7 @@
 
 global:
   createDefaultServiceAccount: false
+  alwaysAppendIdentifierToResourceName: true
 
 defaultPodOptions:
   securityContext:
@@ -47,9 +48,17 @@ controllers:
               key: {{ .Values.hmacKey.existingSecret.key }}
 {{- end }}
 {{ if .Values.cnpg.enabled }}
-          DB_FQDN_URI: 
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
+          DB_FQDN_URI:
             secretKeyRef:
-              name: {{ .Values.cnpg.clusterName }}-app
+              name: {{ $cnpgName }}-app
               key: fqdn-uri
           INVIDIOUS_DATABASE_URL:
             value: $(DB_FQDN_URI)?sslmode=verify-full&sslrootcert=/certs/ca.crt
@@ -142,9 +151,17 @@ persistence:
         - path: /var/tmp/
 
 {{ if .Values.cnpg.enabled }}
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
   certs:
     type: secret
-    name: {{ .Values.cnpg.clusterName }}-ca
+    name: {{ $cnpgName }}-ca
     advancedMounts:
       main:
         main:
