@@ -1,6 +1,6 @@
 # arr-stack
 
-![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr
 **Homepage:** <https://wiki.servarr.com/>
 
@@ -26,11 +26,11 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| bazarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/bazarr","tag":"1.5.6"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":6767}` | Bazarr subtitle management configuration |
+| bazarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/bazarr","tag":"1.6.0"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":6767}` | Bazarr subtitle management configuration |
 | bazarr.enabled | bool | `true` | Enable Bazarr |
-| bazarr.image | object | `{"repository":"ghcr.io/home-operations/bazarr","tag":"1.5.6"}` | Container image configuration |
+| bazarr.image | object | `{"repository":"ghcr.io/home-operations/bazarr","tag":"1.6.0"}` | Container image configuration |
 | bazarr.image.repository | string | `"ghcr.io/home-operations/bazarr"` | Image repository |
-| bazarr.image.tag | string | `"1.5.6"` | Image tag |
+| bazarr.image.tag | string | `"1.6.0"` | Image tag |
 | bazarr.persistence | object | `{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}}` | Persistence configuration |
 | bazarr.persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
 | bazarr.persistence.config.mountPath | string | `"/config"` | Mount path inside the container |
