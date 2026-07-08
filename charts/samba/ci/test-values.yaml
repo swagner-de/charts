@@ -1,0 +1,15 @@
+existingPasswordsSecret: ""
+passwordsData:
+  testuser: TestPassword123
+
+users:
+  - name: testuser
+    uid: 1000
+    gid: 1000
+
+shares:
+  - name: testshare
+    validUsers: [testuser]
+    writeable: true
+    browseable: true
+    size: 1Gi
