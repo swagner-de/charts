@@ -1,0 +1,104 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+
+## Features
+- Multi-user setup: users declared in `values.users`, passwords injected from a
+  Kubernetes Secret at `/run/secrets/<name>`
+- One PVC per share, sized and storage-classed per share
+- Optional per-share and global SMB encryption (`required` / `desired` / `off`)
+- Optional per-share Time Machine support (`fruit:time machine = yes`) with
+  configurable max size
+- Uses [`ghcr.io/swagner-de/containers/samba`](https://github.com/swagner-de/containers/tree/main/apps/samba) —
+  Alpine + `samba-server` with an entrypoint that reads `/config/users.conf` and
+  `/run/secrets/<name>` at pod startup
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## macOS Time Machine setup
+
+Time Machine over SMB on macOS Sequoia (15.x) has two known regressions that
+block `backupd` from reading the network credential even when interactive
+`smbutil` and Finder mount work correctly. Both need to be worked around on the
+Mac before the first backup will run.
+
+Symptoms in `log show --predicate 'process == "backupd" OR process == "NetAuthSysAgent"'`:
+
+```
+NetAuthSysAgent: ... Keychain: isKnownServer 0
+NetAuthSysAgent: ... MechTypes: There are no user credentials to add to the MechType session
+NetAuthSysAgent: ... NetFS: OpenSession failed 80
+backupd: ... NAConnectToServerSync failed with error: 80 (Authentication error)
+backupd: ... Backup failed: BACKUP_FAILED_AUTHENTICATION_ERROR (29)
+```
+
+### 1. Whitelist the server in `serverMarkers.plist`
+
+Without this, `NetAuthSysAgent` reports `isKnownServer 0` and gates the
+credential lookup.
+
+```bash
+sudo /usr/libexec/PlistBuddy -c 'Add :<samba-host> bool true' \
+  '/private/var/root/Library/Group Containers/group.com.apple.NetworkAuthorization.ServerMarkers/serverMarkers.plist'
+```
+
+### 2. Register the destination via `tmutil`, not System Settings
+
+The Time Machine settings pane writes a `Time Machine Network Password`
+keychain entry whose ACL does not grant `backupd` read access on Sequoia. The
+`-T` flag on `security add-internet-password` does not help either — the
+runtime signature check refuses path-based ACLs for system daemons.
+
+`tmutil setdestination -ap` writes the credential via TimeMachine's own APIs in
+a form `backupd` and `NetAuthSysAgent` accept:
+
+```bash
+# If a broken destination was already added, remove it first
+sudo tmutil removedestination <destination-id>            # see `tmutil destinationinfo`
+sudo security delete-internet-password -s <samba-host> -a <user> \
+  /Library/Keychains/System.keychain 2>/dev/null || true
+
+sudo tmutil setdestination -ap 'smb://<user>:<password>@<samba-host>/<share>'
+tmutil startbackup
+```
+
+Verify in the same `log show` command: `NetAuthSysAgent` should log
+`Found MacOS NetAuthSysAgent ACL` and `Reference "ntlm:<user>@..." acquired for
+the MechType`, followed by `backupd: ... Mounted 'smb://...' ...`.
+
+### If you rename a share user
+
+Renaming a share user invalidates the entries macOS stored under the old
+account. Delete stale entries from **both** keychains and re-register the
+destination with the new user:
+
+```bash
+sudo security delete-internet-password -s <samba-host> -a <old-user> \
+  /Library/Keychains/System.keychain
+security delete-internet-password -s <samba-host> -a <old-user> \
+  ~/Library/Keychains/login.keychain-db 2>/dev/null || true
+```
+
+Then repeat step 2 with the new user. The existing on-disk sparsebundle is
+reused as long as the share's owner UID is preserved.
+
+## Server-side notes
+
+- `passdb.tdb` lives on an `emptyDir` under `/var/lib/samba/private`, so the
+  entrypoint re-imports users from `/run/secrets/*` on every pod restart.
+  Rotating a password in the source secret takes effect on the next pod
+  restart.
+- The service is `SingleStack: IPv4` by design — dual-stack SMB against a
+  ULA-scoped LB IP has interoperability issues with clients that only hold a
+  global IPv6 address (macOS 15 `smbutil` will time out on the AAAA reply from
+  DNS), and `hostsAllow` becomes harder to reason about.
+
+{{ template "chart.maintainersSection" . }}

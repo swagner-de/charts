@@ -1,0 +1,8 @@
+misconfigurations:
+  - id: KSV-0014
+    statement: |
+      smbd needs writable /etc, /var/log/samba, /var/lib/samba, /run/samba: the
+      entrypoint runs addgroup/adduser/smbpasswd to materialise users from
+      values.users on every start, and smbd writes logs/state at runtime.
+      init-dirs (busybox) satisfies readOnlyRootFilesystem — this only exempts
+      the main container.

@@ -1,0 +1,78 @@
+# -- Global Samba server settings
+samba:
+  # -- NT workgroup name
+  workgroup: WORKGROUP
+  # -- Server description string
+  serverString: "Samba on Kubernetes"
+  # -- Samba log level (0-10)
+  logLevel: 0
+  # -- Space-separated CIDR list of permitted hosts
+  hostsAllow: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
+  # -- Lines rendered verbatim under `[global]` in `smb.conf`. Overriding this
+  # replaces the entire list; copy the defaults before removing entries.
+  # Defaults enable macOS/Time Machine interoperability via the `fruit` VFS.
+  global:
+    - "server min protocol = SMB2"
+    - "vfs objects = fruit streams_xattr"
+    - "fruit:aapl = yes"
+    - "fruit:metadata = stream"
+    - "fruit:model = TimeCapsule8,119"
+    - "fruit:nfs_aces = no"
+    - "fruit:posix_rename = yes"
+    - "fruit:zero_file_id = yes"
+    - "fruit:wipe_intentionally_left_blank_rfork = yes"
+    - "fruit:delete_empty_adfiles = yes"
+    - "usershare allow guests = no"
+    - "wide links = no"
+    - "strict locking = yes"
+    - "pam password change = no"
+
+# -- Name of an existing Secret whose keys are user names from `users` and
+# values are their SMB passwords. Mounted at `/run/secrets`; the entrypoint
+# imports each key into passdb.tdb via `smbpasswd -a` on every pod start.
+# When empty the chart creates an in-cluster Secret from `passwordsData`
+# instead (intended for chart-testing / CI only).
+existingPasswordsSecret: samba-passwords
+
+# -- Data for the chart-managed passwords Secret when
+# `existingPasswordsSecret` is empty. Do not use in production.
+# @default -- {}
+passwordsData: {}
+
+# -- User accounts. Passwords are NOT here — they come from a Secret mounted at /run/secrets/<name>
+# @default -- []
+users: []
+# Example:
+# - name: alice
+#   group: alice    # defaults to name if omitted
+#   uid: 1000
+#   gid: 1000
+
+# -- Share definitions
+# @default -- []
+shares: []
+# Example:
+# - name: alice-private
+#   validUsers: [alice]    # empty list = guest/public access
+#   writeable: true
+#   browseable: true
+#   timeMachine: true      # enables fruit:time machine = yes for this share
+#   encrypt: required      # per-share: required | desired | off
+#   storageClass: ""       # per-share PVC storage class
+#   size: 50Gi            # per-share PVC size
+
+# -- Kubernetes Service for smbd. The chart hardcodes only what's required for
+# the pod to be reachable on SMB (`controller: main`, `primary: true`, and the
+# `smb` port on 445) — everything below is a soft default that HelmRelease
+# values can override (`type`, `externalTrafficPolicy`, IP families, and
+# `annotations` for MetalLB IPs, external-dns hostnames, etc.).
+service:
+  main:
+    type: LoadBalancer
+    externalTrafficPolicy: Local
+    ipFamilyPolicy: SingleStack
+    ipFamilies:
+      - IPv4
+    # annotations:
+    #   metallb.universe.tf/loadBalancerIPs: "10.0.0.10"
+    #   external-dns.alpha.kubernetes.io/hostname: samba.example.com

@@ -1,0 +1,211 @@
+{{- define "hardcoded" -}}
+
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+
+controllers:
+  main:
+    type: statefulset
+    initContainers:
+      init-dirs:
+        image:
+          repository: busybox
+          tag: "1.37.0"
+        securityContext:
+          runAsUser: 0
+          allowPrivilegeEscalation: true
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - CHOWN
+            - FOWNER
+            - DAC_OVERRIDE
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+{{- range $share := $.Values.shares }}
+{{- $validUsers := $share.validUsers | default list }}
+{{- if eq (len $validUsers) 0 -}}
+{{- fail (printf "share %q has no validUsers" $share.name) -}}
+{{- end }}
+{{- $uname := index $validUsers 0 }}
+{{- $uid := 0 }}
+{{- $gid := 0 }}
+{{- $found := false }}
+{{- range $.Values.users }}
+{{- if eq .name $uname }}
+{{- $uid = .uid }}
+{{- $gid = .gid }}
+{{- $found = true }}
+{{- end }}
+{{- end }}
+{{- if not $found -}}
+{{- fail (printf "share %q: user %q not declared in .Values.users" $share.name $uname) -}}
+{{- end }}
+          mkdir -p /samba/{{ $share.name }}
+          chown {{ $uid }}:{{ $gid }} /samba/{{ $share.name }}
+          chmod {{ if eq (len $validUsers) 1 }}700{{ else }}750{{ end }} /samba/{{ $share.name }}
+{{- end }}
+
+    containers:
+      main:
+        image:
+          repository: ghcr.io/swagner-de/containers/samba
+          tag: {{ .Chart.AppVersion | quote }}
+        securityContext:
+          runAsUser: 0
+          allowPrivilegeEscalation: true
+        env:
+          SAMBA_LOG_LEVEL: {{ .Values.samba.logLevel | toString | quote }}
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 445
+              initialDelaySeconds: 15
+              periodSeconds: 20
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 445
+              initialDelaySeconds: 5
+              periodSeconds: 10
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 445
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 12
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      smb:
+        port: 445
+        protocol: TCP
+
+{{- if not .Values.existingPasswordsSecret }}
+secrets:
+  passwords:
+    enabled: true
+    stringData:
+{{- range $k, $v := .Values.passwordsData }}
+      {{ $k }}: {{ $v | quote }}
+{{- end }}
+{{- end }}
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      users.conf: |
+{{- range .Values.users }}
+        {{ .name }}:{{ .uid }}:{{ .gid }}:{{ .group | default .name }}
+{{- end }}
+      smb.conf: |
+        [global]
+        workgroup = {{ .Values.samba.workgroup }}
+        server string = {{ .Values.samba.serverString }}
+        server role = standalone server
+        log level = {{ .Values.samba.logLevel }}
+{{- if .Values.samba.hostsAllow }}
+        hosts allow = {{ .Values.samba.hostsAllow }}
+{{- end }}
+{{- range .Values.samba.global | default list }}
+        {{ . }}
+{{- end }}
+{{- range .Values.shares }}
+{{- $validUsers := .validUsers | default list }}
+
+        [{{ .name }}]
+        path = /samba/{{ .name }}
+        browseable = {{ if .browseable }}yes{{ else }}no{{ end }}
+        read only = {{ if .writeable }}no{{ else }}yes{{ end }}
+        valid users = {{ join " " $validUsers }}
+        write list = {{ join " " $validUsers }}
+{{- if .encrypt }}
+        smb encrypt = {{ .encrypt }}
+{{- end }}
+{{- if .timeMachine }}
+        fruit:time machine = yes
+        fruit:time machine max size = {{ .timeMachineMaxSize | default (.size | trimSuffix "i") | default "50G" }}
+{{- end }}
+{{- end }}
+
+persistence:
+{{- range .Values.shares }}
+  {{ .name }}:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: {{ .size | default "50Gi" }}
+    {{- if .storageClass }}
+    storageClass: {{ .storageClass }}
+    {{- end }}
+    advancedMounts:
+      main:
+        main:
+        - path: /samba/{{ .name }}
+        init-dirs:
+        - path: /samba/{{ .name }}
+{{- end }}
+
+  config:
+    type: configMap
+    identifier: config
+    defaultMode: 0644
+    advancedMounts:
+      main:
+        main:
+        - path: /config/users.conf
+          subPath: users.conf
+        - path: /etc/samba/smb.conf
+          subPath: smb.conf
+
+  secrets:
+    type: secret
+    {{- if .Values.existingPasswordsSecret }}
+    name: {{ .Values.existingPasswordsSecret }}
+    {{- else }}
+    identifier: passwords
+    {{- end }}
+    defaultMode: 0400
+    advancedMounts:
+      main:
+        main:
+        - path: /run/secrets
+
+  samba-private:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /var/lib/samba/private
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
