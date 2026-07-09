@@ -2,9 +2,9 @@ apiVersion: v2
 name: samba
 description: Multi-user Samba SMB file server with per-share encryption and Time Machine support
 type: application
-version: 0.1.0
+version: 0.2.0
 # renovate: image=ghcr.io/swagner-de/containers/samba
-appVersion: '4.22.10'
+appVersion: '4.23.8'
 sources:
   - https://github.com/swagner-de/charts
 dependencies:
