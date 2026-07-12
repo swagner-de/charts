@@ -93,6 +93,34 @@ Verify in the same `log show` command: `NetAuthSysAgent` should log
 `Found MacOS NetAuthSysAgent ACL` and `Reference "ntlm:<user>@..." acquired for
 the MechType`, followed by `backupd: ... Mounted 'smb://...' ...`.
 
+### Sizing `timeMachineMaxSize` on ZFS / copy-on-write filesystems
+
+`timeMachineMaxSize` defaults to `share.size` with the `i` suffix trimmed —
+so `size: 1Ti` advertises `fruit:time machine max size = 1T` (1 TB decimal)
+to macOS. On ZFS (`zfs-localpv` and similar) the usable filesystem is
+several percent smaller than the PVC request because of recordsize
+padding, metadata, and checksum overhead. A 1Ti PVC on a `recordsize=128k`
+dataset typically exposes ~973 GiB.
+
+When Time Machine fills the sparsebundle to the advertised limit, writes
+past the real filesystem capacity fail. The `Info.plist` at the sparsebundle
+root is rewritten on every backup, so a failed write truncates it to 0
+bytes and the whole bundle becomes unusable — `Info.bckup` is being
+rewritten in the same transaction and gets truncated too.
+
+**Set `timeMachineMaxSize` explicitly and leave headroom below `size`.**
+On ZFS, a 10–20% margin over the advertised cap is safe:
+
+```yaml
+shares:
+  - name: timemachine-alice
+    validUsers: [alice]
+    timeMachine: true
+    timeMachineMaxSize: 1T   # what macOS sees
+    storageClass: zfs-128k-hdd0
+    size: 1200Gi             # PVC request; ~1170 GiB usable after overhead
+```
+
 ### If you rename a share user
 
 Renaming a share user invalidates the entries macOS stored under the old

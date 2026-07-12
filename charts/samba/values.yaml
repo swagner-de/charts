@@ -57,6 +57,11 @@ shares: []
 #   writeable: true
 #   browseable: true
 #   timeMachine: true      # enables fruit:time machine = yes for this share
+#   timeMachineMaxSize: 1T # advertised TM cap; defaults to `size` with the
+#                          # `i` stripped. On ZFS / CoW filesystems set this
+#                          # explicitly BELOW `size` — recordsize/metadata
+#                          # overhead eats several percent of the PVC and a
+#                          # full sparsebundle write will corrupt Info.plist.
 #   encrypt: required      # per-share: required | desired | off
 #   storageClass: ""       # per-share PVC storage class
 #   size: 50Gi            # per-share PVC size
