@@ -110,7 +110,7 @@ controllers:
         image:
 {{- if eq .Values.geoip.provider "maxmind" }}
           repository: ghcr.io/maxmind/geoipupdate
-          tag: v7
+          tag: v8
 {{- else }}
           repository: ghcr.io/akvorado/ipinfo-geoipupdate
           tag: latest
