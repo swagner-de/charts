@@ -15,9 +15,9 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [homeassistant](charts/homeassistant) | `1.20.4` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.7.2` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.14.2` | Self-hosted photo and video backup solution with machine learning |
-| [invidious](charts/invidious) | `0.7.6` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
+| [invidious](charts/invidious) | `0.7.8` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.2.3` | Free software media server for streaming movies, TV, music, and more |
-| [mealie](charts/mealie) | `0.22.7` | Self-hosted recipe manager and meal planner |
+| [mealie](charts/mealie) | `0.22.9` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [music-assistant](charts/music-assistant) | `0.2.8` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.2.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
