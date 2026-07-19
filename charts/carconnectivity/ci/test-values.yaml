@@ -1,0 +1,14 @@
+# Enable the WebUI plugin so the container listens on port 4000, which the
+# liveness/readiness/startup probes check. Without a plugin serving 4000 the
+# pod never becomes ready.
+config:
+  carConnectivity:
+    log_level: warning
+    connectors: []
+    plugins:
+      - type: webui
+        config:
+          username: admin
+          password: ci-test
+          host: 0.0.0.0
+          port: 4000

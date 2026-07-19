@@ -1,0 +1,17 @@
+apiVersion: v2
+name: carconnectivity
+description: Car telemetry data retrieval with plugin support (VW, ABRP, WebUI)
+type: application
+version: 0.1.1
+home: https://github.com/tillsteinbach/CarConnectivity
+sources:
+  - https://github.com/swagner-de/charts
+# renovate: image=ghcr.io/swagner-de/containers/carconnectivity
+appVersion: '0.11.9'
+dependencies:
+  - name: common
+    version: 4.6.2
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com
