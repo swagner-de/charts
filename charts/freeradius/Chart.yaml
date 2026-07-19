@@ -2,12 +2,12 @@ apiVersion: v2
 name: freeradius
 description: FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication
 type: application
-version: 0.1.0
+version: 0.1.1
 home: https://freeradius.org/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=freeradius/freeradius-server
-appVersion: '3.2.7'
+appVersion: '3.2.10'
 dependencies:
   - name: common
     version: 5.0.1
