@@ -1,0 +1,93 @@
+# -- Gateway API HTTPRoute configuration
+route:
+  main:
+    # -- Enable Gateway API HTTPRoute
+    enabled: false
+    # annotations:
+    # parentRefs:
+    #   - namespace: envoy-gateway-system
+    #     name: envoy-internal
+    # hostnames:
+    #   - ghostfolio.example.com
+    # rules:
+    #   - matches:
+    #       - path:
+    #           type: PathPrefix
+    #           value: /
+    #     backendRefs:
+    #       - name: ghostfolio
+    #         port: 3333
+
+# -- Ingress configuration
+ingress:
+  main:
+    # -- Enable ingress
+    enabled: false
+
+# -- Ghostfolio application configuration (converted to environment variables)
+# See https://github.com/ghostfolio/ghostfolio/blob/main/.env.example
+config: {}
+  # HOST: "0.0.0.0"
+  # PORT: "3333"
+  # REQUEST_TIMEOUT: "2000"
+
+# -- Ghostfolio application secrets rendered into a Secret and mounted via envFrom.
+# ACCESS_TOKEN_SALT and JWT_SECRET_KEY are required — either populate here or provide via `envFromSecrets`.
+appSecrets: {}
+  # ACCESS_TOKEN_SALT: "CHANGEME"  # `openssl rand -hex 32`
+  # JWT_SECRET_KEY: "CHANGEME"     # `openssl rand -hex 32`
+
+# -- Additional secrets to mount as environment variables
+envFromSecrets: []
+# Example:
+# - name: ghostfolio-extra
+
+# -- Redis configuration (subchart)
+redis:
+  # -- Enable packaged Redis
+  enabled: true
+  # -- Redis architecture
+  architecture: standalone
+  # -- Redis authentication
+  auth:
+    # -- Enable Redis authentication
+    enabled: true
+    # Let redis generate a random password or provide an existing secret with the password
+    # existingSecret: ghostfolio-redis-user
+    # existingSecretPasswordKey: password
+  # -- Redis persistence
+  persistence:
+    # -- Enable Redis persistence
+    enabled: true
+    # -- Redis volume size
+    size: 1Gi
+
+# -- CloudNativePG database configuration
+cnpg:
+  # -- Enable CNPG-provided PostgreSQL
+  enabled: true
+  # -- CNPG cluster name
+  clusterName: db
+  # -- Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources)
+  prependReleaseName: true
+
+# -- Raw Kubernetes resources
+rawResources:
+  # -- CNPG database cluster
+  db:
+    # -- Enable CNPG database cluster
+    enabled: true
+    # -- Resource manifest
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        imageCatalogRef:
+          apiGroup: postgresql.cnpg.io
+          kind: ClusterImageCatalog
+          name: postgresql
+          major: 16
+        storage:
+          size: 5Gi
+          # storageClass: gp2
