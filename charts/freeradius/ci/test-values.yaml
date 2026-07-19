@@ -1,0 +1,9 @@
+# Minimal config so the config ConfigMap renders with data and FreeRADIUS
+# starts on top of the image defaults during ct install.
+config:
+  raddb:
+    clients.conf: |
+      client localhost {
+          ipaddr = 127.0.0.1
+          secret = testing123
+      }

@@ -1,0 +1,29 @@
+# -- EAP TLS certificate secret name (e.g. from cert-manager)
+# Must contain tls.crt and tls.key
+tlsSecretName: ""
+
+# -- Existing secret for LDAP bind password
+# Must contain a key named 'ldap-password'
+existingLdapSecret: ""
+
+# -- Service configuration
+service:
+  main:
+    type: LoadBalancer
+
+# -- Persistent storage (for TLS cache, session resumption)
+persistence:
+  data:
+    enabled: false
+    size: 1Gi
+    accessMode: ReadWriteOnce
+
+# -- FreeRADIUS configuration files organized by target directory
+# Each key becomes a file in the corresponding directory
+config:
+  # -- /etc/raddb/sites-enabled/
+  sites-enabled: {}
+  # -- /etc/raddb/mods-enabled/
+  mods-enabled: {}
+  # -- /etc/raddb/ (root-level config files)
+  raddb: {}

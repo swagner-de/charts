@@ -1,0 +1,151 @@
+{{- define "hardcoded" -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: false
+    runAsUser: 0
+    runAsGroup: 0
+    fsGroup: 101
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  freeradius:
+    initContainers:
+      init:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: freeradius/freeradius-server
+          tag: {{ printf "%s-alpine" .Chart.AppVersion | quote }}
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          cp -a /opt/etc/raddb/* /raddb/
+          chmod 755 /raddb
+          for f in /custom-config/*; do
+            [ -f "$f" ] || continue
+            name=$(basename "$f")
+            dir="${name%%--*}"
+            file="${name#*--}"
+            case "$dir" in
+              sites-enabled|mods-enabled) cp -f "$f" "/raddb/$dir/$file" ;;
+              raddb) cp -f "$f" "/raddb/$file" ;;
+            esac
+          done
+    containers:
+      main:
+        name: freeradius
+        securityContext:
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+        image:
+          repository: freeradius/freeradius-server
+          tag: {{ printf "%s-alpine" .Chart.AppVersion | quote }}
+        args: ["-X"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness: &probe
+            enabled: false
+          readiness: *probe
+          startup: *probe
+
+service:
+  main:
+    controller: freeradius
+    primary: true
+    type: {{ .Values.service.main.type | default "LoadBalancer" }}
+    ports:
+      auth:
+        port: 1812
+        protocol: UDP
+      acct:
+        port: 1813
+        protocol: UDP
+
+ingress:
+  main:
+    enabled: false
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      {{- range $dir := list "sites-enabled" "mods-enabled" "raddb" }}
+      {{- $entries := index $.Values.config $dir }}
+      {{- range $name, $content := $entries }}
+      {{ $dir }}--{{ $name }}: |
+{{ $content | indent 8 }}
+      {{- end }}
+      {{- end }}
+
+secrets:
+  ldap:
+    enabled: {{ not .Values.existingLdapSecret }}
+    stringData:
+      ldap-password: "changeme"
+
+persistence:
+  raddb:
+    type: emptyDir
+    advancedMounts:
+      freeradius:
+        init:
+        - path: /raddb
+        main:
+        - path: /opt/etc/raddb
+
+  custom-config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      freeradius:
+        init:
+        - path: /custom-config
+
+{{- if .Values.tlsSecretName }}
+  tls:
+    type: secret
+    name: {{ .Values.tlsSecretName }}
+    advancedMounts:
+      freeradius:
+        main:
+        - path: /tls
+{{- end }}
+
+  ldap-secret:
+{{- if .Values.existingLdapSecret }}
+    type: secret
+    name: {{ .Values.existingLdapSecret }}
+{{- else }}
+    type: secret
+    identifier: ldap
+{{- end }}
+    advancedMounts:
+      freeradius:
+        main:
+        - path: /run/secrets
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
