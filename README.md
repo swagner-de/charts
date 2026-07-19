@@ -9,7 +9,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 |-------|---------|-------------|
 | [adguard-home](charts/adguard-home) | `0.7.4` | DNS-level ad and tracker blocking with optional Prometheus exporter |
 | [akvorado](charts/akvorado) | `0.4.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
-| [arr-stack](charts/arr-stack) | `0.8.2` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
+| [arr-stack](charts/arr-stack) | `0.8.3` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr |
 | [carconnectivity](charts/carconnectivity) | `0.1.2` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
 | [flowcus](charts/flowcus) | `0.2.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.1.1` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
