@@ -1,0 +1,57 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Important: Security Context
+
+This chart runs in **privileged mode**. The standard security primitives used by other
+charts in this repository do **not** apply here:
+
+- ❌ `runAsNonRoot` — container runs systemd, requires root
+- ❌ `readOnlyRootFilesystem` — systemd and services need writable paths everywhere
+- ❌ `allowPrivilegeEscalation: false` — requires privilege escalation
+- ❌ `capabilities.drop: [ALL]` — needs full capability set
+- ❌ `seccompProfile: RuntimeDefault` — systemd syscalls would be blocked
+
+UniFi OS Server runs every component as systemd services internally, which requires
+host cgroup access and tmpfs mounts. This is an inherent requirement of the upstream
+project and cannot be worked around.
+
+**Recommendation:** Run this in an isolated namespace with appropriate NetworkPolicies.
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+## Device Adoption
+
+After deployment, set the inform URL on your UniFi devices:
+
+```bash
+ssh admin@<device-ip>
+set-inform http://<UOS_SYSTEM_IP>:8080/inform
+```
+
+By default, `UOS_SYSTEM_IP` is set to the pod IP. Override it in your values if you
+use a LoadBalancer or external DNS name for device communication.
+
+## Ports
+
+| Port | Protocol | Purpose |
+|------|----------|---------|
+| 11443 | TCP | GUI and API (HTTPS) |
+| 8080 | TCP | Device inform / communication |
+| 3478 | UDP | STUN (required for remote management) |
+| 10003 | UDP | Device discovery |
+
+Additional ports (8444, 9543, 6789, 5005, 28082, 5671, 8880-8882 TCP; 5514 UDP syslog)
+may be needed depending on your feature usage.
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "chart.maintainersSection" . }}
