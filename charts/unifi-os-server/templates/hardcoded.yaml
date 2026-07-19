@@ -1,0 +1,135 @@
+{{- define "hardcoded" -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  terminationGracePeriodSeconds: 120
+  securityContext:
+    # UniFi OS Server runs systemd internally and requires host cgroup access.
+    # Standard security primitives (runAsNonRoot, readOnlyRootFilesystem,
+    # drop ALL capabilities) are NOT applicable to this chart.
+    {}
+
+controllers:
+  main:
+    strategy: Recreate
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          privileged: true
+        image:
+          repository: ghcr.io/lemker/unifi-os-server
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+{{- if .Values.uosSystemIP }}
+          UOS_SYSTEM_IP: {{ .Values.uosSystemIP | quote }}
+{{- else }}
+          UOS_SYSTEM_IP:
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+{{- end }}
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/ping
+                port: 80
+              initialDelaySeconds: 60
+              periodSeconds: 60
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/ping
+                port: 80
+              initialDelaySeconds: 30
+              periodSeconds: 10
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/ping
+                port: 80
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              failureThreshold: 30
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      https:
+        port: 443
+        protocol: TCP
+      inform:
+        port: 8080
+        protocol: TCP
+  stun:
+    controller: main
+    type: LoadBalancer
+    ports:
+      stun:
+        port: 3478
+        protocol: UDP
+      discovery:
+        port: 10003
+        protocol: UDP
+
+ingress:
+  main:
+    enabled: false
+
+persistence:
+  data:
+    advancedMounts:
+      main:
+        main:
+        - path: /data
+          subPath: data
+        - path: /var/lib/unifi
+          subPath: unifi
+        - path: /var/lib/mongodb
+          subPath: mongodb
+        - path: /var/log
+          subPath: log
+  tmpfs-run:
+    type: emptyDir
+    medium: Memory
+    advancedMounts:
+      main:
+        main:
+        - path: /run
+  tmpfs-run-lock:
+    type: emptyDir
+    medium: Memory
+    advancedMounts:
+      main:
+        main:
+        - path: /run/lock
+  cgroup:
+    type: hostPath
+    hostPath: /sys/fs/cgroup
+    advancedMounts:
+      main:
+        main:
+        - path: /sys/fs/cgroup
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

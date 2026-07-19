@@ -1,0 +1,7 @@
+misconfigurations:
+  - id: KSV-0014
+    statement: "UniFi OS Server runs systemd internally and requires a writable root filesystem"
+  - id: KSV-0017
+    statement: "UniFi OS Server runs systemd and an internal container runtime, requiring a privileged container"
+  - id: KSV-0118
+    statement: "UniFi OS Server requires host cgroup/root access; standard security primitives are not applicable"
