@@ -1,0 +1,157 @@
+{{- define "hardcoded" -}}
+
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    initContainers:
+      envsubst:
+        enabled: true
+        image:
+          repository: alpine
+          tag: "3.21"
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            set -e
+            cp /config-template/carconnectivity.json /config/carconnectivity.json
+            for varname in $(grep -oE '\$\{[A-Za-z_][A-Za-z_0-9]*\}' /config/carconnectivity.json | sed 's/^\${//;s/}$//' | sort -u); do
+              varval=$(printenv "$varname" 2>/dev/null) || { echo "WARNING: $varname not set" >&2; continue; }
+              escaped=$(printf '%s' "$varval" | sed 's/[&/\]/\\&/g')
+              sed -i "s|\${${varname}}|${escaped}|g" /config/carconnectivity.json
+            done
+            echo "Config written with env substitution complete"
+{{ if .Values.envSecret }}
+        envFrom:
+          - secretRef:
+              name: {{ .Values.envSecret }}
+{{ end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: ghcr.io/swagner-de/containers/carconnectivity
+          tag: {{ .Chart.AppVersion | quote }}
+        command: ["python"]
+        args:
+          - -c
+          - "from carconnectivity.carconnectivity_base import main; main()"
+          - /config/carconnectivity.json
+          - --tokenfile
+          - /data/tokenstore
+          - --cachefile
+          - /data/cache
+        env:
+          TZ: Europe/Berlin
+          PYTHONUNBUFFERED: "1"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec: &probeSpec
+              tcpSocket:
+                port: 4000
+              initialDelaySeconds: 30
+              periodSeconds: 30
+              timeoutSeconds: 5
+              failureThreshold: 3
+          readiness: *probe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *probeSpec
+              initialDelaySeconds: 10
+              failureThreshold: 10
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 4000
+        protocol: TCP
+
+{{ if not .Values.existingConfigSecret }}
+secrets:
+  config:
+    enabled: true
+    stringData:
+      carconnectivity.json: {{ .Values.config | toJson | quote }}
+{{ end }}
+
+persistence:
+  data:
+    advancedMounts:
+      main:
+        main:
+        - path: /data
+
+  config-template:
+    type: secret
+{{ if .Values.existingConfigSecret }}
+    name: {{ .Values.existingConfigSecret }}
+{{ else }}
+    identifier: config
+{{ end }}
+    advancedMounts:
+      main:
+        envsubst:
+        - path: /config-template/carconnectivity.json
+          subPath: carconnectivity.json
+          readOnly: true
+
+  config:
+    type: emptyDir
+    advancedMounts:
+      main:
+        envsubst:
+        - path: /config
+        main:
+        - path: /config
+          readOnly: true
+
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /tmp
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

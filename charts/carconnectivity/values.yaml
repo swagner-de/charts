@@ -1,0 +1,21 @@
+persistence:
+  data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteOnce
+
+ingress:
+  main:
+    enabled: false
+
+# envSecret: name of a secret injected as env vars into the init container.
+# The init container replaces ${VAR} placeholders in config with matching values.
+# Required keys depend on your config (e.g. VW_USERNAME, VW_PASSWORD, VIN, ABRP_TOKEN).
+
+# existingConfigSecret: use an external secret instead of the chart-managed one
+
+config:
+  carConnectivity:
+    log_level: warning
+    connectors: []
+    plugins: []
