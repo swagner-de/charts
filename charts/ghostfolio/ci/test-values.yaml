@@ -1,0 +1,21 @@
+appSecrets:
+  ACCESS_TOKEN_SALT: "ci-test-salt"
+  JWT_SECRET_KEY: "ci-test-secret"
+
+cnpg:
+  enabled: true
+  clusterName: db
+  prependReleaseName: true
+
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        imageCatalogRef: null
+        imageName: ghcr.io/cloudnative-pg/postgresql:16
+        storage:
+          size: 1Gi
