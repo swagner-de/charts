@@ -1,6 +1,6 @@
 # invidious
 
-![Version: 0.7.12](https://img.shields.io/badge/Version-0.7.12-informational?style=flat-square) ![AppVersion: 2.20260626.0](https://img.shields.io/badge/AppVersion-2.20260626.0-informational?style=flat-square)
+![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![AppVersion: 2.20260723.0](https://img.shields.io/badge/AppVersion-2.20260723.0-informational?style=flat-square)
 Privacy-focused alternative YouTube frontend with companion service and PostgreSQL
 **Homepage:** <https://github.com/iv-org/invidious>
 
