@@ -1,6 +1,6 @@
 # paperless
 
-![Version: 0.51.0](https://img.shields.io/badge/Version-0.51.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.15](https://img.shields.io/badge/AppVersion-2.20.15-informational?style=flat-square)
+![Version: 0.51.2](https://img.shields.io/badge/Version-0.51.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.15](https://img.shields.io/badge/AppVersion-2.20.15-informational?style=flat-square)
 Document management system with OCR and full-text search
 **Homepage:** <https://docs.paperless-ngx.com/>
 
@@ -23,8 +23,8 @@ helm install paperless oci://ghcr.io/swagner-de/charts/paperless
 | Repository | Name | Version |
 |------------|------|---------|
 | https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
-| oci://registry-1.docker.io/cloudpirates | postgres | 0.19.11 |
-| oci://registry-1.docker.io/cloudpirates | redis | 0.33.0 |
+| oci://registry-1.docker.io/cloudpirates | postgres | 0.19.12 |
+| oci://registry-1.docker.io/cloudpirates | redis | 0.33.1 |
 
 ## Values
 
