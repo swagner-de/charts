@@ -1,6 +1,6 @@
 # ghostfolio
 
-![Version: 0.13.0](https://img.shields.io/badge/Version-0.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.41.0](https://img.shields.io/badge/AppVersion-3.41.0-informational?style=flat-square)
+![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.41.0](https://img.shields.io/badge/AppVersion-3.41.0-informational?style=flat-square)
 Open source wealth management software
 **Homepage:** <https://ghostfol.io/>
 
@@ -21,7 +21,7 @@ helm install ghostfolio oci://ghcr.io/swagner-de/charts/ghostfolio
 | Repository | Name | Version |
 |------------|------|---------|
 | https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
-| oci://registry-1.docker.io/cloudpirates | redis | 0.33.6 |
+| oci://registry-1.docker.io/cloudpirates | redis | 0.34.0 |
 
 ## Values
 
