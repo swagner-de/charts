@@ -17,7 +17,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.1.6` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.21.3` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.7.2` | Customizable application dashboard for your homelab |
-| [immich](charts/immich) | `0.16.6` | Self-hosted photo and video backup solution with machine learning |
+| [immich](charts/immich) | `0.17.0` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.8.2` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.2.3` | Free software media server for streaming movies, TV, music, and more |
 | [mealie](charts/mealie) | `0.24.0` | Self-hosted recipe manager and meal planner |
