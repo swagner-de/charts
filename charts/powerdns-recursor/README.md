@@ -1,6 +1,6 @@
 # powerdns-recursor
 
-![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.3.9](https://img.shields.io/badge/AppVersion-5.3.9-informational?style=flat-square)
+![Version: 0.2.4](https://img.shields.io/badge/Version-0.2.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.3.10](https://img.shields.io/badge/AppVersion-5.3.10-informational?style=flat-square)
 PowerDNS recursive DNS resolver with DNSSEC validation
 **Homepage:** <https://www.powerdns.com/recursor/>
 
