@@ -15,7 +15,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [freeradius](charts/freeradius) | `0.1.1` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.15.6` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.1.6` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
-| [homeassistant](charts/homeassistant) | `1.22.0` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
+| [homeassistant](charts/homeassistant) | `1.22.1` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.7.2` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.17.4` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.9.3` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
@@ -24,7 +24,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [music-assistant](charts/music-assistant) | `0.2.11` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.2.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.52.4` | Document management system with OCR and full-text search |
+| [paperless](charts/paperless) | `0.52.6` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.5.3` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.2.4` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.4.3` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
