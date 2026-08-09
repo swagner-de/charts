@@ -2,9 +2,9 @@ apiVersion: v2
 name: home-assistant-matter-hub
 description: Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment
 type: application
-version: 0.1.6
+version: 0.1.7
 # renovate: image=ghcr.io/riddix/home-assistant-matter-hub
-appVersion: '2.0.52'
+appVersion: '2.0.53'
 home: https://riddix.github.io/home-assistant-matter-hub/
 sources:
   - https://github.com/swagner-de/charts
