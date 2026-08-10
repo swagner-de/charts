@@ -92,7 +92,68 @@ controllers:
             drop:
             - ALL
     cronjob:
-      schedule: "0 * * * *" 
+      schedule: "0 * * * *"
+
+{{- if .Values.umlautadaptarr.enabled }}
+  umlautadaptarr:
+    enabled: true
+    containers:
+      main:
+        image: {{ .Values.umlautadaptarr.image | toYaml | nindent 12 }}
+        env:
+          TZ: {{ .Values.umlautadaptarr.timezone | quote }}
+          HOME: /tmp
+          SETTINGS__ProxyPort: {{ .Values.umlautadaptarr.proxyPort | quote }}
+          SONARR__ENABLED: {{ .Values.umlautadaptarr.sonarr.enabled | quote }}
+          SONARR__HOST: {{ .Values.umlautadaptarr.sonarr.host | default (printf "http://%s-sonarr:%v" $.Release.Name (int $.Values.sonarr.port)) | quote }}
+          RADARR__ENABLED: {{ .Values.umlautadaptarr.radarr.enabled | quote }}
+          RADARR__HOST: {{ .Values.umlautadaptarr.radarr.host | default (printf "http://%s-radarr:%v" $.Release.Name (int $.Values.radarr.port)) | quote }}
+{{- if .Values.umlautadaptarr.secrets.existingSecret }}
+          SONARR__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.umlautadaptarr.secrets.existingSecret }}
+                key: SONARR_API_KEY
+          RADARR__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.umlautadaptarr.secrets.existingSecret }}
+                key: RADARR_API_KEY
+{{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        probes:
+          liveness: &umlautadaptarrProbe
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: {{ .Values.umlautadaptarr.port }}
+              initialDelaySeconds: 15
+              periodSeconds: 15
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 5
+          readiness: *umlautadaptarrProbe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: {{ .Values.umlautadaptarr.port }}
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 30
+{{- end }}
 
 service:
 {{- range $server := $servers }}
@@ -105,6 +166,16 @@ service:
       http:
         port: {{ $serverConfig.port }}
 {{- end }}
+{{- end }}
+{{- if .Values.umlautadaptarr.enabled }}
+  umlautadaptarr:
+    type: ClusterIP
+    controller: umlautadaptarr
+    ports:
+      http:
+        port: {{ .Values.umlautadaptarr.port }}
+      proxy:
+        port: {{ .Values.umlautadaptarr.proxyPort }}
 {{- end }}
 
 
@@ -139,6 +210,15 @@ persistence:
       configarr:
         main:
           - path: /app/repos
+{{- if .Values.umlautadaptarr.enabled }}
+  umlautadaptarr-tmp:
+    enabled: true
+    type: emptyDir
+    advancedMounts:
+      umlautadaptarr:
+        main:
+          - path: /tmp
+{{- end }}
   configarr-config:
     type: configMap
     enabled: {{ .Values.configarr.enabled }}
