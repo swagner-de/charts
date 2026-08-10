@@ -92,6 +92,13 @@ controllers:
                 name: {{ .Values.paperless.oidcSecret | quote }}
                 key: PAPERLESS_SOCIAL_ACCOUNT_PROVIDERS
 {{- end }}
+{{- if .Values.paperless.secretKey.existingSecret }}
+          PAPERLESS_SECRET_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.paperless.secretKey.existingSecret | quote }}
+                key: {{ .Values.paperless.secretKey.existingSecretKey | quote }}
+{{- end }}
           PAPERLESS_REDIS:
             dependsOn:
               - REDIS_HOST
@@ -321,6 +328,9 @@ persistence:
             subPath: ca.crt
 {{- end }}
 
+{{- end }}
+{{- if and (not .Values.paperless.secretKey.existingSecret) (not (hasKey (.Values.paperless.config | default dict) "secret_key")) }}
+{{-   fail "paperless.secretKey.existingSecret or paperless.config.secret_key must be set: PAPERLESS_SECRET_KEY is required by paperless-ngx" }}
 {{- end }}
 {{- $ctx := deepCopy . -}}
 {{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}

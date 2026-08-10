@@ -1,6 +1,6 @@
 # paperless
 
-![Version: 0.53.2](https://img.shields.io/badge/Version-0.53.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.15](https://img.shields.io/badge/AppVersion-2.20.15-informational?style=flat-square)
+![Version: 0.54.0](https://img.shields.io/badge/Version-0.54.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.15](https://img.shields.io/badge/AppVersion-2.20.15-informational?style=flat-square)
 Document management system with OCR and full-text search
 **Homepage:** <https://docs.paperless-ngx.com/>
 
@@ -36,10 +36,13 @@ helm install paperless oci://ghcr.io/swagner-de/charts/paperless
 | cnpg.prependReleaseName | bool | `false` | Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources) |
 | ingress | object | `{"main":{"enabled":false}}` | Ingress configuration |
 | ingress.main.enabled | bool | `false` | Enable ingress |
-| paperless | object | `{"admin":{"existingSecret":""},"config":null}` | Paperless-ngx application configuration |
+| paperless | object | `{"admin":{"existingSecret":""},"config":null,"secretKey":{"existingSecret":"","existingSecretKey":"PAPERLESS_SECRET_KEY"}}` | Paperless-ngx application configuration |
 | paperless.admin | object | `{"existingSecret":""}` | Admin credentials |
 | paperless.admin.existingSecret | string | `""` | Existing secret with admin credentials |
 | paperless.config | string | `nil` | Paperless config (keys converted to PAPERLESS_* env vars) |
+| paperless.secretKey | object | `{"existingSecret":"","existingSecretKey":"PAPERLESS_SECRET_KEY"}` | Secret key used for cryptographic signing (PAPERLESS_SECRET_KEY). Required by paperless-ngx. Provide it via an existing secret (recommended), or set paperless.config.secret_key instead. |
+| paperless.secretKey.existingSecret | string | `""` | Name of an existing secret holding the paperless secret key |
+| paperless.secretKey.existingSecretKey | string | `"PAPERLESS_SECRET_KEY"` | Key within existingSecret that holds the secret key value |
 | persistence | object | `{"consumption":{"accessMode":"ReadWriteOnce","size":"1Gi"},"data":{"accessMode":"ReadWriteOnce","size":"100Gi"}}` | Persistent storage configuration |
 | persistence.consumption | object | `{"accessMode":"ReadWriteOnce","size":"1Gi"}` | Consumption directory volume |
 | persistence.consumption.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
