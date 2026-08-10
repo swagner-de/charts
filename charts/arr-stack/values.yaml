@@ -157,3 +157,37 @@ configarr:
     # -- Secret data key-value pairs
     data: {}
       # SONARR_API_KEY: 1234
+
+# -- UmlautAdaptarr German title matching proxy configuration
+umlautadaptarr:
+  # -- Enable UmlautAdaptarr
+  enabled: false
+  # -- Service port (HTTP API / direct-indexer mode)
+  port: 5005
+  # -- Prowlarr HTTP-proxy port
+  proxyPort: 5006
+  # -- Timezone
+  timezone: Europe/Berlin
+  # -- Container image configuration
+  image:
+    # renovate: docker=https://github.com/PCJones/UmlautAdaptarr
+    # -- Image repository
+    repository: pcjones/umlautadaptarr
+    # -- Image tag
+    tag: '0.7.6'
+  # -- Sonarr integration
+  sonarr:
+    # -- Enable Sonarr integration
+    enabled: true
+    # -- Sonarr base URL (defaults to the in-chart Sonarr service)
+    host: ""
+  # -- Radarr integration
+  radarr:
+    # -- Enable Radarr integration
+    enabled: true
+    # -- Radarr base URL (defaults to the in-chart Radarr service)
+    host: ""
+  # -- Secrets configuration
+  secrets:
+    # -- Existing secret holding SONARR_API_KEY / RADARR_API_KEY
+    existingSecret: ""
