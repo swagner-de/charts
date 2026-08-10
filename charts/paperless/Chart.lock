@@ -4,9 +4,9 @@ dependencies:
   version: 5.0.1
 - name: postgres
   repository: oci://registry-1.docker.io/cloudpirates
-  version: 0.19.13
+  version: 0.19.14
 - name: redis
   repository: oci://registry-1.docker.io/cloudpirates
-  version: 0.34.11
-digest: sha256:f9b54304ecc56b1ebca53139209083f579bb683b95c92945e901dcb9813103a1
-generated: "2026-08-07T18:14:39.815887507Z"
+  version: 0.34.14
+digest: sha256:49fd1fd0575b889e4bb8727492f962cd0d4ed1b4f752f35610a80336dfcd38af
+generated: "2026-08-10T10:07:42.10452493Z"
