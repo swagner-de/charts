@@ -1,7 +1,7 @@
 # arr-stack
 
-![Version: 0.9.3](https://img.shields.io/badge/Version-0.9.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
-Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, and Configarr
+![Version: 0.9.4](https://img.shields.io/badge/Version-0.9.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr
 **Homepage:** <https://wiki.servarr.com/>
 
 ## Features
@@ -85,6 +85,22 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 | sonarr.persistence.config.size | string | `"100Mi"` | Volume size |
 | sonarr.persistence.config.type | string | `"persistentVolumeClaim"` | Volume type |
 | sonarr.port | int | `8989` | Service port |
+| umlautadaptarr | object | `{"enabled":false,"image":{"repository":"pcjones/umlautadaptarr","tag":"0.7.6"},"port":5005,"proxyPort":5006,"radarr":{"enabled":true,"host":""},"secrets":{"existingSecret":""},"sonarr":{"enabled":true,"host":""},"timezone":"Europe/Berlin"}` | UmlautAdaptarr German title matching proxy configuration |
+| umlautadaptarr.enabled | bool | `false` | Enable UmlautAdaptarr |
+| umlautadaptarr.image | object | `{"repository":"pcjones/umlautadaptarr","tag":"0.7.6"}` | Container image configuration |
+| umlautadaptarr.image.repository | string | `"pcjones/umlautadaptarr"` | Image repository |
+| umlautadaptarr.image.tag | string | `"0.7.6"` | Image tag |
+| umlautadaptarr.port | int | `5005` | Service port (HTTP API / direct-indexer mode) |
+| umlautadaptarr.proxyPort | int | `5006` | Prowlarr HTTP-proxy port |
+| umlautadaptarr.radarr | object | `{"enabled":true,"host":""}` | Radarr integration |
+| umlautadaptarr.radarr.enabled | bool | `true` | Enable Radarr integration |
+| umlautadaptarr.radarr.host | string | `""` | Radarr base URL (defaults to the in-chart Radarr service) |
+| umlautadaptarr.secrets | object | `{"existingSecret":""}` | Secrets configuration |
+| umlautadaptarr.secrets.existingSecret | string | `""` | Existing secret holding SONARR_API_KEY / RADARR_API_KEY |
+| umlautadaptarr.sonarr | object | `{"enabled":true,"host":""}` | Sonarr integration |
+| umlautadaptarr.sonarr.enabled | bool | `true` | Enable Sonarr integration |
+| umlautadaptarr.sonarr.host | string | `""` | Sonarr base URL (defaults to the in-chart Sonarr service) |
+| umlautadaptarr.timezone | string | `"Europe/Berlin"` | Timezone |
 
 ## Security
 All containers run with restrictive security defaults:
