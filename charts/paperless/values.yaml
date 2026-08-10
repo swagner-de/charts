@@ -53,6 +53,13 @@ paperless:
     existingSecret: ""
   # oidc secret will populate PAPERLESS_SOCIALACCOUNT_PROVIDERS with a json string contained in secret.PAPERLESS_SOCIAL_ACCOUNT_PROVIDERS
   # oidcSecret: paperless-oidc
+  # -- Secret key used for cryptographic signing (PAPERLESS_SECRET_KEY). Required by paperless-ngx.
+  # Provide it via an existing secret (recommended), or set paperless.config.secret_key instead.
+  secretKey:
+    # -- Name of an existing secret holding the paperless secret key
+    existingSecret: ""
+    # -- Key within existingSecret that holds the secret key value
+    existingSecretKey: PAPERLESS_SECRET_KEY
   # -- Paperless config (keys converted to PAPERLESS_* env vars)
   config:
     # All of these options will be converted to environment variables prefixed with PAPERLESS and uppercased

@@ -1,3 +1,8 @@
+paperless:
+  config:
+    # not a real secret - only used to satisfy PAPERLESS_SECRET_KEY during ct install
+    secret_key: ci-test-key-not-secret
+
 cnpg:
   enabled: true
   clusterName: db
