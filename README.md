@@ -10,8 +10,8 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [adguard-home](charts/adguard-home) | `0.8.0` | DNS-level ad and tracker blocking with optional Prometheus exporter |
 | [akvorado](charts/akvorado) | `0.5.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.10.0` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
-| [carconnectivity](charts/carconnectivity) | `0.2.0` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
-| [flowcus](charts/flowcus) | `0.2.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
+| [carconnectivity](charts/carconnectivity) | `0.3.0` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
+| [flowcus](charts/flowcus) | `0.3.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.1.1` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.24.0` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.1.9` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
