@@ -2,13 +2,13 @@ apiVersion: v2
 name: arr-stack
 description: Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr
 type: application
-version: 0.9.5
+version: 0.10.0
 home: https://wiki.servarr.com/
 sources:
   - https://github.com/swagner-de/charts
 dependencies:
   - name: common
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts/
 maintainers:
   - name: swagner-de
