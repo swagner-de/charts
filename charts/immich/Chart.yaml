@@ -1,6 +1,6 @@
 apiVersion: v2
 name: immich
-version: 0.17.12
+version: 0.18.0
 description: Self-hosted photo and video backup solution with machine learning
 type: application
 home: https://immich.app/
@@ -10,10 +10,10 @@ sources:
 appVersion: 'v3.1.0'
 dependencies:
   - name: common
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts/
   - name: redis
-    version: 0.34.16
+    version: 0.34.17
     repository: oci://registry-1.docker.io/cloudpirates
     condition: redis.enabled
 maintainers:
