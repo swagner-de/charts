@@ -19,7 +19,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [homepage](charts/homepage) | `0.8.0` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.18.0` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.11.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
-| [jellyfin](charts/jellyfin) | `0.2.3` | Free software media server for streaming movies, TV, music, and more |
+| [jellyfin](charts/jellyfin) | `0.3.0` | Free software media server for streaming movies, TV, music, and more |
 | [mealie](charts/mealie) | `0.26.0` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [music-assistant](charts/music-assistant) | `0.2.13` | Music Assistant - free, opensource Media player for your local music and online music providers |
