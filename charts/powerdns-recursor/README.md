@@ -1,6 +1,6 @@
 # powerdns-recursor
 
-![Version: 0.2.4](https://img.shields.io/badge/Version-0.2.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.3.10](https://img.shields.io/badge/AppVersion-5.3.10-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.3.10](https://img.shields.io/badge/AppVersion-5.3.10-informational?style=flat-square)
 PowerDNS recursive DNS resolver with DNSSEC validation
 **Homepage:** <https://www.powerdns.com/recursor/>
 
@@ -20,7 +20,7 @@ helm install powerdns-recursor oci://ghcr.io/swagner-de/charts/powerdns-recursor
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
 
 ## Values
 
