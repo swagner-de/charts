@@ -1,6 +1,6 @@
 # unifi-os-server
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.4.0](https://img.shields.io/badge/AppVersion-v1.4.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.4.0](https://img.shields.io/badge/AppVersion-v1.4.0-informational?style=flat-square)
 UniFi OS Server - self-hosted UniFi Network with Organizations, IdP, and Site Magic SD-WAN support
 **Homepage:** <https://github.com/lemker/unifi-os-server>
 
@@ -55,7 +55,7 @@ may be needed depending on your feature usage.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
 
 ## Values
 
