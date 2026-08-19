@@ -13,7 +13,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [carconnectivity](charts/carconnectivity) | `0.3.0` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
 | [flowcus](charts/flowcus) | `0.3.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.2.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
-| [ghostfolio](charts/ghostfolio) | `0.27.0` | Open source wealth management software |
+| [ghostfolio](charts/ghostfolio) | `0.28.0` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.2.0` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.23.0` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.8.0` | Customizable application dashboard for your homelab |
