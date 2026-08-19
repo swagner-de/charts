@@ -1,6 +1,6 @@
 # qbittorrent
 
-![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.2.3](https://img.shields.io/badge/AppVersion-5.2.3-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.2.3](https://img.shields.io/badge/AppVersion-5.2.3-informational?style=flat-square)
 BitTorrent client with web UI and optional VPN (gluetun) sidecar
 **Homepage:** <https://www.qbittorrent.org/>
 
@@ -19,7 +19,7 @@ helm install qbittorrent oci://ghcr.io/swagner-de/charts/qbittorrent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.0.1 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
 
 ## Values
 
