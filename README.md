@@ -31,7 +31,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [samba](charts/samba) | `0.3.0` | Multi-user Samba SMB file server with per-share encryption and Time Machine support |
 | [skel](charts/skel) | `0.3.0` | Skeleton chart template for creating new charts |
 | [unifi-os-server](charts/unifi-os-server) | `0.1.0` | UniFi OS Server - self-hosted UniFi Network with Organizations, IdP, and Site Magic SD-WAN support |
-| [zigbee2mqtt](charts/zigbee2mqtt) | `0.12.0` | Zigbee-to-MQTT bridge for smart home devices |
+| [zigbee2mqtt](charts/zigbee2mqtt) | `0.13.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
 ## Usage
