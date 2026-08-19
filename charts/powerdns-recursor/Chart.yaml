@@ -2,7 +2,7 @@ apiVersion: v2
 name: powerdns-recursor
 description: PowerDNS recursive DNS resolver with DNSSEC validation
 type: application
-version: 0.2.4
+version: 0.3.0
 home: https://www.powerdns.com/recursor/
 sources:
   - https://github.com/swagner-de/charts
@@ -10,7 +10,7 @@ sources:
 appVersion: '5.3.10'
 dependencies:
   - name: common
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts/
 maintainers:
   - name: swagner-de
