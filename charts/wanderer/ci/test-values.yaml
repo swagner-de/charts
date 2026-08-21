@@ -1,0 +1,15 @@
+secrets:
+  app:
+    enabled: true
+    stringData:
+      # not real secrets - only used to satisfy env requirements during ct install
+      MEILI_MASTER_KEY: ci-test-meili-master-key-not-secret
+      POCKETBASE_ENCRYPTION_KEY: ci-test-pocketbase-key-32-chars0
+
+persistence:
+  search:
+    size: 1Gi
+  db:
+    size: 1Gi
+  uploads:
+    size: 1Gi

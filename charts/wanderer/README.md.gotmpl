@@ -1,0 +1,60 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- All three wanderer services in one hardened pod: meilisearch (search),
+  PocketBase backend (db) and the SvelteKit frontend (web), talking over localhost
+- Separate PVCs for the search index, PocketBase data/plugins and uploaded media
+- Secrets injected via envFrom (packaged Secret or an external Secret)
+
+## Routing
+wanderer needs **two** externally reachable hosts, because the frontend talks to
+PocketBase **directly from the browser** (`PUBLIC_POCKETBASE_URL`):
+
+- `origin` (e.g. `https://wanderer.example.com`) → `<release>-main:3000` (frontend)
+- `pocketbaseUrl` (e.g. `https://wanderer-db.example.com`) → `<release>-pocketbase:8090`
+
+Set both values to their external URLs and point an Ingress or a Gateway API
+`HTTPRoute` at each service. `origin` must be identical on the frontend and
+PocketBase, or PocketBase rejects the web UI's form submissions with
+*"Cross-site POST form submissions are forbidden"*.
+
+## Secrets
+Two secrets are required (see `values.yaml`):
+
+- `MEILI_MASTER_KEY` — meilisearch master key, min 16 bytes, shared by all services
+- `POCKETBASE_ENCRYPTION_KEY` — PocketBase AES key, **exactly 32 characters**
+
+Provide them via the packaged Secret (`secrets.app`) or an external Secret listed
+under `envFromSecrets`.
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## SMTP
+Email (password resets, notifications) is sent by PocketBase. Configure it either
+in the PocketBase admin UI or via `POCKETBASE_SMTP_*` variables under `db.config`
+(the password should come from an external Secret). See
+<https://wanderer.to/run/environment-configuration/#pocketbase>.
+
+## OAuth / OIDC
+wanderer supports OAuth2 providers, but they are configured **at runtime in the
+PocketBase admin panel** (users collection → Options → OAuth2) — there are no
+environment variables for the issuer/client id/secret, so this chart does not
+expose them. The provider redirect URL is `<origin>/login/redirect`.
+
+## Security
+All three containers run fully hardened: `runAsNonRoot: true` (UID/GID 1000),
+`readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`, all capabilities
+dropped, seccomp `RuntimeDefault`. Each gets a writable `/tmp` emptyDir.
+
+{{ template "chart.maintainersSection" . }}
