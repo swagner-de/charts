@@ -1,0 +1,26 @@
+secrets:
+  app:
+    enabled: true
+    stringData:
+      # not real secrets - only used to satisfy env requirements during ct install
+      NEXTAUTH_SECRET: ci-test-nextauth-secret-not-secret
+      MEILI_MASTER_KEY: ci-test-meili-master-key-not-secret
+
+cnpg:
+  enabled: true
+  clusterName: db
+  prependReleaseName: true
+
+postgres:
+  enabled: false
+
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        storage:
+          size: 1Gi
