@@ -14,6 +14,8 @@ defaultPodOptions:
 
 {{- $origin := .Values.origin | trimSuffix "/" }}
 {{- $pbUrl := .Values.pocketbaseUrl | trimSuffix "/" }}
+{{- $pluginVer := .Values.plugins.version | default .Chart.AppVersion }}
+{{- $pluginsOn := and .Values.plugins.enabled .Values.plugins.bundles }}
 
 # wanderer is three tightly-coupled services in one pod, communicating over
 # localhost: meilisearch (search, :7700), a PocketBase-based backend (db, :8090)
@@ -22,6 +24,46 @@ defaultPodOptions:
 # reachable URL, exposed via its own route/host.
 controllers:
   main:
+{{- if $pluginsOn }}
+    initContainers:
+      # Install PocketBase provider plugins from the wanderer GitHub release into
+      # /data/plugins before the db starts. Always re-downloads and overwrites (the
+      # on-disk version is unknown), keeping plugins pinned to the release tag.
+      install-plugins:
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: docker.io/curlimages/curl
+          tag: 8.18.0
+        command: ["sh", "-c"]
+        args:
+        - |
+          set -eu
+          base="https://github.com/open-wanderer/wanderer/releases/download/{{ $pluginVer }}"
+          cd /tmp
+          curl -fsSL --retry 3 "$base/SHA256SUMS" -o SHA256SUMS
+          for p in {{ .Values.plugins.bundles | join " " }}; do
+            f="wanderer-plugin-$p.tar.gz"
+            echo "installing plugin: $p ({{ $pluginVer }})"
+            curl -fsSL --retry 3 "$base/$f" -o "$f"
+            grep " $f$" SHA256SUMS | sha256sum -c -
+            tar xzf "$f" -C /data/plugins
+          done
+          echo "plugins installed"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+{{- end }}
     containers:
       # Meilisearch — full-text search index. Runs unmodified upstream image.
       search:
@@ -222,6 +264,11 @@ persistence:
           subPath: pb_data
         - path: /data/plugins
           subPath: plugins
+{{- if $pluginsOn }}
+        install-plugins:
+        - path: /data/plugins
+          subPath: plugins
+{{- end }}
   # User-uploaded trail media (GPX, photos).
   uploads:
     enabled: {{ .Values.persistence.uploads.enabled }}
@@ -253,6 +300,14 @@ persistence:
       main:
         web:
         - path: /tmp
+{{- if $pluginsOn }}
+  tmp-plugins:
+    type: emptyDir
+    advancedMounts:
+      main:
+        install-plugins:
+        - path: /tmp
+{{- end }}
 
 {{ end }}
 

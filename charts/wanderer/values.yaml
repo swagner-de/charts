@@ -34,6 +34,21 @@ web:
   # NOMINATIM_URL: "https://nominatim.openstreetmap.org"
   # OVERPASS_API_URL: "https://overpass-api.de"
 
+# -- PocketBase provider plugins to install at startup. When enabled with a
+# non-empty bundle list, an init container downloads each bundle from the wanderer
+# GitHub release, verifies it against the release SHA256SUMS, and extracts it into
+# /data/plugins (persisted on the db PVC). It re-downloads on every start, keeping
+# plugins pinned to the release tag. See https://wanderer.to/run/installation/plugins
+plugins:
+  # -- Enable the plugin-install init container
+  enabled: false
+  # -- Plugin bundle ids to install (release assets named wanderer-plugin-<id>.tar.gz),
+  # e.g. [strava, komoot, hammerhead]
+  bundles: []
+  # -- Release tag to pull bundles from. Empty uses the chart appVersion, so
+  # plugins stay in lockstep with the app image.
+  version: ""
+
 # -- Persistent storage configuration
 persistence:
   # -- Meilisearch index data, mounted at /meili_data
