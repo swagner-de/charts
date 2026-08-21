@@ -16,7 +16,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [freeradius](charts/freeradius) | `0.2.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.30.0` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.2.0` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
-| [homeassistant](charts/homeassistant) | `1.23.1` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
+| [homeassistant](charts/homeassistant) | `1.23.2` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.8.0` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.18.2` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.11.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
