@@ -8,6 +8,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | Chart | Version | Description |
 |-------|---------|-------------|
 | [adguard-home](charts/adguard-home) | `0.8.3` | DNS-level ad and tracker blocking with optional Prometheus exporter |
+| [adventurelog](charts/adventurelog) | `0.1.0` | Self-hosted travel companion to log trips, plan itineraries, and map your adventures |
 | [akvorado](charts/akvorado) | `0.5.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.10.0` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
 | [carconnectivity](charts/carconnectivity) | `0.3.0` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
