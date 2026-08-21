@@ -48,6 +48,12 @@ controllers:
               httpGet:
                 path: /
                 port: 3000
+                httpHeaders:
+                # Homepage v2 enforces host validation and always allows
+                # localhost:3000. Probes hit the pod IP, so present that host
+                # explicitly to avoid HTTP 400 regardless of HOMEPAGE_ALLOWED_HOSTS.
+                - name: Host
+                  value: localhost:3000
               initialDelaySeconds: 3
               periodSeconds: 10
               timeoutSeconds: 5
