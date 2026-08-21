@@ -1,0 +1,103 @@
+# -- Public base URL AdventureLog is served on. Used to derive the frontend
+# ORIGIN, backend CSRF_TRUSTED_ORIGINS, and media/OAuth callback URLs.
+# Override with your external URL, e.g. https://adventurelog.example.com
+siteUrl: "http://localhost:8015"
+
+# -- Persistent storage configuration
+persistence:
+  # -- Backend media volume (uploaded photos, GPX tracks, generated images) mounted at /code/media
+  media:
+    # -- Enable media persistence
+    enabled: true
+    # -- Media volume size
+    size: 10Gi
+    # storageClass: "gp2"
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+
+# -- Ingress configuration (disabled by default; prefer the Gateway API `route`)
+ingress:
+  main:
+    # -- Enable ingress
+    enabled: false
+
+# -- NetworkPolicy configuration. When enabled, restricts the pod to: ingress from
+# the gateway namespace (to the frontend/backend ports), and egress to DNS, the
+# CNPG database, and outbound HTTP(S) (first-run country data, geocoding, OIDC, email).
+networkPolicy:
+  # -- Create a NetworkPolicy for the app pod
+  enabled: true
+  # -- Namespace of the Gateway/ingress controller allowed to reach the app
+  gatewayNamespace: envoy-gateway-system
+
+# -- Extra backend (Django) environment variables (plain, non-secret).
+# See https://adventurelog.app/docs/configuration/environment_variables.html
+config: {}
+  # GUNICORN_WORKERS: "2"
+  # ENABLE_RATE_LIMITS: "True"
+  # DISABLE_REGISTRATION: "True"
+
+# -- Default Django admin/superuser account, created on first start.
+# Username and email are non-secret; the password comes from the Secret below.
+admin:
+  # -- Admin username
+  username: "admin"
+  # -- Admin email
+  email: "admin@example.com"
+
+# -- Application secrets rendered into a Secret and injected via envFrom into the backend.
+# For production, disable this and supply an existing Secret via envFromSecrets
+# (e.g. an ExternalSecret) carrying SECRET_KEY and DJANGO_ADMIN_PASSWORD.
+secrets:
+  app:
+    # -- Create the packaged application Secret
+    enabled: true
+    stringData:
+      # -- Django secret key (REQUIRED). Generate with `openssl rand -base64 48`.
+      # If left unset the image generates an ephemeral key that changes on every
+      # restart, invalidating all sessions — always provide a stable value.
+      SECRET_KEY: "CHANGEME"
+      # -- Django admin/superuser password (REQUIRED). You need this to log into
+      # the Django admin panel (e.g. to configure OIDC providers).
+      DJANGO_ADMIN_PASSWORD: "CHANGEME"
+
+# -- Existing secrets injected as environment variables into the backend container.
+# Use this to provide SECRET_KEY / DJANGO_ADMIN_PASSWORD from an ExternalSecret.
+# Each entry: {name: <secret>, optional: <bool>}. Set optional: true for a secret
+# that may not exist yet (e.g. an ExternalSecret pending its upstream item).
+envFromSecrets: []
+# - name: adventurelog-app
+# - name: adventurelog-googlemaps-ext
+#   optional: true
+
+# -- CloudNativePG database configuration.
+# This chart REQUIRES PostGIS (GeoDjango); the packaged (plain) postgres subchart
+# is intentionally NOT supported. Provide the cluster via rawResources using a
+# PostGIS image and seed the extension via bootstrap.initdb.postInitApplicationSQL.
+cnpg:
+  # -- Enable CNPG operator integration (required)
+  enabled: true
+  # -- CNPG cluster name (must match the rendered rawResources Cluster name)
+  clusterName: adventurelog-db
+  # -- Prepend release name and chart name to clusterName (use when the CNPG
+  # cluster is deployed via rawResources and the release name differs from the chart name)
+  prependReleaseName: false
+
+# In case of CNPG, provide the cluster via rawResources and note the PostGIS image
+# and the postInitApplicationSQL that creates the postgis extension (the app DB role
+# is not a superuser, so GeoDjango cannot create it itself).
+# rawResources:
+#   db:
+#     enabled: true
+#     manifest:
+#       apiVersion: postgresql.cnpg.io/v1
+#       kind: Cluster
+#       spec:
+#         instances: 1
+#         imageName: ghcr.io/cloudnative-pg/postgis:16-3.5
+#         bootstrap:
+#           initdb:
+#             postInitApplicationSQL:
+#               - CREATE EXTENSION IF NOT EXISTS postgis;
+#         storage:
+#           size: 5Gi

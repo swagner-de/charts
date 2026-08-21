@@ -1,0 +1,30 @@
+secrets:
+  app:
+    enabled: true
+    stringData:
+      # not real secrets - only used to satisfy env requirements during ct install
+      SECRET_KEY: ci-test-secret-key-not-secret
+      DJANGO_ADMIN_PASSWORD: ci-test-admin-password-not-secret
+
+siteUrl: "http://localhost:8015"
+
+cnpg:
+  enabled: true
+  clusterName: db
+  prependReleaseName: true
+
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        imageName: ghcr.io/cloudnative-pg/postgis:16-3.5
+        bootstrap:
+          initdb:
+            postInitApplicationSQL:
+              - CREATE EXTENSION IF NOT EXISTS postgis;
+        storage:
+          size: 1Gi

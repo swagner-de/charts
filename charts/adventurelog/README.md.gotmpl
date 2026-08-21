@@ -1,0 +1,72 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Split deployment: hardened SvelteKit frontend + Django backend in one pod
+- PostgreSQL/PostGIS database via the CloudNativePG operator (required)
+- Secrets injected via envFrom (packaged Secret or an external Secret)
+
+## Database
+This chart **requires PostGIS** (the backend uses GeoDjango). The packaged plain
+`postgres` subchart is intentionally **not supported** — use the CloudNativePG
+operator and provide a PostGIS cluster via `rawResources`, e.g.:
+
+```yaml
+cnpg:
+  enabled: true
+  clusterName: adventurelog-db
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        imageName: ghcr.io/cloudnative-pg/postgis:16-3.5
+        bootstrap:
+          initdb:
+            postInitApplicationSQL:
+              - CREATE EXTENSION IF NOT EXISTS postgis;
+        storage:
+          size: 5Gi
+```
+
+The `postInitApplicationSQL` line is required: the CNPG application role is not a
+superuser, so GeoDjango cannot create the `postgis` extension itself.
+
+## Routing
+The frontend is the public entrypoint. The reverse proxy in front (Ingress or a
+Gateway API `HTTPRoute`) must route the backend paths to the `backend` service:
+
+- `/media`, `/static`, `/protectedMedia`, `/admin`, `/accounts` → `<release>-backend:80`
+- everything else → `<release>-main:3000`
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## OIDC / SSO
+AdventureLog supports OpenID Connect, but providers are configured **at runtime in
+the Django admin panel** under *Social applications* — there are no environment
+variables for the issuer/client id/secret, so this chart does not expose them. Set
+`siteUrl` to your external URL and, after deploy, log into `<siteUrl>/admin` with
+the admin account to add your provider. The callback URL is
+`<siteUrl>/accounts/oidc/<provider-id>/login/callback/`.
+
+## Security
+- **Frontend**: `runAsNonRoot: true` (UID/GID 1000), `readOnlyRootFilesystem: true`,
+  `allowPrivilegeEscalation: false`, all capabilities dropped, seccomp `RuntimeDefault`.
+- **Backend**: runs as root with a writable root filesystem — its image bundles
+  supervisord/nginx/cron/memcached which require it. Seccomp `RuntimeDefault` is kept.
+  See `.trivyignore.yaml` for the documented exceptions.
+
+{{ template "chart.maintainersSection" . }}
