@@ -1,0 +1,37 @@
+secrets:
+  app:
+    enabled: true
+    stringData:
+      # not a real secret - only used to satisfy env requirements during ct install
+      SECRET_KEY_BASE: ci-test-secret-key-base-not-secret
+
+applicationHosts: "localhost,::1,127.0.0.1"
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: ci-test-redis-password-not-secret
+  persistence:
+    enabled: false
+
+cnpg:
+  enabled: true
+  clusterName: db
+  prependReleaseName: true
+
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        imageName: ghcr.io/cloudnative-pg/postgis:17-3.5
+        bootstrap:
+          initdb:
+            postInitApplicationSQL:
+              - CREATE EXTENSION IF NOT EXISTS postgis;
+        storage:
+          size: 1Gi
