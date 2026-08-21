@@ -1,0 +1,21 @@
+apiVersion: v2
+name: linkwarden
+description: Self-hosted collaborative bookmark manager to collect, organize and archive webpages
+type: application
+version: 0.1.0
+home: https://linkwarden.app/
+sources:
+  - https://github.com/swagner-de/charts
+# renovate: image=ghcr.io/linkwarden/linkwarden
+appVersion: 'v2.16.1'
+dependencies:
+  - name: common
+    version: 5.1.0
+    repository: https://bjw-s-labs.github.io/helm-charts/
+  - name: postgres
+    repository: oci://registry-1.docker.io/cloudpirates
+    version: 0.20.1
+    condition: postgres.enabled
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com

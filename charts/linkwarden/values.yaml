@@ -1,0 +1,119 @@
+# -- Persistent storage configuration
+persistence:
+  # -- Linkwarden data volume (uploaded files, archives, screenshots) mounted at /data/data
+  data:
+    # -- Enable data persistence
+    enabled: true
+    # -- Data volume size
+    size: 10Gi
+    # storageClass: "gp2"
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+  # -- Meilisearch data volume mounted at /meili_data (only used when meilisearch.enabled)
+  meili:
+    # -- Enable Meilisearch data persistence
+    enabled: true
+    # -- Meilisearch volume size
+    size: 2Gi
+    # storageClass: "gp2"
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+
+# -- Ingress configuration
+ingress:
+  main:
+    # -- Enable ingress
+    enabled: false
+
+# -- Linkwarden application configuration (plain, non-secret env vars)
+# See https://docs.linkwarden.app/self-hosting/environment-variables
+config:
+  # -- Public base URL used for auth callbacks. MUST end with /api/v1/auth.
+  # Override with your external URL, e.g. https://links.example.com/api/v1/auth
+  NEXTAUTH_URL: "http://localhost:3000/api/v1/auth"
+  # -- Disable public registration by default
+  NEXT_PUBLIC_DISABLE_REGISTRATION: "true"
+  # DISABLE_NEW_SSO_USERS: "true"
+  # NEXT_PUBLIC_CREDENTIALS_ENABLED: "true"
+
+# -- Database credentials (used only when postgres.enabled; the packaged subchart path)
+db:
+  # -- PostgreSQL username
+  POSTGRES_USER: &postgresUser linkwarden
+  # -- PostgreSQL password
+  POSTGRES_PASSWORD: &postgresPassword "CHANGEME"  # REQUIRED: set your database password
+  # -- PostgreSQL database name
+  POSTGRES_DB: &postgresDB linkwarden
+
+# -- Application secrets rendered into a Secret and injected via envFrom.
+# For production, disable this and supply an existing Secret via envFromSecrets
+# (e.g. an ExternalSecret) carrying NEXTAUTH_SECRET and MEILI_MASTER_KEY.
+secrets:
+  app:
+    # -- Create the packaged application Secret
+    enabled: true
+    stringData:
+      # -- NextAuth session secret (REQUIRED). Generate with `openssl rand -base64 32`.
+      NEXTAUTH_SECRET: "CHANGEME"
+      # -- Meilisearch master key (REQUIRED when meilisearch.enabled). >= 16 bytes.
+      MEILI_MASTER_KEY: "CHANGEME"
+
+# -- Existing secrets to inject as environment variables into the app (and Meilisearch) containers.
+# Use this to provide NEXTAUTH_SECRET / MEILI_MASTER_KEY from an ExternalSecret.
+envFromSecrets: []
+# - name: linkwarden-app
+
+# -- Meilisearch full-text search engine (optional but recommended)
+meilisearch:
+  # -- Enable the packaged Meilisearch controller
+  enabled: true
+
+# -- PostgreSQL database configuration (packaged subchart)
+postgres:
+  # -- Enable packaged PostgreSQL
+  enabled: true
+  # -- PostgreSQL authentication
+  auth:
+    # -- Database username
+    username: *postgresUser
+    # -- Database name
+    database: *postgresDB
+    # -- Database password
+    password: *postgresPassword
+  # -- PostgreSQL persistence
+  persistence:
+    # -- Enable PostgreSQL persistence
+    enabled: true
+    # -- PostgreSQL volume size
+    size: 5Gi
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+
+# -- CloudNativePG database configuration
+cnpg:
+  # In case the CNPG operator is used, provide the cluster definition via rawResources
+  # and set postgres.enabled to false. The cluster name must be provided so the
+  # database connection can be auto-configured from the generated <clusterName>-app secret.
+  # -- Enable CNPG operator integration
+  enabled: false
+  # -- CNPG cluster name
+  clusterName: linkwarden-db
+  # -- Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources)
+  prependReleaseName: false
+
+# In case of CNPG
+# rawResources:
+#   db:
+#     enabled: true
+#     manifest:
+#       apiVersion: postgresql.cnpg.io/v1
+#       kind: Cluster
+#       spec:
+#         instances: 1
+#         imageCatalogRef:
+#           apiGroup: postgresql.cnpg.io
+#           kind: ClusterImageCatalog
+#           name: postgresql
+#           major: 16
+#         storage:
+#           size: 5Gi
