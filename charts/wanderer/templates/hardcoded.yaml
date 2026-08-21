@@ -1,0 +1,262 @@
+{{- define "hardcoded" -}}
+
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+
+{{- $origin := .Values.origin | trimSuffix "/" }}
+{{- $pbUrl := .Values.pocketbaseUrl | trimSuffix "/" }}
+
+# wanderer is three tightly-coupled services in one pod, communicating over
+# localhost: meilisearch (search, :7700), a PocketBase-based backend (db, :8090)
+# and a SvelteKit frontend (web, :3000). The frontend talks to PocketBase from the
+# BROWSER, so `pocketbaseUrl` (PUBLIC_POCKETBASE_URL) must be an externally
+# reachable URL, exposed via its own route/host.
+controllers:
+  main:
+    containers:
+      # Meilisearch — full-text search index. Runs unmodified upstream image.
+      search:
+        enabled: true
+        securityContext: &hardened
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: docker.io/getmeili/meilisearch
+          tag: v1.36.0
+        env:
+          MEILI_NO_ANALYTICS: "true"
+{{- range $k, $v := .Values.search.config }}
+          {{ $k }}: {{ $v | quote }}
+{{- end }}
+        envFrom: &appEnvFrom
+{{- if .Values.secrets.app.enabled }}
+          - secretRef:
+              identifier: app
+{{- end }}
+{{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ .name }}
+{{- if .optional }}
+              optional: true
+{{- end }}
+{{- end }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        probes:
+          liveness: &searchProbe
+            enabled: true
+            custom: true
+            spec: &searchProbeSpec
+              httpGet:
+                path: /health
+                port: 7700
+              initialDelaySeconds: 15
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness: *searchProbe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *searchProbeSpec
+              initialDelaySeconds: 10
+              failureThreshold: 30
+      # PocketBase backend (flomp/wanderer-db) — scratch image, single static Go
+      # binary. Browser-facing: served at `pocketbaseUrl`.
+      db:
+        enabled: true
+        securityContext: *hardened
+        image:
+          repository: docker.io/flomp/wanderer-db
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          MEILI_URL: "http://localhost:7700"
+          # ORIGIN must equal the public frontend URL or PocketBase rejects
+          # cross-site form submissions from the web UI.
+          ORIGIN: {{ $origin | quote }}
+{{- range $k, $v := .Values.db.config }}
+          {{ $k }}: {{ $v | quote }}
+{{- end }}
+        envFrom: *appEnvFrom
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        probes:
+          liveness: &dbProbe
+            enabled: true
+            custom: true
+            spec: &dbProbeSpec
+              httpGet:
+                path: /health
+                port: 8090
+              initialDelaySeconds: 15
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness: *dbProbe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *dbProbeSpec
+              initialDelaySeconds: 10
+              failureThreshold: 30
+      # SvelteKit frontend (flomp/wanderer-web) — public entrypoint on :3000.
+      web:
+        enabled: true
+        securityContext: *hardened
+        image:
+          repository: docker.io/flomp/wanderer-web
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          MEILI_URL: "http://localhost:7700"
+          ORIGIN: {{ $origin | quote }}
+          # Browser-reachable PocketBase URL (used both client- and server-side).
+          PUBLIC_POCKETBASE_URL: {{ $pbUrl | quote }}
+          BODY_SIZE_LIMIT: "Infinity"
+          UPLOAD_FOLDER: /app/uploads
+          # node/npm need a writable HOME + cache under the read-only root fs.
+          HOME: /tmp
+          npm_config_cache: /tmp/.npm
+{{- range $k, $v := .Values.web.config }}
+          {{ $k }}: {{ $v | quote }}
+{{- end }}
+        envFrom: *appEnvFrom
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        probes:
+          liveness: &webProbe
+            enabled: true
+            custom: true
+            spec: &webProbeSpec
+              httpGet:
+                path: /
+                port: 3000
+              initialDelaySeconds: 20
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness: *webProbe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *webProbeSpec
+              initialDelaySeconds: 15
+              failureThreshold: 40
+
+service:
+  # Public entrypoint — the SvelteKit frontend.
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 3000
+        protocol: HTTP
+  # PocketBase backend — must also be exposed externally (browser talks to it).
+  pocketbase:
+    controller: main
+    ports:
+      http:
+        port: 8090
+        protocol: HTTP
+
+ingress:
+  main:
+    enabled: false
+
+secrets:
+  app:
+    enabled: {{ .Values.secrets.app.enabled }}
+    stringData: {{ .Values.secrets.app.stringData | toYaml | nindent 6 }}
+
+persistence:
+  # Meilisearch index data.
+  search:
+    enabled: {{ .Values.persistence.search.enabled }}
+    accessMode: {{ .Values.persistence.search.accessMode }}
+    size: {{ .Values.persistence.search.size }}
+{{- with .Values.persistence.search.storageClass }}
+    storageClass: {{ . | quote }}
+{{- end }}
+    advancedMounts:
+      main:
+        search:
+        - path: /meili_data
+  # PocketBase data (SQLite, uploads metadata) + installed runtime plugins.
+  db:
+    enabled: {{ .Values.persistence.db.enabled }}
+    accessMode: {{ .Values.persistence.db.accessMode }}
+    size: {{ .Values.persistence.db.size }}
+{{- with .Values.persistence.db.storageClass }}
+    storageClass: {{ . | quote }}
+{{- end }}
+    advancedMounts:
+      main:
+        db:
+        - path: /pb_data
+          subPath: pb_data
+        - path: /data/plugins
+          subPath: plugins
+  # User-uploaded trail media (GPX, photos).
+  uploads:
+    enabled: {{ .Values.persistence.uploads.enabled }}
+    accessMode: {{ .Values.persistence.uploads.accessMode }}
+    size: {{ .Values.persistence.uploads.size }}
+{{- with .Values.persistence.uploads.storageClass }}
+    storageClass: {{ . | quote }}
+{{- end }}
+    advancedMounts:
+      main:
+        web:
+        - path: /app/uploads
+  # Writable /tmp for each read-only-root-fs container.
+  tmp-search:
+    type: emptyDir
+    advancedMounts:
+      main:
+        search:
+        - path: /tmp
+  tmp-db:
+    type: emptyDir
+    advancedMounts:
+      main:
+        db:
+        - path: /tmp
+  tmp-web:
+    type: emptyDir
+    advancedMounts:
+      main:
+        web:
+        - path: /tmp
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

@@ -1,0 +1,88 @@
+# -- Public URL the wanderer web frontend is served on. Sets ORIGIN for the
+# frontend and PocketBase (must match, or PocketBase rejects cross-site form
+# submissions). Override with your external URL, e.g. https://wanderer.example.com
+origin: "http://localhost:3000"
+
+# -- Public URL of the PocketBase backend (sets PUBLIC_POCKETBASE_URL). The
+# frontend talks to PocketBase directly from the BROWSER, so this must be
+# externally reachable — expose the `pocketbase` service on its own host/route,
+# e.g. https://wanderer-db.example.com
+pocketbaseUrl: "http://localhost:8090"
+
+# -- Extra environment variables for the meilisearch (search) container.
+# See https://www.meilisearch.com/docs/learn/configuration/instance_options
+search:
+  config: {}
+
+# -- Extra environment variables for the PocketBase (db) container, e.g. SMTP
+# (POCKETBASE_SMTP_*) or the plugin sync schedule. See
+# https://wanderer.to/run/environment-configuration/#pocketbase
+db:
+  config: {}
+  # POCKETBASE_SMTP_ENABLED: "true"
+  # POCKETBASE_SMTP_HOST: "mail.example.com"
+  # POCKETBASE_SMTP_PORT: "587"
+
+# -- Extra environment variables for the SvelteKit (web) container, e.g. the
+# geocoding/routing backends or signup/privacy toggles. See
+# https://wanderer.to/run/environment-configuration/#frontend
+web:
+  config: {}
+  # PUBLIC_DISABLE_SIGNUP: "true"
+  # PUBLIC_PRIVATE_INSTANCE: "true"
+  # VALHALLA_URL: "https://valhalla1.openstreetmap.de"
+  # NOMINATIM_URL: "https://nominatim.openstreetmap.org"
+  # OVERPASS_API_URL: "https://overpass-api.de"
+
+# -- Persistent storage configuration
+persistence:
+  # -- Meilisearch index data, mounted at /meili_data
+  search:
+    enabled: true
+    size: 5Gi
+    accessMode: ReadWriteOnce
+    # storageClass: "gp2"
+  # -- PocketBase data + installed plugins, mounted at /pb_data and /data/plugins
+  db:
+    enabled: true
+    size: 5Gi
+    accessMode: ReadWriteOnce
+    # storageClass: "gp2"
+  # -- User-uploaded trail media, mounted at /app/uploads
+  uploads:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    # storageClass: "gp2"
+
+# -- Ingress configuration (disabled by default; prefer the Gateway API `route`).
+# wanderer needs TWO routes: the frontend (-> main:3000) and PocketBase
+# (-> pocketbase:8090), on separate hostnames.
+ingress:
+  main:
+    # -- Enable ingress
+    enabled: false
+
+# -- Application secrets rendered into a Secret and injected via envFrom into all
+# three containers. For production, disable this and supply an existing Secret via
+# envFromSecrets (e.g. an ExternalSecret).
+secrets:
+  app:
+    # -- Create the packaged application Secret
+    enabled: true
+    stringData:
+      # -- Meilisearch master API key (REQUIRED, min 16 bytes). Shared by all
+      # three services. Generate with `openssl rand -base64 32`.
+      MEILI_MASTER_KEY: "CHANGEME"
+      # -- PocketBase AES encryption key (REQUIRED, EXACTLY 32 characters). Used
+      # to encrypt secrets at rest. Generate with `openssl rand -hex 16`.
+      POCKETBASE_ENCRYPTION_KEY: "CHANGEME-CHANGEME-CHANGEME-32chr"
+
+# -- Existing secrets injected as environment variables into all three containers.
+# Use this to provide MEILI_MASTER_KEY / POCKETBASE_ENCRYPTION_KEY (and optional
+# POCKETBASE_SMTP_* credentials) from an ExternalSecret. Each entry:
+# {name: <secret>, optional: <bool>}.
+envFromSecrets: []
+# - name: wanderer-app
+# - name: wanderer-mail-ext
+#   optional: true
