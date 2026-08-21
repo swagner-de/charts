@@ -1,0 +1,86 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Single pod running both the Rails/Puma web server (`:3000`) and the Sidekiq
+  worker, sharing the storage/tmp volumes
+- PostgreSQL/PostGIS database via the CloudNativePG operator (required)
+- Packaged Redis subchart (or bring your own via `redis.external`)
+- Env-based OpenID Connect and SMTP, injected via `envFromSecrets`
+
+## Database
+This chart **requires PostGIS**. The packaged plain `postgres` subchart is
+intentionally **not supported** — use the CloudNativePG operator and provide a
+PostGIS cluster via `rawResources`, e.g.:
+
+```yaml
+cnpg:
+  enabled: true
+  clusterName: dawarich-db
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        imageName: ghcr.io/cloudnative-pg/postgis:17-3.5
+        bootstrap:
+          initdb:
+            postInitApplicationSQL:
+              - CREATE EXTENSION IF NOT EXISTS postgis;
+        storage:
+          size: 5Gi
+```
+
+The `postInitApplicationSQL` line is required: the CNPG application role is not a
+superuser, so Dawarich cannot create the `postgis` extension itself.
+
+## Redis
+The packaged Redis subchart is enabled by default with authentication. To use an
+existing Redis instead:
+
+```yaml
+redis:
+  enabled: false
+  external:
+    host: my-redis.example.com
+    secretKeyRef:
+      name: my-redis
+      key: redis-password
+```
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Authentication (OIDC)
+Dawarich supports OpenID Connect via environment variables. Provide the client
+credentials and issuer through an external Secret referenced in `envFromSecrets`
+(`OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_ISSUER`) and set the non-secret
+options in `config` (`OIDC_REDIRECT_URI`, `OIDC_PROVIDER_NAME`, …). The callback
+URL is `<applicationProtocol>://<host>/users/auth/openid_connect/callback`.
+
+## Email (SMTP)
+SMTP is configured via environment variables. Set the host settings in `config`
+(`SMTP_SERVER`, `SMTP_PORT`, `SMTP_DOMAIN`, `SMTP_STARTTLS`/`SMTP_SSL`,
+`SMTP_AUTHENTICATION`) and supply `SMTP_USERNAME`/`SMTP_PASSWORD` via an external
+Secret in `envFromSecrets`.
+
+## Security
+The web and worker containers run fully hardened: `runAsNonRoot: true` (UID/GID
+1000), `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`, all
+capabilities dropped, seccomp `RuntimeDefault`. Writable paths (`/var/app/tmp`,
+`/var/app/log`, `/var/app/public`) are `emptyDir`s; `/var/app/storage` is the
+persistent volume.
+
+{{ template "chart.maintainersSection" . }}

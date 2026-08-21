@@ -1,0 +1,148 @@
+# -- Comma-separated hostnames Rails accepts (Rack host authorization).
+# Include your external hostname here, e.g. "dawarich.example.com".
+applicationHosts: "localhost,::1,127.0.0.1"
+
+# -- Protocol Dawarich generates absolute URLs with (http or https). Set to
+# "https" when served behind a TLS-terminating gateway/ingress.
+applicationProtocol: "http"
+
+# -- Time zone used for displaying timestamps.
+timeZone: "Europe/London"
+
+# -- Store reverse-geocoding results in the database.
+storeGeodata: true
+
+# -- Number of preloaded Puma workers on the web container. One is plenty for a
+# household instance; raise for busier deployments.
+webConcurrency: 1
+
+# -- Number of Sidekiq job threads on the worker container.
+backgroundProcessingConcurrency: 3
+
+# -- Prometheus / Yabeda metrics exporter.
+prometheus:
+  # -- Enable the in-process Prometheus exporter
+  enabled: false
+
+# -- Persistent storage configuration.
+persistence:
+  # -- ActiveStorage data (imported files, exports, generated data), mounted at
+  # /var/app/storage and shared by the web and worker containers.
+  storage:
+    # -- Enable storage persistence
+    enabled: true
+    # -- Storage volume size
+    size: 10Gi
+    # storageClass: "gp2"
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+    # -- Use an existing PVC instead of provisioning one
+    existingClaim: ""
+
+# -- Ingress configuration (disabled by default; prefer the Gateway API `route`).
+ingress:
+  main:
+    # -- Enable ingress
+    enabled: false
+
+# -- NetworkPolicy configuration. When enabled, restricts the pod to: ingress from
+# the gateway namespace (to :3000), and egress to DNS, the CNPG database, Redis,
+# and outbound HTTP(S) (reverse geocoding, OIDC, email).
+networkPolicy:
+  # -- Create a NetworkPolicy for the app pod
+  enabled: true
+  # -- Namespace of the Gateway/ingress controller allowed to reach the app
+  gatewayNamespace: envoy-gateway-system
+
+# -- Extra environment variables (plain, non-secret). Use for OIDC display/redirect
+# settings, SMTP host settings, etc. See
+# https://dawarich.app/docs/self-hosting/environment-variables/
+config: {}
+  # OIDC_REDIRECT_URI: "https://dawarich.example.com/users/auth/openid_connect/callback"
+  # OIDC_PROVIDER_NAME: "Authentik"
+  # ALLOW_EMAIL_PASSWORD_LOGIN: "false"
+
+# -- Application secrets rendered into a Secret and injected via envFrom.
+# For production, disable this and supply an existing Secret via envFromSecrets
+# (e.g. an ExternalSecret) carrying SECRET_KEY_BASE.
+secrets:
+  app:
+    # -- Create the packaged application Secret
+    enabled: true
+    stringData:
+      # -- Rails secret key base (REQUIRED). Generate with `openssl rand -hex 64`.
+      # A stable value is required — a changing key invalidates all sessions.
+      SECRET_KEY_BASE: "CHANGEME"
+
+# -- Existing secrets injected as environment variables into both containers.
+# Use this to provide SECRET_KEY_BASE, OIDC client credentials, and SMTP
+# credentials from ExternalSecrets. Each entry: {name: <secret>, optional: <bool>}.
+envFromSecrets: []
+# - name: dawarich-app-ext
+# - name: dawarich-oidc-ext
+#   optional: true
+
+# -- Redis configuration. Uses the packaged Redis subchart by default; set
+# `enabled: false` and fill in `external` to use an existing Redis.
+redis:
+  # -- Enable the packaged Redis subchart
+  enabled: true
+  # -- Redis architecture
+  architecture: standalone
+  # -- Redis authentication
+  auth:
+    # -- Enable Redis authentication
+    enabled: true
+    # -- Redis password
+    password: "CHANGEME"  # REQUIRED: set your Redis password
+    # -- Use an existing Secret for the Redis password (instead of `password`)
+    existingSecret: ""
+    # -- Key in the existing Secret holding the Redis password (also the key in the
+    # auto-generated Secret when the packaged Redis manages its own password)
+    existingSecretPasswordKey: "redis-password"
+  # -- Redis persistence
+  persistence:
+    # -- Enable Redis persistence
+    enabled: true
+    # -- Redis volume size
+    size: 1Gi
+  # -- External Redis (used only when `redis.enabled: false`)
+  external:
+    # -- External Redis host
+    host: ""
+    # -- Reference to a Secret holding the external Redis password
+    secretKeyRef: {}
+      # name: my-redis
+      # key: redis-password
+
+# -- CloudNativePG database configuration.
+# This chart REQUIRES PostGIS; the packaged (plain) postgres subchart is
+# intentionally NOT supported. Provide the cluster via rawResources using a
+# PostGIS image and seed the extension via bootstrap.initdb.postInitApplicationSQL.
+cnpg:
+  # -- Enable CNPG operator integration (required)
+  enabled: true
+  # -- CNPG cluster name (must match the rendered rawResources Cluster name)
+  clusterName: dawarich-db
+  # -- Prepend release name and chart name to clusterName (use when the CNPG
+  # cluster is deployed via rawResources and the release name differs from the chart name)
+  prependReleaseName: false
+
+# In case of CNPG, provide the cluster via rawResources and note the PostGIS image
+# and the postInitApplicationSQL that creates the postgis extension (the app DB role
+# is not a superuser, so Dawarich cannot create it itself).
+# rawResources:
+#   db:
+#     enabled: true
+#     manifest:
+#       apiVersion: postgresql.cnpg.io/v1
+#       kind: Cluster
+#       spec:
+#         instances: 1
+#         imageName: ghcr.io/cloudnative-pg/postgis:17-3.5
+#         bootstrap:
+#           initdb:
+#             postInitApplicationSQL:
+#               - CREATE EXTENSION IF NOT EXISTS postgis;
+#         storage:
+#           size: 5Gi

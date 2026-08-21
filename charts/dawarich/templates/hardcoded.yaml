@@ -1,0 +1,303 @@
+{{- define "hardcoded" -}}
+
+{{- if not .Values.cnpg.enabled }}
+{{ fail "dawarich requires a PostGIS database via CNPG (set cnpg.enabled=true); the plain postgres subchart is not supported" }}
+{{- end }}
+
+{{- if and (not .Values.redis.enabled) (not (and .Values.redis.external.host .Values.redis.external.secretKeyRef)) }}
+{{ fail "redis.external.host and redis.external.secretKeyRef must be set when the packaged redis subchart is disabled" }}
+{{- end }}
+
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
+{{- $dbSecret := printf "%s-app" $cnpgName }}
+
+controllers:
+  main:
+    containers:
+      # Rails/Puma web server. Serves the UI and API on :3000. The web entrypoint
+      # also runs DB migrations and seeds on start, so the startup probe is lenient.
+      app: &appContainer
+        enabled: true
+        securityContext: &secctx
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: docker.io/freikin/dawarich
+          tag: {{ .Chart.AppVersion | quote }}
+        command: ["web-entrypoint.sh"]
+        args: ["bin/rails", "server", "-p", "3000", "-b", "::"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+        env: &env
+          RAILS_ENV: production
+          SELF_HOSTED: "true"
+          STORE_GEODATA: {{ .Values.storeGeodata | quote }}
+          RAILS_LOG_TO_STDOUT: "true"
+          TIME_ZONE: {{ .Values.timeZone | quote }}
+          APPLICATION_HOSTS: {{ .Values.applicationHosts | quote }}
+          APPLICATION_PROTOCOL: {{ .Values.applicationProtocol | quote }}
+          PROMETHEUS_EXPORTER_ENABLED: {{ .Values.prometheus.enabled | quote }}
+          WEB_CONCURRENCY: {{ .Values.webConcurrency | quote }}
+          BACKGROUND_PROCESSING_CONCURRENCY: {{ .Values.backgroundProcessingConcurrency | quote }}
+          # Database — CloudNativePG cluster; credentials come from the CNPG app secret.
+          DATABASE_HOST: {{ printf "%s-rw" $cnpgName | quote }}
+          DATABASE_PORT: "5432"
+          DATABASE_NAME:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: dbname
+          DATABASE_USERNAME:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: username
+          DATABASE_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: password
+          # Redis — used as the Sidekiq broker and Rails cache.
+          REDIS_URL:
+            dependsOn:
+              - REDIS_HOST
+              - REDIS_PASSWORD
+            value: "redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):6379"
+{{- if .Values.redis.enabled }}
+          REDIS_HOST: {{ printf "%s-redis" .Release.Name | quote }}
+          REDIS_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+{{-   if and .Values.redis.auth.existingSecret .Values.redis.auth.existingSecretPasswordKey }}
+                name: {{ .Values.redis.auth.existingSecret }}
+                key: {{ .Values.redis.auth.existingSecretPasswordKey }}
+{{-   else }}
+                name: {{ printf "%s-redis" .Release.Name | quote }}
+                key: redis-password
+{{-   end }}
+{{- else }}
+          REDIS_HOST: {{ .Values.redis.external.host | quote }}
+          REDIS_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.redis.external.secretKeyRef.name | quote }}
+                key: {{ .Values.redis.external.secretKeyRef.key | quote }}
+{{- end }}
+{{- range $k, $v := .Values.config }}
+          {{ $k }}: {{ $v | quote }}
+{{- end }}
+        envFrom: &envFrom
+{{- if .Values.secrets.app.enabled }}
+          - secretRef:
+              identifier: app
+{{- end }}
+{{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ .name }}
+{{- if .optional }}
+              optional: true
+{{- end }}
+{{- end }}
+        probes:
+          liveness: &appProbe
+            enabled: true
+            custom: true
+            spec: &appProbeSpec
+              httpGet:
+                path: /api/v1/health
+                port: 3000
+                # When APPLICATION_PROTOCOL=https, Rails force_ssl redirects plain
+                # HTTP to https (including this path). The probe doesn't traverse the
+                # TLS-terminating gateway, so it must announce the forwarded scheme
+                # itself, otherwise it follows the redirect into puma's plaintext port.
+                httpHeaders:
+                  - name: X-Forwarded-Proto
+                    value: https
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 5
+          readiness: *appProbe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *appProbeSpec
+              # First start runs migrations + seeds; give it plenty of room.
+              initialDelaySeconds: 20
+              periodSeconds: 10
+              failureThreshold: 60
+      # Sidekiq background worker. Same image, shares the storage/tmp volumes with
+      # the web container so imports and generated files are visible to both.
+      sidekiq:
+        <<: *appContainer
+        command: ["sidekiq-entrypoint.sh"]
+        args: ["sidekiq"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+        env: *env
+        envFrom: *envFrom
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command: ["sh", "-c", "pgrep -f sidekiq"]
+              initialDelaySeconds: 30
+              periodSeconds: 30
+              timeoutSeconds: 10
+              failureThreshold: 5
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 3000
+        protocol: HTTP
+
+ingress:
+  main:
+    enabled: false
+
+secrets:
+  app:
+    enabled: {{ .Values.secrets.app.enabled }}
+    stringData: {{ .Values.secrets.app.stringData | toYaml | nindent 6 }}
+
+persistence:
+  # ActiveStorage uploads (imported files, exports, generated data). Shared by
+  # both containers — must survive restarts.
+  storage:
+    enabled: {{ .Values.persistence.storage.enabled }}
+    {{- with .Values.persistence.storage.existingClaim }}
+    existingClaim: {{ . | quote }}
+    {{- end }}
+    accessMode: {{ .Values.persistence.storage.accessMode }}
+    size: {{ .Values.persistence.storage.size }}
+    {{- with .Values.persistence.storage.storageClass }}
+    storageClass: {{ . | quote }}
+    {{- end }}
+    advancedMounts:
+      main:
+        app:
+          - path: /var/app/storage
+        sidekiq:
+          - path: /var/app/storage
+  # Compiled static assets, re-synced from the image on every boot — ephemeral.
+  public:
+    type: emptyDir
+    advancedMounts:
+      main:
+        app:
+          - path: /var/app/public
+  # Rails tmp (pids, cache, sockets) and the watched imports dir live here.
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        app:
+          - path: /var/app/tmp
+        sidekiq:
+          - path: /var/app/tmp
+  log:
+    type: emptyDir
+    advancedMounts:
+      main:
+        app:
+          - path: /var/app/log
+        sidekiq:
+          - path: /var/app/log
+
+{{- if .Values.networkPolicy.enabled }}
+networkpolicies:
+  main:
+    controller: main
+    policyTypes:
+      - Ingress
+      - Egress
+    rules:
+      ingress:
+        # Gateway -> web (:3000). Selecting the pod implicitly denies other ingress.
+        - ports:
+            - port: 3000
+              protocol: TCP
+          from:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: {{ .Values.networkPolicy.gatewayNamespace | quote }}
+      egress:
+        # DNS
+        - ports:
+            - port: 53
+              protocol: UDP
+            - port: 53
+              protocol: TCP
+          to:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: kube-system
+        # PostgreSQL — the CNPG cluster pods in this namespace
+        - ports:
+            - port: 5432
+              protocol: TCP
+          to:
+            - podSelector:
+                matchLabels:
+                  cnpg.io/cluster: {{ $cnpgName | quote }}
+        # Redis (packaged subchart or in-namespace)
+        - ports:
+            - port: 6379
+              protocol: TCP
+        # Outbound HTTP(S): reverse geocoding, OIDC, email.
+        - ports:
+            - port: 443
+              protocol: TCP
+            - port: 80
+              protocol: TCP
+{{- end }}
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
