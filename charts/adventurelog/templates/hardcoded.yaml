@@ -1,0 +1,252 @@
+{{- define "hardcoded" -}}
+
+{{- if not .Values.cnpg.enabled }}
+{{ fail "adventurelog requires a PostGIS database via CNPG (set cnpg.enabled=true); the plain postgres subchart is not supported" }}
+{{- end }}
+
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+
+{{- $siteUrl := .Values.siteUrl | trimSuffix "/" }}
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
+{{- $dbSecret := printf "%s-app" $cnpgName }}
+
+controllers:
+  main:
+    containers:
+      # Frontend (SvelteKit SSR). Listens on :3000, runs fully hardened as non-root.
+      frontend:
+        enabled: true
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: ghcr.io/seanmorley15/adventurelog-frontend
+          tag: {{ .Chart.AppVersion | quote }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        env:
+          # SSR talks to the backend gunicorn directly inside the pod.
+          PUBLIC_SERVER_URL: "http://127.0.0.1:8000"
+          ORIGIN: {{ $siteUrl | quote }}
+          PUBLIC_URL: {{ $siteUrl | quote }}
+          FRONTEND_URL: {{ $siteUrl | quote }}
+          BODY_SIZE_LIMIT: "Infinity"
+        probes:
+          liveness: &feprobe
+            enabled: true
+            custom: true
+            spec: &feprobeSpec
+              httpGet:
+                path: /health
+                port: 3000
+              initialDelaySeconds: 15
+              periodSeconds: 15
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 5
+          readiness: *feprobe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *feprobeSpec
+              initialDelaySeconds: 10
+              failureThreshold: 30
+      # Backend (Django + gunicorn + nginx + memcached + cron via supervisord).
+      # nginx binds :80 and memcached/cron require root, so this container runs as
+      # root with a writable root filesystem. See .trivyignore.yaml for rationale.
+      backend:
+        enabled: true
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: true
+          seccompProfile:
+            type: RuntimeDefault
+        image:
+          repository: ghcr.io/seanmorley15/adventurelog-backend
+          tag: {{ .Chart.AppVersion | quote }}
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+        env:
+          PUBLIC_URL: {{ $siteUrl | quote }}
+          FRONTEND_URL: {{ $siteUrl | quote }}
+          CSRF_TRUSTED_ORIGINS: {{ $siteUrl | quote }}
+          DEBUG: "False"
+          DJANGO_ADMIN_USERNAME: {{ .Values.admin.username | quote }}
+          DJANGO_ADMIN_EMAIL: {{ .Values.admin.email | quote }}
+          PGHOST: {{ printf "%s-rw" $cnpgName | quote }}
+          POSTGRES_DB:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: dbname
+          POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: username
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: password
+{{- range $k, $v := .Values.config }}
+          {{ $k }}: {{ $v | quote }}
+{{- end }}
+        envFrom:
+{{- if .Values.secrets.app.enabled }}
+          - secretRef:
+              identifier: app
+{{- end }}
+{{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ .name }}
+{{- if .optional }}
+              optional: true
+{{- end }}
+{{- end }}
+        probes:
+          liveness: &beprobe
+            enabled: true
+            custom: true
+            spec: &beprobeSpec
+              httpGet:
+                path: /health/
+                port: 80
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 5
+          readiness: *beprobe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *beprobeSpec
+              # tolerate migrations + country data download on first start
+              initialDelaySeconds: 20
+              failureThreshold: 40
+
+service:
+  # Public entrypoint (frontend). Path routing to the backend is done by the
+  # HTTPRoute/Ingress in front (see README): /media,/static,/protectedMedia,
+  # /admin,/accounts -> backend:80, everything else -> this service.
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 3000
+        protocol: HTTP
+  backend:
+    controller: main
+    ports:
+      http:
+        port: 80
+        protocol: HTTP
+
+ingress:
+  main:
+    enabled: false
+
+secrets:
+  app:
+    enabled: {{ .Values.secrets.app.enabled }}
+    stringData: {{ .Values.secrets.app.stringData | toYaml | nindent 6 }}
+
+persistence:
+  media:
+    enabled: {{ .Values.persistence.media.enabled }}
+    advancedMounts:
+      main:
+        backend:
+        - path: /code/media
+  frontend-tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        frontend:
+        - path: /tmp
+
+{{- if .Values.networkPolicy.enabled }}
+networkpolicies:
+  main:
+    controller: main
+    policyTypes:
+      - Ingress
+      - Egress
+    rules:
+      ingress:
+        # Gateway -> frontend (3000) and backend (80). Selecting the pod with any
+        # policy implicitly denies all other ingress.
+        - ports:
+            - port: 3000
+              protocol: TCP
+            - port: 80
+              protocol: TCP
+          from:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: {{ .Values.networkPolicy.gatewayNamespace | quote }}
+      egress:
+        # DNS
+        - ports:
+            - port: 53
+              protocol: UDP
+            - port: 53
+              protocol: TCP
+          to:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: kube-system
+        # PostgreSQL — the CNPG cluster pods in this namespace
+        - ports:
+            - port: 5432
+              protocol: TCP
+          to:
+            - podSelector:
+                matchLabels:
+                  cnpg.io/cluster: {{ $cnpgName | quote }}
+        # Outbound HTTP(S): first-run country-data download, geocoding, OIDC, email.
+        - ports:
+            - port: 443
+              protocol: TCP
+            - port: 80
+              protocol: TCP
+{{- end }}
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
