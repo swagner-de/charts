@@ -93,12 +93,12 @@ helm install dawarich oci://ghcr.io/swagner-de/charts/dawarich
 | persistence.storage.size | string | `"10Gi"` | Storage volume size |
 | prometheus | object | `{"enabled":false}` | Prometheus / Yabeda metrics exporter. |
 | prometheus.enabled | bool | `false` | Enable the in-process Prometheus exporter |
-| redis | object | `{"architecture":"standalone","auth":{"enabled":true,"existingSecret":"","existingSecretPasswordKey":"","password":"CHANGEME"},"enabled":true,"external":{"host":"","secretKeyRef":{}},"persistence":{"enabled":true,"size":"1Gi"}}` | Redis configuration. Uses the packaged Redis subchart by default; set `enabled: false` and fill in `external` to use an existing Redis. |
+| redis | object | `{"architecture":"standalone","auth":{"enabled":true,"existingSecret":"","existingSecretPasswordKey":"redis-password","password":"CHANGEME"},"enabled":true,"external":{"host":"","secretKeyRef":{}},"persistence":{"enabled":true,"size":"1Gi"}}` | Redis configuration. Uses the packaged Redis subchart by default; set `enabled: false` and fill in `external` to use an existing Redis. |
 | redis.architecture | string | `"standalone"` | Redis architecture |
-| redis.auth | object | `{"enabled":true,"existingSecret":"","existingSecretPasswordKey":"","password":"CHANGEME"}` | Redis authentication |
+| redis.auth | object | `{"enabled":true,"existingSecret":"","existingSecretPasswordKey":"redis-password","password":"CHANGEME"}` | Redis authentication |
 | redis.auth.enabled | bool | `true` | Enable Redis authentication |
 | redis.auth.existingSecret | string | `""` | Use an existing Secret for the Redis password (instead of `password`) |
-| redis.auth.existingSecretPasswordKey | string | `""` | Key in the existing Secret holding the Redis password |
+| redis.auth.existingSecretPasswordKey | string | `"redis-password"` | Key in the existing Secret holding the Redis password (also the key in the auto-generated Secret when the packaged Redis manages its own password) |
 | redis.auth.password | string | `"CHANGEME"` | Redis password |
 | redis.enabled | bool | `true` | Enable the packaged Redis subchart |
 | redis.external | object | `{"host":"","secretKeyRef":{}}` | External Redis (used only when `redis.enabled: false`) |
