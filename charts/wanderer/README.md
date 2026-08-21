@@ -1,6 +1,6 @@
 # wanderer
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.20.0](https://img.shields.io/badge/AppVersion-v0.20.0-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.20.0](https://img.shields.io/badge/AppVersion-v0.20.0-informational?style=flat-square)
 Self-hosted trail database and route planner for hiking, biking and other outdoor activities
 **Homepage:** <https://wanderer.to/>
 
@@ -56,6 +56,10 @@ helm install wanderer oci://ghcr.io/swagner-de/charts/wanderer
 | persistence.db | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"5Gi"}` | PocketBase data + installed plugins, mounted at /pb_data and /data/plugins |
 | persistence.search | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"5Gi"}` | Meilisearch index data, mounted at /meili_data |
 | persistence.uploads | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"10Gi"}` | User-uploaded trail media, mounted at /app/uploads |
+| plugins | object | `{"bundles":[],"enabled":false,"version":""}` | PocketBase provider plugins to install at startup. When enabled with a non-empty bundle list, an init container downloads each bundle from the wanderer GitHub release, verifies it against the release SHA256SUMS, and extracts it into /data/plugins (persisted on the db PVC). It re-downloads on every start, keeping plugins pinned to the release tag. See https://wanderer.to/run/installation/plugins |
+| plugins.bundles | list | `[]` | Plugin bundle ids to install (release assets named wanderer-plugin-<id>.tar.gz), e.g. [strava, komoot, hammerhead] |
+| plugins.enabled | bool | `false` | Enable the plugin-install init container |
+| plugins.version | string | `""` | Release tag to pull bundles from. Empty uses the chart appVersion, so plugins stay in lockstep with the app image. |
 | pocketbaseUrl | string | `"http://localhost:8090"` | Public URL of the PocketBase backend (sets PUBLIC_POCKETBASE_URL). The frontend talks to PocketBase directly from the BROWSER, so this must be externally reachable — expose the `pocketbase` service on its own host/route, e.g. https://wanderer-db.example.com |
 | search | object | `{"config":{}}` | Extra environment variables for the meilisearch (search) container. See https://www.meilisearch.com/docs/learn/configuration/instance_options |
 | secrets | object | `{"app":{"enabled":true,"stringData":{"MEILI_MASTER_KEY":"CHANGEME","POCKETBASE_ENCRYPTION_KEY":"CHANGEME-CHANGEME-CHANGEME-32chr"}}}` | Application secrets rendered into a Secret and injected via envFrom into all three containers. For production, disable this and supply an existing Secret via envFromSecrets (e.g. an ExternalSecret). |
