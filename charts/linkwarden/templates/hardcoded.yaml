@@ -119,6 +119,10 @@ controllers:
         env:
           MEILI_ENV: production
           MEILI_NO_ANALYTICS: "true"
+          # Auto-migrate the on-disk index when the meilisearch image is bumped,
+          # instead of crashlooping on a version-incompatible database. The index
+          # is rebuilt from the app, so it can be recreated if a migration fails.
+          MEILI_UPGRADE_DB: "true"
         envFrom:
 {{- if .Values.secrets.app.enabled }}
           - secretRef:
