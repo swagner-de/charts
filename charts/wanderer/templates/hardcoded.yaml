@@ -84,6 +84,10 @@ controllers:
           tag: v1.53.1
         env:
           MEILI_NO_ANALYTICS: "true"
+          # Auto-migrate the on-disk index when the meilisearch image is bumped,
+          # instead of crashlooping on a version-incompatible database. The index
+          # is derived from PocketBase and can be rebuilt if a migration fails.
+          MEILI_UPGRADE_DB: "true"
 {{- range $k, $v := .Values.search.config }}
           {{ $k }}: {{ $v | quote }}
 {{- end }}
