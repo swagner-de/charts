@@ -2,12 +2,12 @@ apiVersion: v2
 name: dawarich
 description: Self-hosted location history tracker and Google Timeline alternative
 type: application
-version: 0.1.0
+version: 0.1.1
 home: https://dawarich.app/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=docker.io/freikin/dawarich
-appVersion: '1.13.0'
+appVersion: '1.13.1'
 dependencies:
   - name: common
     version: 5.1.0
