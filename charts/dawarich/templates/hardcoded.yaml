@@ -32,6 +32,31 @@ defaultPodOptions:
 
 controllers:
   main:
+    initContainers:
+      # Rack parses multipart uploads into Tempfiles under Ruby's Dir.tmpdir.
+      # With readOnlyRootFilesystem, /tmp is read-only and the /var/app/tmp
+      # emptyDir is world-writable without the sticky bit, so Ruby rejects both
+      # and every file upload fails. Pre-create a private (0700, uid-owned) tmp
+      # dir that Ruby accepts; TMPDIR points the app and worker at it.
+      init-tmpdir:
+        enabled: true
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: docker.io/freikin/dawarich
+          tag: {{ .Chart.AppVersion | quote }}
+        command: ["/bin/sh", "-c"]
+        args:
+          - mkdir -p /var/app/tmp/rack && chmod 0700 /var/app/tmp/rack
     containers:
       # Rails/Puma web server. Serves the UI and API on :3000. The web entrypoint
       # also runs DB migrations and seeds on start, so the startup probe is lenient.
@@ -60,6 +85,9 @@ controllers:
         env: &env
           RAILS_ENV: production
           SELF_HOSTED: "true"
+          # Rack multipart uploads land in Dir.tmpdir; point it at the private
+          # dir created by the init-tmpdir container (see initContainers above).
+          TMPDIR: /var/app/tmp/rack
           STORE_GEODATA: {{ .Values.storeGeodata | quote }}
           RAILS_LOG_TO_STDOUT: "true"
           TIME_ZONE: {{ .Values.timeZone | quote }}
@@ -234,6 +262,8 @@ persistence:
     type: emptyDir
     advancedMounts:
       main:
+        init-tmpdir:
+          - path: /var/app/tmp
         app:
           - path: /var/app/tmp
         sidekiq:
