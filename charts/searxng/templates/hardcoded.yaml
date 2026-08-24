@@ -1,0 +1,127 @@
+{{- define "hardcoded" -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 977
+    runAsGroup: 977
+    fsGroup: 977
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: docker.io/searxng/searxng
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          # Ownership of read-only mounts is managed by fsGroup, not the entrypoint.
+          FORCE_OWNERSHIP: "false"
+        envFrom:
+{{- if .Values.secrets.app.enabled }}
+          - secretRef:
+              identifier: app
+{{- end }}
+{{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ .name }}
+{{- end }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec: &probeSpec
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 15
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 5
+          readiness: *probe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *probeSpec
+              initialDelaySeconds: 5
+              failureThreshold: 20
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 8080
+        protocol: HTTP
+
+ingress:
+  main:
+    enabled: false
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      settings.yml: |
+{{ .Values.settings | indent 8 }}
+
+secrets:
+  app:
+    enabled: {{ .Values.secrets.app.enabled }}
+    stringData: {{ .Values.secrets.app.stringData | toYaml | nindent 6 }}
+
+persistence:
+  config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        main:
+        - path: /etc/searxng
+  data:
+{{- if .Values.persistence.data.enabled }}
+    advancedMounts:
+      main:
+        main:
+        - path: /var/cache/searxng
+{{- else }}
+    enabled: true
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /var/cache/searxng
+{{- end }}
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /tmp
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
