@@ -1,0 +1,29 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Privacy-respecting metasearch engine
+- `settings.yml` rendered from a ConfigMap (JSON output + disabled limiter for API consumers)
+- `secret_key` supplied at runtime via the `SEARXNG_SECRET` env var (packaged Secret or an ExternalSecret)
+- Stateless by default (emptyDir cache); optional PVC
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+- `runAsNonRoot: true`, UID/GID 977
+- `readOnlyRootFilesystem: true`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+{{ template "chart.maintainersSection" . }}

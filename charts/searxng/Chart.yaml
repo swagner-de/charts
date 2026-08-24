@@ -1,0 +1,17 @@
+apiVersion: v2
+name: searxng
+description: Privacy-respecting metasearch engine
+type: application
+version: 0.1.0
+home: https://searxng.org/
+sources:
+  - https://github.com/swagner-de/charts
+# renovate: image=docker.io/searxng/searxng
+appVersion: '2026.8.22-9fea41204'
+dependencies:
+  - name: common
+    version: 5.1.0
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com

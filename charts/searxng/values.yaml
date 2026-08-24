@@ -1,0 +1,50 @@
+# -- SearXNG settings.yml, rendered into a ConfigMap and mounted at /etc/searxng.
+# The secret_key here is a placeholder; override it at runtime with the SEARXNG_SECRET
+# env var (see secrets / envFromSecrets). `json` output and a disabled limiter are
+# required for API consumers such as Open WebUI.
+settings: |
+  use_default_settings: true
+  server:
+    secret_key: "changeme"
+    limiter: false
+    image_proxy: true
+  search:
+    safe_search: 0
+    autocomplete: ""
+    formats:
+      - html
+      - json
+
+# -- Packaged Secret injected via envFrom. Use it to set SEARXNG_SECRET (overrides
+# server.secret_key). In production disable this and supply an ExternalSecret via
+# envFromSecrets instead.
+secrets:
+  app:
+    # -- Create the packaged application Secret
+    enabled: true
+    stringData:
+      # -- SearXNG secret_key. Generate with `openssl rand -hex 32`.
+      SEARXNG_SECRET: "CHANGEME"
+
+# -- Existing secrets to inject as environment variables (e.g. an ExternalSecret
+# carrying SEARXNG_SECRET).
+envFromSecrets: []
+# - name: searxng-secret
+
+# -- Persistent storage. SearXNG only needs a writable data/cache dir; an emptyDir
+# is sufficient for a stateless instance, so persistence is disabled by default.
+persistence:
+  data:
+    # -- Enable a PersistentVolumeClaim for /var/cache/searxng (otherwise emptyDir)
+    enabled: false
+    # -- Data volume size
+    size: 1Gi
+    # storageClass: "gp2"
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+
+# -- HTTPRoute (Gateway API) configuration. Disabled by default — SearXNG is
+# typically consumed in-cluster over its Service.
+route:
+  main:
+    enabled: false
