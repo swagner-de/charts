@@ -32,6 +32,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [powerdns-recursor](charts/powerdns-recursor) | `0.3.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.5.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
 | [samba](charts/samba) | `0.3.0` | Multi-user Samba SMB file server with per-share encryption and Time Machine support |
+| [searxng](charts/searxng) | `0.1.0` | Privacy-respecting metasearch engine |
 | [skel](charts/skel) | `0.3.0` | Skeleton chart template for creating new charts |
 | [unifi-os-server](charts/unifi-os-server) | `0.2.0` | UniFi OS Server - self-hosted UniFi Network with Organizations, IdP, and Site Magic SD-WAN support |
 | [wanderer](charts/wanderer) | `0.5.0` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
