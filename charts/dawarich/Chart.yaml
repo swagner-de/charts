@@ -2,7 +2,7 @@ apiVersion: v2
 name: dawarich
 description: Self-hosted location history tracker and Google Timeline alternative
 type: application
-version: 0.1.1
+version: 0.1.3
 home: https://dawarich.app/
 sources:
   - https://github.com/swagner-de/charts
@@ -13,7 +13,7 @@ dependencies:
     version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts/
   - name: redis
-    version: 0.34.18
+    version: 0.34.20
     repository: oci://registry-1.docker.io/cloudpirates
     condition: redis.enabled
 maintainers:
