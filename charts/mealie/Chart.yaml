@@ -2,12 +2,12 @@ apiVersion: v2
 name: mealie
 description: Self-hosted recipe manager and meal planner
 type: application
-version: 0.27.0
+version: 0.28.0
 home: https://mealie.io/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/mealie-recipes/mealie
-appVersion: 'v3.23.1'
+appVersion: 'v3.24.0'
 dependencies:
   - name: common
     version: 5.1.0
