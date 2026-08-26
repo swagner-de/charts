@@ -20,7 +20,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [homeassistant](charts/homeassistant) | `1.23.2` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.8.0` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.18.4` | Self-hosted photo and video backup solution with machine learning |
-| [invidious](charts/invidious) | `0.11.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
+| [invidious](charts/invidious) | `0.11.2` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.3.0` | Free software media server for streaming movies, TV, music, and more |
 | [linkwarden](charts/linkwarden) | `0.3.0` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
 | [mealie](charts/mealie) | `0.28.0` | Self-hosted recipe manager and meal planner |
