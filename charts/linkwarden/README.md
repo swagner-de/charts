@@ -1,6 +1,6 @@
 # linkwarden
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.16.1](https://img.shields.io/badge/AppVersion-v2.16.1-informational?style=flat-square)
+![Version: 0.3.2](https://img.shields.io/badge/Version-0.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.16.1](https://img.shields.io/badge/AppVersion-v2.16.1-informational?style=flat-square)
 Self-hosted collaborative bookmark manager to collect, organize and archive webpages
 **Homepage:** <https://linkwarden.app/>
 
@@ -20,7 +20,7 @@ helm install linkwarden oci://ghcr.io/swagner-de/charts/linkwarden
 | Repository | Name | Version |
 |------------|------|---------|
 | https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
-| oci://registry-1.docker.io/cloudpirates | postgres | 0.20.1 |
+| oci://registry-1.docker.io/cloudpirates | postgres | 0.20.2 |
 
 ## Values
 
