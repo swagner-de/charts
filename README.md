@@ -16,7 +16,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [flowcus](charts/flowcus) | `0.3.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.2.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.33.0` | Open source wealth management software |
-| [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.2.0` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
+| [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.2.1` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.23.2` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.8.0` | Customizable application dashboard for your homelab |
 | [immich](charts/immich) | `0.18.4` | Self-hosted photo and video backup solution with machine learning |
@@ -27,7 +27,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [mosquitto](charts/mosquitto) | `0.2.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [music-assistant](charts/music-assistant) | `0.3.0` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.3.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.58.4` | Document management system with OCR and full-text search |
+| [paperless](charts/paperless) | `0.58.6` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.7.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.3.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.5.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |

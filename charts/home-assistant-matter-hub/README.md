@@ -1,6 +1,6 @@
 # home-assistant-matter-hub
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.55](https://img.shields.io/badge/AppVersion-2.0.55-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.56](https://img.shields.io/badge/AppVersion-2.0.56-informational?style=flat-square)
 Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment
 **Homepage:** <https://riddix.github.io/home-assistant-matter-hub/>
 
