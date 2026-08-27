@@ -4,6 +4,6 @@ dependencies:
   version: 5.1.0
 - name: redis
   repository: oci://registry-1.docker.io/cloudpirates
-  version: 0.34.20
-digest: sha256:b46232a0a74bc467bc15654098618c9a18156af58c009ed40958bebea13e026a
-generated: "2026-08-24T16:25:57.211183689Z"
+  version: 0.34.23
+digest: sha256:ce8d544c45079b46abbfff058f3d40417e0bada650c67940e77d60dd39c7447f
+generated: "2026-08-27T08:15:56.011117565Z"
