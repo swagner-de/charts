@@ -12,7 +12,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [akvorado](charts/akvorado) | `0.5.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.10.3` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
 | [carconnectivity](charts/carconnectivity) | `0.3.0` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
-| [dawarich](charts/dawarich) | `0.1.3` | Self-hosted location history tracker and Google Timeline alternative |
+| [dawarich](charts/dawarich) | `0.1.5` | Self-hosted location history tracker and Google Timeline alternative |
 | [flowcus](charts/flowcus) | `0.3.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.2.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.33.0` | Open source wealth management software |
