@@ -1,0 +1,139 @@
+# -- Persistent storage configuration
+persistence:
+  # -- File attachments volume (mounted at /app/vikunja/files)
+  data:
+    # -- Enable data persistence
+    enabled: true
+    # -- Data volume size
+    size: 10Gi
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+
+# -- Ingress configuration
+ingress:
+  main:
+    # -- Enable ingress
+    enabled: false
+
+# -- Non-secret application configuration, rendered to a ConfigMap and loaded
+# as environment variables. Use Vikunja's `VIKUNJA_*` variable names.
+# See https://vikunja.io/docs/config-options/
+config:
+  # -- Path where uploaded file attachments are stored (matches the data volume)
+  VIKUNJA_FILES_BASEPATH: /app/vikunja/files
+  # -- Default timezone (tz database format)
+  VIKUNJA_SERVICE_TIMEZONE: UTC
+  # VIKUNJA_SERVICE_PUBLICURL: https://vikunja.example.com/
+  # VIKUNJA_SERVICE_ENABLEREGISTRATION: "false"
+  # VIKUNJA_KEYVALUE_TYPE: memory
+
+# -- Database credentials. Mounted as environment variables and reused by the
+# packaged postgres subchart. Ignored when `cnpg.enabled` is true.
+db:
+  # -- PostgreSQL username
+  VIKUNJA_DATABASE_USER: &pgUser vikunja
+  # -- PostgreSQL password
+  VIKUNJA_DATABASE_PASSWORD: &pgPass "CHANGEME"  # REQUIRED: set your database password
+  # -- PostgreSQL database name
+  VIKUNJA_DATABASE_DATABASE: &pgDb vikunja
+
+# -- Additional secrets to mount as environment variables (e.g. OIDC, JWT, mail)
+envFromSecrets: []
+# - name: vikunja-oidc-ext
+
+# -- Kubernetes secrets configuration
+secrets:
+  # -- JWT signing secret. Must be stable across restarts or sessions are
+  # invalidated. In production supply it via `envFromSecrets` instead.
+  jwt:
+    # -- Enable JWT secret creation
+    enabled: true
+    # -- JWT secret data
+    stringData:
+      VIKUNJA_SERVICE_SECRET: "CHANGEME"  # REQUIRED: set a long random string
+  # -- SMTP mail credentials secret
+  mail:
+    # -- Enable mail secret creation
+    enabled: false
+    # -- Mail secret data
+    stringData:
+      # VIKUNJA_MAILER_USERNAME: None
+      # VIKUNJA_MAILER_PASSWORD: None
+
+# -- Non-secret SMTP configuration (VIKUNJA_MAILER_*).
+# See https://vikunja.io/docs/config-options/#mailer
+mail: {}
+  # VIKUNJA_MAILER_ENABLED: "true"
+  # VIKUNJA_MAILER_HOST: mail.example.com
+  # VIKUNJA_MAILER_PORT: "587"
+  # VIKUNJA_MAILER_FROMEMAIL: vikunja@example.com
+  # VIKUNJA_MAILER_FORCESSL: "false"
+
+# -- Optional config file mounted at /etc/vikunja/config.yml.
+# Required for OIDC: Vikunja only reads a provider's env vars if the provider
+# key is declared in a config file. The client id/secret/authurl are then
+# supplied via env vars (VIKUNJA_AUTH_OPENID_PROVIDERS_<KEY>_*) from a secret.
+# See https://vikunja.io/docs/config-options/#auth
+configFile:
+  # -- Enable mounting a config file
+  enabled: false
+  # -- Config file contents (YAML)
+  content: ""
+  # content: |
+  #   auth:
+  #     openid:
+  #       enabled: true
+  #       providers:
+  #         authentik:
+  #           name: "Authentik"
+  #           scope: openid profile email
+
+# -- PostgreSQL database configuration (packaged subchart)
+postgres:
+  # -- Enable packaged PostgreSQL
+  enabled: true
+  # -- PostgreSQL authentication
+  auth:
+    # -- Database username
+    username: *pgUser
+    # -- Database name
+    database: *pgDb
+    # -- Database password
+    password: *pgPass
+  # -- PostgreSQL persistence
+  persistence:
+    # -- Enable PostgreSQL persistence
+    enabled: true
+    # -- PostgreSQL volume size
+    size: 2Gi
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+
+# -- CloudNativePG database configuration
+cnpg:
+  # In case CNPG operator is used, provide the cluster definition via rawResources
+  # and set postgres.enabled to false. The cluster name must be provided for the
+  # database connection to be auto-configured.
+  # -- Enable CNPG operator
+  enabled: false
+  # -- CNPG cluster name
+  clusterName: vikunja-db
+  # -- Prepend release name and chart name to clusterName (use when CNPG cluster is deployed via rawResources)
+  prependReleaseName: false
+
+# In case of CNPG
+# rawResources:
+#   db:
+#     enabled: true
+#     manifest:
+#       apiVersion: postgresql.cnpg.io/v1
+#       kind: Cluster
+#       spec:
+#         instances: 1
+#         imageCatalogRef:
+#           apiGroup: postgresql.cnpg.io
+#           kind: ClusterImageCatalog
+#           name: postgresql
+#           major: 16
+#         storage:
+#           size: 5Gi

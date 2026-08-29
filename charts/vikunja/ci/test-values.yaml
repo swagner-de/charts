@@ -1,0 +1,22 @@
+config:
+  # required at startup because CORS is enabled by default
+  VIKUNJA_SERVICE_PUBLICURL: http://localhost:3456/
+
+cnpg:
+  enabled: true
+  clusterName: db
+  prependReleaseName: true
+
+postgres:
+  enabled: false
+
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        storage:
+          size: 1Gi

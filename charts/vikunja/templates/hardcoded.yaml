@@ -1,0 +1,202 @@
+{{- define "hardcoded" -}}
+
+{{ if and .Values.cnpg.enabled .Values.postgres.enabled }}
+{{ fail "postgres cannot be used via packaged subchart and CNPG at the same time" }}
+{{- end }}
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+
+# Configure options applied to all pods
+controllers:
+  main:
+    containers:
+      main:
+        enabled: true
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+
+        image:
+          repository: docker.io/vikunja/vikunja
+          tag: {{ .Chart.AppVersion | quote }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+{{ if .Values.postgres.enabled }}
+        env:
+          VIKUNJA_DATABASE_TYPE: postgres
+          VIKUNJA_DATABASE_HOST: {{ printf "%s-postgres" .Release.Name | quote }}
+          VIKUNJA_DATABASE_PORT: "5432"
+          VIKUNJA_DATABASE_SSLMODE: disable
+{{ end }}
+{{ if .Values.cnpg.enabled }}
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
+        env:
+          VIKUNJA_DATABASE_TYPE: postgres
+          VIKUNJA_DATABASE_SSLMODE: require
+          VIKUNJA_DATABASE_HOST:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" $cnpgName | quote }}
+                key: host
+          VIKUNJA_DATABASE_PORT:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" $cnpgName | quote }}
+                key: port
+          VIKUNJA_DATABASE_DATABASE:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" $cnpgName | quote }}
+                key: dbname
+          VIKUNJA_DATABASE_USER:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" $cnpgName | quote }}
+                key: user
+          VIKUNJA_DATABASE_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" $cnpgName | quote }}
+                key: password
+{{- end }}
+        envFrom:
+{{ if .Values.config | empty | not }}
+          - configMapRef:
+              identifier: config
+{{- end }}
+{{ if .Values.mail | empty | not }}
+          - configMapRef:
+              identifier: mail
+{{- end }}
+{{ if and (.Values.db | empty | not) .Values.postgres.enabled }}
+          - secretRef:
+              identifier: db
+{{- end }}
+{{- range $name, $value := .Values.secrets }}
+{{- if $value.enabled }}
+          - secretRef:
+              identifier: {{ $name }}
+{{- end }}
+{{- end }}
+{{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ .name }}
+{{- end }}
+        volumeMounts:
+          - name: data
+            mountPath: /app/vikunja/files
+          - name: temp
+            mountPath: /tmp
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec: &probeSpec
+              httpGet:
+                path: /api/v1/info
+                port: 3456
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+          readiness: *probe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *probeSpec
+              initialDelaySeconds: 15
+              failureThreshold: 30
+
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 3456
+        protocol: TCP
+
+
+configMaps:
+  config:
+    enabled: {{ .Values.config | empty | not }}
+    data: {{ toYaml .Values.config | nindent 6 }}
+{{ if .Values.mail | empty | not }}
+  mail:
+    enabled: true
+    data: {{ toYaml .Values.mail | nindent 6 }}
+{{- end }}
+{{ if .Values.configFile.enabled }}
+  configfile:
+    enabled: true
+    data:
+      config.yml: |
+{{ .Values.configFile.content | indent 8 }}
+{{- end }}
+
+
+secrets:
+  dummy:
+    enabled: false
+{{ if and (.Values.db | empty | not) .Values.postgres.enabled }}
+  db:
+    enabled: true
+    stringData: {{ toYaml .Values.db | nindent 6 }}
+{{- end }}
+
+
+persistence:
+  data:
+    advancedMounts:
+      main:
+        main:
+        - path: /app/vikunja/files
+  temp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /tmp
+{{ if .Values.configFile.enabled }}
+  configfile:
+    type: configMap
+    identifier: configfile
+    advancedMounts:
+      main:
+        main:
+        - path: /etc/vikunja
+{{- end }}
+
+{{ end }}
+
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
