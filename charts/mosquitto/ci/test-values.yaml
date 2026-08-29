@@ -1,17 +1,11 @@
-rawResources:
-  cert:
+# Exercise optional features that don't require external operators/CRDs:
+# password authentication (the init container builds the passwd file) and
+# persistent storage.
+users:
+  - username: testuser
+    password: testpassword
+
+persistence:
+  data:
     enabled: true
-    manifest:
-      apiVersion: cert-manager.io/v1
-      kind: Certificate
-      spec:
-        dnsNames:
-          - mqtt.example.com
-        issuerRef:
-          group: cert-manager.io
-          kind: ClusterIssuer
-          name: test-issuer
-        secretName: mosquitto-tls
-        usages:
-          - digital signature
-          - key encipherment
+    size: 1Gi
