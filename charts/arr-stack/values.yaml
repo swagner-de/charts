@@ -9,7 +9,7 @@ sonarr:
     # -- Image repository
     repository: ghcr.io/home-operations/sonarr
     # -- Image tag
-    tag: '4.0.19.3008'
+    tag: '4.0.19.3009'
   # -- Persistence configuration
   persistence:
     config:
