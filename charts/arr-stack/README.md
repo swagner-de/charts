@@ -1,6 +1,6 @@
 # arr-stack
 
-![Version: 0.10.4](https://img.shields.io/badge/Version-0.10.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.10.5](https://img.shields.io/badge/Version-0.10.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr
 **Homepage:** <https://wiki.servarr.com/>
 
@@ -74,11 +74,11 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 | radarr.persistence.config.size | string | `"100Mi"` | Volume size |
 | radarr.persistence.config.type | string | `"persistentVolumeClaim"` | Volume type |
 | radarr.port | int | `7878` | Service port |
-| sonarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/sonarr","tag":"4.0.19.3008"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":8989}` | Sonarr TV series management configuration |
+| sonarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/sonarr","tag":"4.0.19.3009"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":8989}` | Sonarr TV series management configuration |
 | sonarr.enabled | bool | `true` | Enable Sonarr |
-| sonarr.image | object | `{"repository":"ghcr.io/home-operations/sonarr","tag":"4.0.19.3008"}` | Container image configuration |
+| sonarr.image | object | `{"repository":"ghcr.io/home-operations/sonarr","tag":"4.0.19.3009"}` | Container image configuration |
 | sonarr.image.repository | string | `"ghcr.io/home-operations/sonarr"` | Image repository |
-| sonarr.image.tag | string | `"4.0.19.3008"` | Image tag |
+| sonarr.image.tag | string | `"4.0.19.3009"` | Image tag |
 | sonarr.persistence | object | `{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}}` | Persistence configuration |
 | sonarr.persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
 | sonarr.persistence.config.mountPath | string | `"/config"` | Mount path inside the container |
