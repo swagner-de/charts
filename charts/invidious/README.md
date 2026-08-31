@@ -1,6 +1,6 @@
 # invidious
 
-![Version: 0.11.2](https://img.shields.io/badge/Version-0.11.2-informational?style=flat-square) ![AppVersion: 2.20260804.1](https://img.shields.io/badge/AppVersion-2.20260804.1-informational?style=flat-square)
+![Version: 0.11.4](https://img.shields.io/badge/Version-0.11.4-informational?style=flat-square) ![AppVersion: 2.20260804.1](https://img.shields.io/badge/AppVersion-2.20260804.1-informational?style=flat-square)
 Privacy-focused alternative YouTube frontend with companion service and PostgreSQL
 **Homepage:** <https://github.com/iv-org/invidious>
 
@@ -21,7 +21,7 @@ helm install invidious oci://ghcr.io/swagner-de/charts/invidious
 | Repository | Name | Version |
 |------------|------|---------|
 | https://bjw-s-labs.github.io/helm-charts | common | 5.1.0 |
-| oci://registry-1.docker.io/cloudpirates | postgres | 0.20.2 |
+| oci://registry-1.docker.io/cloudpirates | postgres | 0.20.4 |
 
 ## Values
 
