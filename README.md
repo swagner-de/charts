@@ -35,7 +35,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [searxng](charts/searxng) | `0.1.0` | Privacy-respecting metasearch engine |
 | [skel](charts/skel) | `0.3.0` | Skeleton chart template for creating new charts |
 | [unifi-os-server](charts/unifi-os-server) | `0.2.0` | UniFi OS Server - self-hosted UniFi Network with Organizations, IdP, and Site Magic SD-WAN support |
-| [vikunja](charts/vikunja) | `0.1.0` | Self-hosted to-do list and task management application |
+| [vikunja](charts/vikunja) | `0.1.2` | Self-hosted to-do list and task management application |
 | [wanderer](charts/wanderer) | `0.5.0` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
 | [zigbee2mqtt](charts/zigbee2mqtt) | `0.13.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
