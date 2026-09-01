@@ -2,12 +2,12 @@ apiVersion: v2
 name: linkwarden
 description: Self-hosted collaborative bookmark manager to collect, organize and archive webpages
 type: application
-version: 0.3.4
+version: 0.3.5
 home: https://linkwarden.app/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/linkwarden/linkwarden
-appVersion: 'v2.16.1'
+appVersion: 'v2.16.2'
 dependencies:
   - name: common
     version: 5.1.0
