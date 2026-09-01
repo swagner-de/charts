@@ -1,6 +1,6 @@
 # linkwarden
 
-![Version: 0.3.4](https://img.shields.io/badge/Version-0.3.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.16.1](https://img.shields.io/badge/AppVersion-v2.16.1-informational?style=flat-square)
+![Version: 0.3.5](https://img.shields.io/badge/Version-0.3.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.16.2](https://img.shields.io/badge/AppVersion-v2.16.2-informational?style=flat-square)
 Self-hosted collaborative bookmark manager to collect, organize and archive webpages
 **Homepage:** <https://linkwarden.app/>
 
