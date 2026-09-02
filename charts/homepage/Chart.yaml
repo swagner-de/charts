@@ -2,12 +2,12 @@ apiVersion: v2
 name: homepage
 description: Customizable application dashboard for your homelab
 type: application
-version: 0.9.0
+version: 0.10.0
 home: https://gethomepage.dev/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/gethomepage/homepage
-appVersion: 'v2.1.2'
+appVersion: 'v2.2.0'
 dependencies:
   - name: common
     version: 5.1.0
