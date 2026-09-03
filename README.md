@@ -37,7 +37,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [unifi-os-server](charts/unifi-os-server) | `0.2.0` | UniFi OS Server - self-hosted UniFi Network with Organizations, IdP, and Site Magic SD-WAN support |
 | [vikunja](charts/vikunja) | `0.2.0` | Self-hosted to-do list and task management application |
 | [wanderer](charts/wanderer) | `0.6.0` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
-| [zigbee2mqtt](charts/zigbee2mqtt) | `0.13.0` | Zigbee-to-MQTT bridge for smart home devices |
+| [zigbee2mqtt](charts/zigbee2mqtt) | `0.14.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
 ## Usage
