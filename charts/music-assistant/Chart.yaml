@@ -3,8 +3,8 @@ name: music-assistant
 description: Music Assistant - free, opensource Media player for your local music and online music providers
 type: application
 # renovate: image=ghcr.io/music-assistant/server
-appVersion: '2.10.1'
-version: 0.4.1
+appVersion: '2.10.2'
+version: 0.4.2
 home: https://www.music-assistant.io/
 sources:
   - https://github.com/music-assistant/server
