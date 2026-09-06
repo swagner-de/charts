@@ -1,0 +1,79 @@
+# -- Persistent storage configuration
+persistence:
+  # -- Configuration volume (Emby programdata: settings, metadata, db)
+  config:
+    # -- Enable config persistence
+    enabled: true
+    # -- Config volume size
+    size: 15Gi
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+    # storageClass: gp2
+
+  # -- Transcoding temporary volume. Point Emby at /transcode in
+  # Dashboard > Transcoding > "Transcoding temporary path".
+  transcode:
+    # -- Enable transcode persistence
+    enabled: true
+    # -- Transcode volume size
+    size: 70Gi
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+    # storageClass: gp2
+
+  # -- Media library volume. Set persistence.media.existingClaim to share an
+  # existing library PVC (e.g. a Jellyfin media claim), ideally mounted
+  # read-only via advancedMounts.
+  media:
+    # -- Enable media persistence
+    enabled: true
+    # -- Media volume size (ignored when existingClaim is set)
+    size: 100Gi
+    # -- Storage access mode
+    accessMode: ReadWriteOnce
+    # storageClass: gp2
+
+# For hardware acceleration uncomment this
+#   dev-dri:
+#     enabled: true
+#     type: hostPath
+#     hostPath: /dev/dri
+#     advancedMounts:
+#       main:
+#         main:
+#         - path:  /dev/dri
+
+# defaultPodOptions:
+#   securityContext:
+#     supplementalGroups: [992]
+
+# Resource limits
+# controllers:
+#   main:
+#     containers:
+#       main:
+#         resources:
+#           requests:
+#             cpu: 1000m
+#             memory: 1Gi
+#           limits:
+#             memory: 10Gi
+#             cpu: 8000m
+
+# route:
+#   main:
+#     enabled: true
+#     annotations:
+#     hostnames:
+#       - emby.mydomain
+#     parentRefs:
+#       - namespace: gateway
+#         name: mygateway
+#     rules:
+#       - matches:
+#           - path:
+#               type: PathPrefix
+#               value: /
+#         backendRefs:
+#           - name: emby
+#             port: 8096
