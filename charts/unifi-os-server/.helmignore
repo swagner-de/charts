@@ -1,4 +1,0 @@
-# Patterns to ignore when building packages.
-*.md
-*.md.gotmpl
-ci/
