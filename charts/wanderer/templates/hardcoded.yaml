@@ -81,7 +81,7 @@ controllers:
             - ALL
         image:
           repository: docker.io/getmeili/meilisearch
-          tag: v1.53.1
+          tag: v1.53.2
         env:
           MEILI_NO_ANALYTICS: "true"
           # Auto-migrate the on-disk index when the meilisearch image is bumped,
