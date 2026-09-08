@@ -35,7 +35,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [samba](charts/samba) | `0.3.0` | Multi-user Samba SMB file server with per-share encryption and Time Machine support |
 | [searxng](charts/searxng) | `0.1.0` | Privacy-respecting metasearch engine |
 | [skel](charts/skel) | `0.3.0` | Skeleton chart template for creating new charts |
-| [vikunja](charts/vikunja) | `0.2.0` | Self-hosted to-do list and task management application |
+| [vikunja](charts/vikunja) | `0.2.2` | Self-hosted to-do list and task management application |
 | [wanderer](charts/wanderer) | `0.6.1` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
 | [zigbee2mqtt](charts/zigbee2mqtt) | `0.14.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
