@@ -2,12 +2,12 @@ apiVersion: v2
 name: emby
 description: Emby media server for streaming movies, TV, music, and more
 type: application
-version: 0.1.0
+version: 0.2.0
 home: https://emby.media/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=ghcr.io/home-operations/emby
-appVersion: '4.9.5.0'
+appVersion: '4.10.0.40'
 dependencies:
   - name: common
     version: 5.1.0
