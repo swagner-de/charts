@@ -10,7 +10,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [adguard-home](charts/adguard-home) | `0.8.3` | DNS-level ad and tracker blocking with optional Prometheus exporter |
 | [adventurelog](charts/adventurelog) | `0.1.0` | Self-hosted travel companion to log trips, plan itineraries, and map your adventures |
 | [akvorado](charts/akvorado) | `0.5.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
-| [arr-stack](charts/arr-stack) | `0.10.9` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
+| [arr-stack](charts/arr-stack) | `0.10.10` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
 | [carconnectivity](charts/carconnectivity) | `0.3.1` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
 | [dawarich](charts/dawarich) | `0.2.16` | Self-hosted location history tracker and Google Timeline alternative |
 | [emby](charts/emby) | `0.2.0` | Emby media server for streaming movies, TV, music, and more |
@@ -26,7 +26,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [linkwarden](charts/linkwarden) | `0.3.9` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
 | [mealie](charts/mealie) | `0.29.3` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.3.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
-| [music-assistant](charts/music-assistant) | `0.4.2` | Music Assistant - free, opensource Media player for your local music and online music providers |
+| [music-assistant](charts/music-assistant) | `0.4.3` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.3.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
 | [paperless](charts/paperless) | `0.60.0` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.7.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
