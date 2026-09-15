@@ -20,7 +20,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.2.2` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.24.4` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.11.0` | Customizable application dashboard for your homelab |
-| [immich](charts/immich) | `0.20.0` | Self-hosted photo and video backup solution with machine learning |
+| [immich](charts/immich) | `0.20.1` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.11.6` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.3.0` | Free software media server for streaming movies, TV, music, and more |
 | [linkwarden](charts/linkwarden) | `0.3.9` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
@@ -28,7 +28,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [mosquitto](charts/mosquitto) | `0.3.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [music-assistant](charts/music-assistant) | `0.4.3` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.3.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.60.0` | Document management system with OCR and full-text search |
+| [paperless](charts/paperless) | `0.61.0` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.7.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.3.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.5.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
