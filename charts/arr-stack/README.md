@@ -1,6 +1,6 @@
 # arr-stack
 
-![Version: 0.10.13](https://img.shields.io/badge/Version-0.10.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.11.0](https://img.shields.io/badge/Version-0.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr
 **Homepage:** <https://wiki.servarr.com/>
 
@@ -20,7 +20,7 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
 
 ## Values
 
@@ -53,11 +53,11 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 | flaresolverr.image.repository | string | `"ghcr.io/flaresolverr/flaresolverr"` | Image repository |
 | flaresolverr.image.tag | string | `"v3.5.2"` | Image tag |
 | flaresolverr.port | int | `8191` | Service port |
-| prowlarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.6.4.5611"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":9696}` | Prowlarr indexer management configuration |
+| prowlarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.6.5.5623"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":9696}` | Prowlarr indexer management configuration |
 | prowlarr.enabled | bool | `true` | Enable Prowlarr |
-| prowlarr.image | object | `{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.6.4.5611"}` | Container image configuration |
+| prowlarr.image | object | `{"repository":"ghcr.io/home-operations/prowlarr","tag":"2.6.5.5623"}` | Container image configuration |
 | prowlarr.image.repository | string | `"ghcr.io/home-operations/prowlarr"` | Image repository |
-| prowlarr.image.tag | string | `"2.6.4.5611"` | Image tag |
+| prowlarr.image.tag | string | `"2.6.5.5623"` | Image tag |
 | prowlarr.persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
 | prowlarr.persistence.config.mountPath | string | `"/config"` | Mount path inside the container |
 | prowlarr.persistence.config.size | string | `"100Mi"` | Volume size |
