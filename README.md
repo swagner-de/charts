@@ -26,7 +26,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [linkwarden](charts/linkwarden) | `0.3.9` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
 | [mealie](charts/mealie) | `0.30.0` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.3.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
-| [music-assistant](charts/music-assistant) | `0.4.3` | Music Assistant - free, opensource Media player for your local music and online music providers |
+| [music-assistant](charts/music-assistant) | `0.4.4` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.3.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
 | [paperless](charts/paperless) | `0.61.1` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.7.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
