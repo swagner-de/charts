@@ -2,7 +2,7 @@ apiVersion: v2
 name: vikunja
 description: Self-hosted to-do list and task management application
 type: application
-version: 0.2.2
+version: 0.3.0
 home: https://vikunja.io/
 sources:
   - https://github.com/swagner-de/charts
@@ -10,11 +10,11 @@ sources:
 appVersion: '2.6.0'
 dependencies:
   - name: common
-    version: 5.1.0
+    version: 5.2.1
     repository: https://bjw-s-labs.github.io/helm-charts/
   - name: postgres
     repository: oci://registry-1.docker.io/cloudpirates
-    version: 0.20.5
+    version: 0.20.6
     condition: postgres.enabled
 maintainers:
   - name: swagner-de
