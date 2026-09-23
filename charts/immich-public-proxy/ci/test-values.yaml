@@ -1,0 +1,8 @@
+# CI has no Immich server for the upstream-aware health check.
+controllers:
+  main:
+    containers:
+      main:
+        probes:
+          readiness:
+            enabled: false
