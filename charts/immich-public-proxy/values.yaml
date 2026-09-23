@@ -1,0 +1,14 @@
+# -- URL of the Immich server
+immichUrl: http://immich-server:2283
+
+# -- Public URL where this proxy is available
+publicBaseUrl: http://localhost:3000
+
+controllers:
+  main:
+    containers:
+      main:
+        probes:
+          readiness:
+            # -- Enable the upstream-aware readiness probe
+            enabled: true

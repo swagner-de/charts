@@ -1,0 +1,31 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Proxies public Immich shares without exposing the Immich server directly
+- Configurable Immich and public-facing URLs
+- TCP liveness/startup probes and HTTP readiness check on `/share/healthcheck`
+- Stateless deployment with a temporary writable `/tmp` volume
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+This chart runs with restrictive security defaults:
+
+- `runAsNonRoot: true`, UID/GID 1000
+- `readOnlyRootFilesystem: true`
+- `allowPrivilegeEscalation: false`
+- All capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+{{ template "chart.maintainersSection" . }}
