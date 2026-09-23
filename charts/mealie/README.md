@@ -1,6 +1,6 @@
 # mealie
 
-![Version: 0.30.0](https://img.shields.io/badge/Version-0.30.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.26.0](https://img.shields.io/badge/AppVersion-v3.26.0-informational?style=flat-square)
+![Version: 0.31.0](https://img.shields.io/badge/Version-0.31.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.26.0](https://img.shields.io/badge/AppVersion-v3.26.0-informational?style=flat-square)
 Self-hosted recipe manager and meal planner
 **Homepage:** <https://mealie.io/>
 
@@ -21,8 +21,8 @@ helm install mealie oci://ghcr.io/swagner-de/charts/mealie
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
-| oci://registry-1.docker.io/cloudpirates | postgres | 0.20.5 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
+| oci://registry-1.docker.io/cloudpirates | postgres | 0.20.6 |
 
 ## Values
 
