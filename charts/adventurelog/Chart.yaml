@@ -2,7 +2,7 @@ apiVersion: v2
 name: adventurelog
 description: Self-hosted travel companion to log trips, plan itineraries, and map your adventures
 type: application
-version: 0.1.0
+version: 1.0.0
 home: https://adventurelog.app/
 sources:
   - https://github.com/swagner-de/charts
