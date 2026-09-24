@@ -32,10 +32,46 @@ networkPolicy:
 
 # -- Extra backend (Django) environment variables (plain, non-secret).
 # See https://adventurelog.app/docs/configuration/environment_variables.html
+# GUNICORN_WORKERS, if set here, also controls the gunicorn --workers flag.
 config: {}
   # GUNICORN_WORKERS: "2"
   # ENABLE_RATE_LIMITS: "True"
   # DISABLE_REGISTRATION: "True"
+
+# -- Skip the first-boot world/country data download (download-countries).
+# The download needs ~2GB RAM; set true to skip it (regions will be unavailable
+# until you run the management command manually).
+skipWorldData: false
+
+# -- In-pod memcached cache sidecar. Django caches at 127.0.0.1:11211 (hardcoded
+# upstream), so this must run in the same pod. Runs non-root (no -u flag).
+memcached:
+  image:
+    # -- memcached image repository
+    repository: docker.io/library/memcached
+    # renovate: image=docker.io/library/memcached
+    # -- memcached image tag
+    tag: 1.6.39-alpine
+  # -- memcached memory limit in MB (-m)
+  memoryLimitMb: 64
+
+# -- Rootless nginx sidecar (nginxinc/nginx-unprivileged) that serves protected
+# media via X-Accel-Redirect and proxies the rest to gunicorn. Listens on :8080.
+nginx:
+  image:
+    # -- nginx image repository
+    repository: docker.io/nginxinc/nginx-unprivileged
+    # renovate: image=docker.io/nginxinc/nginx-unprivileged
+    # -- nginx image tag
+    tag: 1.29.2-alpine
+
+# -- Nightly maintenance CronJob that syncs visited regions/cities from user
+# locations (replaces the in-image root cron).
+syncVisitedRegions:
+  # -- Enable the sync-visited-regions CronJob
+  enabled: true
+  # -- Cron schedule (UTC)
+  schedule: "0 0 * * *"
 
 # -- Default Django admin/superuser account, created on first start.
 # Username and email are non-secret; the password comes from the Secret below.

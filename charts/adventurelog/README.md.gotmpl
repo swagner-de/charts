@@ -3,10 +3,37 @@
 {{ template "chart.description" . }}
 {{ template "chart.homepageLine" . }}
 
+> **Decomposed container run.** The upstream AdventureLog image ships gunicorn,
+> nginx, memcached and cron together under supervisord and runs as **root**. This
+> chart splits those into separate, individually hardened, **fully non-root**
+> containers within a single pod (plus an init container and a CronJob), so no
+> process runs privileged and no `.trivyignore.yaml` waivers are needed. See
+> [Architecture](#architecture) below.
+
 ## Features
-- Split deployment: hardened SvelteKit frontend + Django backend in one pod
+- Fully rootless, hardened split deployment in a single pod: SvelteKit frontend,
+  Django/gunicorn backend, memcached cache, and a rootless nginx sidecar
+- Database migrations, world-data download and superuser creation run in a
+  hardened init container; the nightly `sync_visited_regions` job runs as a CronJob
 - PostgreSQL/PostGIS database via the CloudNativePG operator (required)
 - Secrets injected via envFrom (packaged Secret or an external Secret)
+
+## Architecture
+The upstream `adventurelog-backend` image bundles gunicorn, nginx, memcached and
+cron under supervisord and runs as root. This chart decomposes it into separate,
+non-root containers so nothing runs privileged:
+
+- **frontend** (`:3000`) — SvelteKit SSR, the public entrypoint.
+- **backend** (`:8000`) — gunicorn only (`main.wsgi`), serving static files via
+  WhiteNoise. Runs as UID 1000, read-only root filesystem.
+- **memcached** (`:11211`) — in-pod cache (Django caches at `127.0.0.1:11211`,
+  which is hardcoded upstream). Runs without `-u` since it is already non-root.
+- **nginx** (`:8080`) — `nginxinc/nginx-unprivileged` (UID 101). Serves protected
+  media via `X-Accel-Redirect` (`/protectedMedia/`) and proxies everything else to
+  gunicorn. The `backend` Service points here.
+- **db-init** (init container) — waits for Postgres, runs migrations, downloads
+  world/country data and creates the superuser.
+- **sync-visited-regions** (CronJob) — nightly `python manage.py sync_visited_regions`.
 
 ## Database
 This chart **requires PostGIS** (the backend uses GeoDjango). The packaged plain
@@ -41,7 +68,7 @@ superuser, so GeoDjango cannot create the `postgis` extension itself.
 The frontend is the public entrypoint. The reverse proxy in front (Ingress or a
 Gateway API `HTTPRoute`) must route the backend paths to the `backend` service:
 
-- `/media`, `/static`, `/protectedMedia`, `/admin`, `/accounts` → `<release>-backend:80`
+- `/media`, `/static`, `/protectedMedia`, `/admin`, `/accounts` → `<release>-backend:8080`
 - everything else → `<release>-main:3000`
 
 ## Install
@@ -63,10 +90,12 @@ the admin account to add your provider. The callback URL is
 `<siteUrl>/accounts/oidc/<provider-id>/login/callback/`.
 
 ## Security
-- **Frontend**: `runAsNonRoot: true` (UID/GID 1000), `readOnlyRootFilesystem: true`,
-  `allowPrivilegeEscalation: false`, all capabilities dropped, seccomp `RuntimeDefault`.
-- **Backend**: runs as root with a writable root filesystem — its image bundles
-  supervisord/nginx/cron/memcached which require it. Seccomp `RuntimeDefault` is kept.
-  See `.trivyignore.yaml` for the documented exceptions.
+Every container runs `runAsNonRoot: true`, `readOnlyRootFilesystem: true`,
+`allowPrivilegeEscalation: false`, all capabilities dropped, and seccomp
+`RuntimeDefault`. The frontend/backend/memcached/init/cron containers run as UID
+1000; the nginx sidecar runs as UID 101. Writable paths (`/tmp`, `/code/media`,
+`/var/run/app` — the working dir where Django's `scheduler.log` lands, and nginx
+temp dirs) are backed by emptyDir/PVC volumes, so no
+`.trivyignore.yaml` waivers are required.
 
 {{ template "chart.maintainersSection" . }}

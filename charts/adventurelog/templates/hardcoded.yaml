@@ -10,6 +10,9 @@ global:
 
 defaultPodOptions:
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
     fsGroup: 1000
     fsGroupChangePolicy: OnRootMismatch
 
@@ -24,23 +27,107 @@ defaultPodOptions:
 {{- end }}
 {{- $dbSecret := printf "%s-app" $cnpgName }}
 
+{{- /*
+  Shared hardened security context for every container in this chart. The
+  backend image (Django/gunicorn) runs unprivileged as UID 1000; the only
+  writable paths it needs are backed by emptyDir/PVC volumes (see persistence).
+*/}}
+{{- $hardened := dict
+  "runAsNonRoot" true
+  "readOnlyRootFilesystem" true
+  "allowPrivilegeEscalation" false
+  "seccompProfile" (dict "type" "RuntimeDefault")
+  "capabilities" (dict "drop" (list "ALL")) }}
+
+{{- /*
+  Backend (Django + gunicorn) env, reused by the initContainer, the gunicorn
+  container and the sync-visited-regions CronJob.
+*/}}
+{{- $backendEnv := dict
+  "PUBLIC_URL" $siteUrl
+  "FRONTEND_URL" $siteUrl
+  "CSRF_TRUSTED_ORIGINS" $siteUrl
+  "DEBUG" "False"
+  "PYTHONPATH" "/code"
+  "PGHOST" (printf "%s-rw" $cnpgName) }}
+
 controllers:
   main:
+    initContainers:
+      # One-shot: wait for Postgres, run migrations, download world/country data
+      # and create the Django superuser before the app containers start. Runs
+      # fully hardened as non-root (UID 1000) using the backend image.
+      db-init:
+        enabled: true
+        securityContext: {{ $hardened | toYaml | nindent 10 }}
+        image:
+          repository: ghcr.io/seanmorley15/adventurelog-backend
+          tag: {{ .Chart.AppVersion | quote }}
+        # CWD is a writable emptyDir so Django's scheduler.log FileHandler (relative
+        # path, hardcoded in settings.py) lands somewhere writable — /code is
+        # root-owned and read-only. The app is imported via PYTHONPATH=/code, and a
+        # tiny manage.py shim in the CWD lets us reuse the image's own shipped startup
+        # functions (wait_for_postgres/migrate/superuser/download-countries) verbatim.
+        workingDir: /var/run/app
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            set -euo pipefail
+            printf '#!/usr/bin/env python\nexec(open("/code/manage.py").read())\n' > manage.py
+            chmod +x manage.py
+            source /code/scripts/entrypoint-common.sh
+            wait_for_postgres
+            run_migrations
+            create_superuser_if_needed
+            run_download_countries
+        env: &backendEnv
+{{- range $k, $v := $backendEnv }}
+          {{ $k }}: {{ $v | quote }}
+{{- end }}
+{{- if .Values.admin.username }}
+          DJANGO_ADMIN_USERNAME: {{ .Values.admin.username | quote }}
+{{- end }}
+{{- if .Values.admin.email }}
+          DJANGO_ADMIN_EMAIL: {{ .Values.admin.email | quote }}
+{{- end }}
+{{- if .Values.skipWorldData }}
+          SKIP_WORLD_DATA: "1"
+{{- end }}
+          POSTGRES_DB:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: dbname
+          POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: username
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $dbSecret | quote }}
+                key: password
+{{- range $k, $v := .Values.config }}
+          {{ $k }}: {{ $v | quote }}
+{{- end }}
+        envFrom: &backendEnvFrom
+{{- if .Values.secrets.app.enabled }}
+          - secretRef:
+              identifier: app
+{{- end }}
+{{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ .name }}
+{{- if .optional }}
+              optional: true
+{{- end }}
+{{- end }}
     containers:
       # Frontend (SvelteKit SSR). Listens on :3000, runs fully hardened as non-root.
       frontend:
         enabled: true
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
-          readOnlyRootFilesystem: true
-          allowPrivilegeEscalation: false
-          seccompProfile:
-            type: RuntimeDefault
-          capabilities:
-            drop:
-            - ALL
+        securityContext: {{ $hardened | toYaml | nindent 10 }}
         image:
           repository: ghcr.io/seanmorley15/adventurelog-frontend
           tag: {{ .Chart.AppVersion | quote }}
@@ -76,63 +163,34 @@ controllers:
               <<: *feprobeSpec
               initialDelaySeconds: 10
               failureThreshold: 30
-      # Backend (Django + gunicorn + nginx + memcached + cron via supervisord).
-      # nginx binds :80 and memcached/cron require root, so this container runs as
-      # root with a writable root filesystem. See .trivyignore.yaml for rationale.
+      # Backend (Django + gunicorn only). Listens on :8000, fully hardened as
+      # non-root. Static files are served by WhiteNoise; protected media is
+      # offloaded to the nginx sidecar via X-Accel-Redirect. memcached and the
+      # nightly cron run as separate containers/CronJob (see below).
       backend:
         enabled: true
-        securityContext:
-          runAsNonRoot: false
-          runAsUser: 0
-          readOnlyRootFilesystem: false
-          allowPrivilegeEscalation: true
-          seccompProfile:
-            type: RuntimeDefault
+        securityContext: {{ $hardened | toYaml | nindent 10 }}
         image:
           repository: ghcr.io/seanmorley15/adventurelog-backend
           tag: {{ .Chart.AppVersion | quote }}
+        # CWD is a writable emptyDir (scheduler.log lands here); the app is on
+        # PYTHONPATH=/code so gunicorn can import main.wsgi from anywhere.
+        workingDir: /var/run/app
+        command: ["/usr/local/bin/gunicorn"]
+        args:
+          - main.wsgi:application
+          - --bind
+          - "[::]:8000"
+          - --workers
+          - {{ .Values.config.GUNICORN_WORKERS | default "2" | quote }}
+          - --timeout
+          - "120"
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-        env:
-          PUBLIC_URL: {{ $siteUrl | quote }}
-          FRONTEND_URL: {{ $siteUrl | quote }}
-          CSRF_TRUSTED_ORIGINS: {{ $siteUrl | quote }}
-          DEBUG: "False"
-          DJANGO_ADMIN_USERNAME: {{ .Values.admin.username | quote }}
-          DJANGO_ADMIN_EMAIL: {{ .Values.admin.email | quote }}
-          PGHOST: {{ printf "%s-rw" $cnpgName | quote }}
-          POSTGRES_DB:
-            valueFrom:
-              secretKeyRef:
-                name: {{ $dbSecret | quote }}
-                key: dbname
-          POSTGRES_USER:
-            valueFrom:
-              secretKeyRef:
-                name: {{ $dbSecret | quote }}
-                key: username
-          POSTGRES_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: {{ $dbSecret | quote }}
-                key: password
-{{- range $k, $v := .Values.config }}
-          {{ $k }}: {{ $v | quote }}
-{{- end }}
-        envFrom:
-{{- if .Values.secrets.app.enabled }}
-          - secretRef:
-              identifier: app
-{{- end }}
-{{- range .Values.envFromSecrets }}
-          - secretRef:
-              name: {{ .name }}
-{{- if .optional }}
-              optional: true
-{{- end }}
-{{- end }}
+        env: *backendEnv
+        envFrom: *backendEnvFrom
         probes:
           liveness: &beprobe
             enabled: true
@@ -140,8 +198,8 @@ controllers:
             spec: &beprobeSpec
               httpGet:
                 path: /health/
-                port: 80
-              initialDelaySeconds: 30
+                port: 8000
+              initialDelaySeconds: 15
               periodSeconds: 15
               timeoutSeconds: 5
               successThreshold: 1
@@ -152,14 +210,160 @@ controllers:
             custom: true
             spec:
               <<: *beprobeSpec
-              # tolerate migrations + country data download on first start
-              initialDelaySeconds: 20
+              initialDelaySeconds: 10
               failureThreshold: 40
+      # In-pod memcached cache. Django points at 127.0.0.1:11211 (hardcoded in
+      # settings.py). Runs non-root without -u (only root can setuid).
+      memcached:
+        enabled: true
+        securityContext: {{ $hardened | toYaml | nindent 10 }}
+        image:
+          repository: {{ .Values.memcached.image.repository }}
+          tag: {{ .Values.memcached.image.tag }}
+        command: ["memcached"]
+        args:
+          - -m
+          - {{ .Values.memcached.memoryLimitMb | quote }}
+          - -p
+          - "11211"
+        resources:
+          requests:
+            cpu: 25m
+            memory: 96Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 11211
+              initialDelaySeconds: 5
+              periodSeconds: 15
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 11211
+              initialDelaySeconds: 5
+              periodSeconds: 15
+          startup:
+            enabled: false
+      # Rootless nginx (nginxinc/nginx-unprivileged, UID 101). Serves protected
+      # media via X-Accel-Redirect (Django emits /protectedMedia/... when
+      # DEBUG=False and media is local) and proxies everything else to gunicorn.
+      # Listens on :8080 (unprivileged). Static files go through WhiteNoise.
+      nginx:
+        enabled: true
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 101
+          runAsGroup: 101
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: {{ .Values.nginx.image.repository }}
+          tag: {{ .Values.nginx.image.tag }}
+        command: ["nginx"]
+        args: ["-c", "/etc/nginx/app/nginx.conf", "-g", "daemon off;"]
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+        probes:
+          liveness: &nxprobe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health/
+                port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 15
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 5
+          readiness: *nxprobe
+          startup:
+            enabled: false
+
+  # Nightly maintenance: sync visited regions/cities from user locations.
+  # Replaces the in-image cron (which required root). Runs the same management
+  # command in a hardened, non-root CronJob.
+  sync-visited-regions:
+    enabled: {{ .Values.syncVisitedRegions.enabled }}
+    type: cronjob
+    cronjob:
+      schedule: {{ .Values.syncVisitedRegions.schedule | quote }}
+      timeZone: "UTC"
+      concurrencyPolicy: Forbid
+      successfulJobsHistory: 1
+      failedJobsHistory: 1
+    containers:
+      main:
+        securityContext: {{ $hardened | toYaml | nindent 10 }}
+        image:
+          repository: ghcr.io/seanmorley15/adventurelog-backend
+          tag: {{ .Chart.AppVersion | quote }}
+        workingDir: /var/run/app
+        command: ["python"]
+        args: ["/code/manage.py", "sync_visited_regions"]
+        env: *backendEnv
+        envFrom: *backendEnvFrom
+
+configMaps:
+  nginx:
+    enabled: true
+    data:
+      nginx.conf: |
+        worker_processes 1;
+        pid /tmp/nginx/nginx.pid;
+        error_log /dev/stderr warn;
+        events { worker_connections 1024; }
+        http {
+            include /etc/nginx/mime.types;
+            default_type application/octet-stream;
+            access_log /dev/stdout;
+            client_body_temp_path /tmp/nginx/body;
+            proxy_temp_path /tmp/nginx/proxy;
+            fastcgi_temp_path /tmp/nginx/fastcgi;
+            uwsgi_temp_path /tmp/nginx/uwsgi;
+            scgi_temp_path /tmp/nginx/scgi;
+            sendfile on;
+            keepalive_timeout 65;
+            client_max_body_size 100M;
+            upstream django { server 127.0.0.1:8000; }
+            server {
+                listen 8080;
+                server_name localhost;
+                # /static/ is intentionally NOT served here: the baked staticfiles
+                # live in the backend image, not this nginx image. WhiteNoise
+                # (first Django middleware) serves /static/ via the proxy below.
+                location / {
+                    proxy_pass http://django;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+                location /protectedMedia/ {
+                    internal;
+                    alias /code/media/;
+                    try_files $uri =404;
+                    add_header X-Content-Type-Options nosniff always;
+                }
+            }
+        }
 
 service:
   # Public entrypoint (frontend). Path routing to the backend is done by the
   # HTTPRoute/Ingress in front (see README): /media,/static,/protectedMedia,
-  # /admin,/accounts -> backend:80, everything else -> this service.
+  # /admin,/accounts -> backend:8080, everything else -> this service.
   main:
     controller: main
     primary: true
@@ -171,7 +375,7 @@ service:
     controller: main
     ports:
       http:
-        port: 80
+        port: 8080
         protocol: HTTP
 
 ingress:
@@ -188,14 +392,64 @@ persistence:
     enabled: {{ .Values.persistence.media.enabled }}
     advancedMounts:
       main:
+        db-init:
+        - path: /code/media
         backend:
         - path: /code/media
+        nginx:
+        - path: /code/media
+          readOnly: true
+      # NB: the sync-visited-regions CronJob does NOT mount media — the
+      # sync_visited_regions command is DB-only (no MEDIA_ROOT access). This also
+      # avoids a ReadWriteOnce conflict when the CronJob lands on a different node
+      # than the main pod.
+  # Writable working directory used as CWD by the Django containers. settings.py
+  # hardcodes a scheduler.log FileHandler with a relative path (resolved against
+  # CWD), and /code is root-owned/read-only — so we run from here instead. A plain
+  # directory mount (no file subPath) keeps this compatible with the gVisor runtime.
+  app-run:
+    type: emptyDir
+    advancedMounts:
+      main:
+        db-init:
+        - path: /var/run/app
+        backend:
+        - path: /var/run/app
+      sync-visited-regions:
+        main:
+        - path: /var/run/app
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        db-init:
+        - path: /tmp
+        backend:
+        - path: /tmp
+      sync-visited-regions:
+        main:
+        - path: /tmp
   frontend-tmp:
     type: emptyDir
     advancedMounts:
       main:
         frontend:
         - path: /tmp
+  nginx-tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        nginx:
+        - path: /tmp/nginx
+  nginx-config:
+    type: configMap
+    identifier: nginx
+    # Mounted as a directory (not a file subPath) for gVisor compatibility; nginx
+    # is pointed at it via `-c` in the container args.
+    advancedMounts:
+      main:
+        nginx:
+        - path: /etc/nginx/app
 
 {{- if .Values.networkPolicy.enabled }}
 networkpolicies:
@@ -206,12 +460,12 @@ networkpolicies:
       - Egress
     rules:
       ingress:
-        # Gateway -> frontend (3000) and backend (80). Selecting the pod with any
-        # policy implicitly denies all other ingress.
+        # Gateway -> frontend (3000) and backend nginx (8080). Selecting the pod
+        # with any policy implicitly denies all other ingress.
         - ports:
             - port: 3000
               protocol: TCP
-            - port: 80
+            - port: 8080
               protocol: TCP
           from:
             - namespaceSelector:
@@ -242,6 +496,35 @@ networkpolicies:
               protocol: TCP
             - port: 80
               protocol: TCP
+{{- if .Values.syncVisitedRegions.enabled }}
+  # The sync-visited-regions CronJob runs in its own pod (not selected by the
+  # `main` policy above), so it needs its own egress allowance for DNS + the DB.
+  # It is DB-only, so no HTTP/ingress rules are required.
+  sync-visited-regions:
+    controller: sync-visited-regions
+    policyTypes:
+      - Egress
+    rules:
+      egress:
+        # DNS
+        - ports:
+            - port: 53
+              protocol: UDP
+            - port: 53
+              protocol: TCP
+          to:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: kube-system
+        # PostgreSQL — the CNPG cluster pods in this namespace
+        - ports:
+            - port: 5432
+              protocol: TCP
+          to:
+            - podSelector:
+                matchLabels:
+                  cnpg.io/cluster: {{ $cnpgName | quote }}
+{{- end }}
 {{- end }}
 
 {{ end }}
