@@ -1,6 +1,6 @@
 # mealie
 
-![Version: 0.31.0](https://img.shields.io/badge/Version-0.31.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.26.0](https://img.shields.io/badge/AppVersion-v3.26.0-informational?style=flat-square)
+![Version: 0.32.0](https://img.shields.io/badge/Version-0.32.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.28.0](https://img.shields.io/badge/AppVersion-v3.28.0-informational?style=flat-square)
 Self-hosted recipe manager and meal planner
 **Homepage:** <https://mealie.io/>
 
