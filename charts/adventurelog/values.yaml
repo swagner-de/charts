@@ -51,7 +51,7 @@ memcached:
     repository: docker.io/library/memcached
     # renovate: image=docker.io/library/memcached
     # -- memcached image tag
-    tag: 1.6.39-alpine
+    tag: 1.6.45-alpine
   # -- memcached memory limit in MB (-m)
   memoryLimitMb: 64
 
@@ -63,7 +63,7 @@ nginx:
     repository: docker.io/nginxinc/nginx-unprivileged
     # renovate: image=docker.io/nginxinc/nginx-unprivileged
     # -- nginx image tag
-    tag: 1.29.2-alpine
+    tag: 1.31.6-alpine
 
 # -- Nightly maintenance CronJob that syncs visited regions/cities from user
 # locations (replaces the in-image root cron).
