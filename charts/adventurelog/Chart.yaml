@@ -2,7 +2,7 @@ apiVersion: v2
 name: adventurelog
 description: Self-hosted travel companion to log trips, plan itineraries, and map your adventures
 type: application
-version: 1.0.0
+version: 1.1.0
 home: https://adventurelog.app/
 sources:
   - https://github.com/swagner-de/charts
@@ -10,7 +10,7 @@ sources:
 appVersion: 'v0.13.0'
 dependencies:
   - name: common
-    version: 5.1.0
+    version: 5.2.1
     repository: https://bjw-s-labs.github.io/helm-charts/
 maintainers:
   - name: swagner-de
