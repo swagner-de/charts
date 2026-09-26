@@ -23,7 +23,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [immich-public-proxy](charts/immich-public-proxy) | `0.2.0` | Public sharing proxy for Immich |
 | [immich](charts/immich) | `0.21.4` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.12.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
-| [jellyfin](charts/jellyfin) | `0.3.0` | Free software media server for streaming movies, TV, music, and more |
+| [jellyfin](charts/jellyfin) | `0.4.0` | Free software media server for streaming movies, TV, music, and more |
 | [linkwarden](charts/linkwarden) | `0.5.0` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
 | [mealie](charts/mealie) | `0.32.0` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.3.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
