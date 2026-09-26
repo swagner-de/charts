@@ -10,7 +10,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [adguard-home](charts/adguard-home) | `0.9.0` | DNS-level ad and tracker blocking with optional Prometheus exporter |
 | [adventurelog](charts/adventurelog) | `1.1.0` | Self-hosted travel companion to log trips, plan itineraries, and map your adventures |
 | [akvorado](charts/akvorado) | `0.6.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
-| [arr-stack](charts/arr-stack) | `0.11.0` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
+| [arr-stack](charts/arr-stack) | `0.11.1` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
 | [carconnectivity](charts/carconnectivity) | `0.4.0` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
 | [dawarich](charts/dawarich) | `0.5.6` | Self-hosted location history tracker and Google Timeline alternative |
 | [emby](charts/emby) | `0.3.0` | Emby media server for streaming movies, TV, music, and more |
