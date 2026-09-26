@@ -2,7 +2,7 @@ apiVersion: v2
 name: immich-public-proxy
 description: Public sharing proxy for Immich
 type: application
-version: 0.1.0
+version: 0.2.0
 # renovate: image=docker.io/alangrainger/immich-public-proxy
 appVersion: '3.4.0'
 home: https://github.com/alangrainger/immich-public-proxy
@@ -10,7 +10,7 @@ sources:
   - https://github.com/swagner-de/charts
 dependencies:
   - name: common
-    version: 5.1.0
+    version: 5.2.1
     repository: https://bjw-s-labs.github.io/helm-charts/
 maintainers:
   - name: swagner-de
