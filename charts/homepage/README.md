@@ -1,6 +1,6 @@
 # homepage
 
-![Version: 0.12.0](https://img.shields.io/badge/Version-0.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.4.0](https://img.shields.io/badge/AppVersion-v2.4.0-informational?style=flat-square)
+![Version: 0.13.0](https://img.shields.io/badge/Version-0.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.4.0](https://img.shields.io/badge/AppVersion-v2.4.0-informational?style=flat-square)
 Customizable application dashboard for your homelab
 **Homepage:** <https://gethomepage.dev/>
 
@@ -20,7 +20,7 @@ helm install homepage oci://ghcr.io/swagner-de/charts/homepage
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
 
 ## Values
 
