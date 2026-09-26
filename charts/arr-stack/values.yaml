@@ -96,7 +96,7 @@ bazarr:
     # -- Image repository
     repository: ghcr.io/home-operations/bazarr
     # -- Image tag
-    tag: '1.6.1'
+    tag: '1.6.2'
   # -- Persistence configuration
   persistence:
     config:
