@@ -1,6 +1,6 @@
 # emby
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.10.0.40](https://img.shields.io/badge/AppVersion-4.10.0.40-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.10.0.40](https://img.shields.io/badge/AppVersion-4.10.0.40-informational?style=flat-square)
 Emby media server for streaming movies, TV, music, and more
 **Homepage:** <https://emby.media/>
 
@@ -21,7 +21,7 @@ helm install emby oci://ghcr.io/swagner-de/charts/emby
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
 
 ## Values
 
