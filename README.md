@@ -15,7 +15,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [dawarich](charts/dawarich) | `0.5.6` | Self-hosted location history tracker and Google Timeline alternative |
 | [emby](charts/emby) | `0.3.0` | Emby media server for streaming movies, TV, music, and more |
 | [flowcus](charts/flowcus) | `0.3.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
-| [freeradius](charts/freeradius) | `0.2.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
+| [freeradius](charts/freeradius) | `0.3.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.45.0` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.2.2` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.24.8` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
