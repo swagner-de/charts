@@ -30,8 +30,8 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [music-assistant](charts/music-assistant) | `0.5.0` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.4.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
 | [paperless](charts/paperless) | `0.63.0` | Document management system with OCR and full-text search |
-| [powerdns-auth](charts/powerdns-auth) | `0.7.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
-| [powerdns-recursor](charts/powerdns-recursor) | `0.3.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
+| [powerdns-auth](charts/powerdns-auth) | `0.8.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
+| [powerdns-recursor](charts/powerdns-recursor) | `0.4.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.5.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
 | [samba](charts/samba) | `0.3.0` | Multi-user Samba SMB file server with per-share encryption and Time Machine support |
 | [searxng](charts/searxng) | `0.1.0` | Privacy-respecting metasearch engine |
