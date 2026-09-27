@@ -30,15 +30,15 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [music-assistant](charts/music-assistant) | `0.5.0` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.4.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
 | [paperless](charts/paperless) | `0.63.0` | Document management system with OCR and full-text search |
-| [powerdns-auth](charts/powerdns-auth) | `0.8.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
+| [powerdns-auth](charts/powerdns-auth) | `0.9.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.4.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.6.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
 | [samba](charts/samba) | `0.4.0` | Multi-user Samba SMB file server with per-share encryption and Time Machine support |
 | [searxng](charts/searxng) | `0.2.0` | Privacy-respecting metasearch engine |
-| [skel](charts/skel) | `0.3.0` | Skeleton chart template for creating new charts |
+| [skel](charts/skel) | `0.4.0` | Skeleton chart template for creating new charts |
 | [vikunja](charts/vikunja) | `0.3.0` | Self-hosted to-do list and task management application |
 | [wanderer](charts/wanderer) | `0.7.0` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
-| [zigbee2mqtt](charts/zigbee2mqtt) | `0.14.0` | Zigbee-to-MQTT bridge for smart home devices |
+| [zigbee2mqtt](charts/zigbee2mqtt) | `0.15.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
 ## Usage

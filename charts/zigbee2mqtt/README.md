@@ -1,6 +1,6 @@
 # zigbee2mqtt
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.14.1](https://img.shields.io/badge/AppVersion-2.14.1-informational?style=flat-square)
+![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.14.1](https://img.shields.io/badge/AppVersion-2.14.1-informational?style=flat-square)
 Zigbee-to-MQTT bridge for smart home devices
 **Homepage:** <https://www.zigbee2mqtt.io/>
 
@@ -19,7 +19,7 @@ helm install zigbee2mqtt oci://ghcr.io/swagner-de/charts/zigbee2mqtt
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
 
 ## Values
 
