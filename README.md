@@ -33,7 +33,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [powerdns-auth](charts/powerdns-auth) | `0.8.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.4.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.6.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
-| [samba](charts/samba) | `0.3.0` | Multi-user Samba SMB file server with per-share encryption and Time Machine support |
+| [samba](charts/samba) | `0.4.0` | Multi-user Samba SMB file server with per-share encryption and Time Machine support |
 | [searxng](charts/searxng) | `0.1.0` | Privacy-respecting metasearch engine |
 | [skel](charts/skel) | `0.3.0` | Skeleton chart template for creating new charts |
 | [vikunja](charts/vikunja) | `0.3.0` | Self-hosted to-do list and task management application |
