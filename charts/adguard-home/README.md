@@ -1,6 +1,6 @@
 # adguard-home
 
-![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.107.79](https://img.shields.io/badge/AppVersion-0.107.79-informational?style=flat-square)
+![Version: 0.10.0](https://img.shields.io/badge/Version-0.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.107.79](https://img.shields.io/badge/AppVersion-0.107.79-informational?style=flat-square)
 DNS-level ad and tracker blocking with optional Prometheus exporter
 **Homepage:** <https://github.com/AdguardTeam/AdGuardHome>
 
