@@ -2,12 +2,12 @@ apiVersion: v2
 name: wanderer
 description: Self-hosted trail database and route planner for hiking, biking and other outdoor activities
 type: application
-version: 0.8.1
+version: 0.9.0
 home: https://wanderer.to/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=docker.io/flomp/wanderer-web
-appVersion: 'v0.20.0'
+appVersion: 'v0.21.0'
 dependencies:
   - name: common
     version: 5.2.1
