@@ -2,6 +2,16 @@
 
 global:
   createDefaultServiceAccount: false
+  alwaysAppendIdentifierToResourceName: true
+
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
 
 defaultPodOptions:
   securityContext:
@@ -74,22 +84,22 @@ controllers:
           POSTGRES_HOST:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                name: {{ printf "%s-app" $cnpgName | quote }}
                 key: host
           POSTGRES_DATABASE:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                name: {{ printf "%s-app" $cnpgName | quote }}
                 key: dbname
           POSTGRES_USER:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                name: {{ printf "%s-app" $cnpgName | quote }}
                 key: username
           POSTGRES_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                name: {{ printf "%s-app" $cnpgName | quote }}
                 key: password
           {{- if .Values.saml.enabled }}
           SAML_ENABLED: "true"

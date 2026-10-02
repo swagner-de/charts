@@ -7,6 +7,9 @@ appBaseUrl: "https://joplin.example.com"
 # username, password). The chart reads credentials directly from that Secret.
 cnpg:
   clusterName: "joplin-db"
+  # Set true when deploying the CNPG Cluster via rawResources so the release
+  # name is prepended to the cluster name (and its auto-created secret).
+  prependReleaseName: false
 
 # Names of Secrets whose keys are injected as env vars into the main container.
 # Optional — for extra secrets (e.g. mailer credentials).

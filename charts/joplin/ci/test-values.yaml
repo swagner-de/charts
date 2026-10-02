@@ -1,20 +1,15 @@
 appBaseUrl: "http://joplin.ci.local"
 
-# clusterName matches the Cluster manifest name below so the chart reads from
-# the correct `joplin-db-app` secret created by the CNPG operator.
 cnpg:
-  clusterName: joplin-db
+  clusterName: db
+  prependReleaseName: true
 
-# Deploy a minimal CNPG cluster in CI so the operator creates the `joplin-db-app`
-# secret that the chart reads credentials from.
 rawResources:
   db:
     enabled: true
     manifest:
       apiVersion: postgresql.cnpg.io/v1
       kind: Cluster
-      metadata:
-        name: joplin-db
       spec:
         instances: 1
         storage:
