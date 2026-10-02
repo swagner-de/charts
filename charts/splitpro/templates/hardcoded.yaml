@@ -1,0 +1,352 @@
+{{- define "hardcoded" -}}
+
+global:
+  createDefaultServiceAccount: false
+
+{{- $siteUrl := .Values.siteUrl | trimSuffix "/" }}
+{{- $db := .Values.postgres.database }}
+{{- $dbUser := .Values.postgres.user }}
+{{- /*
+  $dbHost: the PostgreSQL Service DNS name, needed as a literal by the app's
+  wait-for-db init container. Follows the bjw-s fullname rule; the Service is
+  <fullname>-postgres (identifier appended with two services).
+*/}}
+{{- $chartName := .Chart.Name }}
+{{- $fullname := .Release.Name }}
+{{- if not (contains $chartName .Release.Name) }}
+{{- $fullname = printf "%s-%s" .Release.Name $chartName }}
+{{- end }}
+{{- $fullname = $fullname | trunc 63 | trimSuffix "-" }}
+{{- $dbHost := printf "%s-postgres" $fullname }}
+
+{{- /*
+  Hardened security context for the SplitPro app container (Next.js standalone).
+  The image ships a non-root `node` user (UID 1000) that owns /app/uploads. The
+  only writable paths it needs are the uploads PVC and /tmp (emptyDir), so the
+  root filesystem is read-only.
+*/}}
+{{- $appSecurity := dict
+  "runAsNonRoot" true
+  "runAsUser" 1000
+  "runAsGroup" 1000
+  "readOnlyRootFilesystem" true
+  "allowPrivilegeEscalation" false
+  "seccompProfile" (dict "type" "RuntimeDefault")
+  "capabilities" (dict "drop" (list "ALL")) }}
+
+{{- /*
+  Security context for the bundled PostgreSQL container (ossapps/postgres, a
+  Debian postgres image with pg_cron). The postgres entrypoint runs as UID 999
+  (the debian `postgres` user) and needs a writable data dir (PVC) plus writable
+  /var/run/postgresql and /tmp (emptyDir). Root filesystem stays read-only.
+*/}}
+{{- $pgSecurity := dict
+  "runAsNonRoot" true
+  "runAsUser" 999
+  "runAsGroup" 999
+  "readOnlyRootFilesystem" true
+  "allowPrivilegeEscalation" false
+  "seccompProfile" (dict "type" "RuntimeDefault")
+  "capabilities" (dict "drop" (list "ALL")) }}
+
+defaultPodOptions:
+  securityContext:
+    # fsGroup lets both the app (1000) and postgres (999) read/write their PVCs;
+    # each container drops to its own UID via the container securityContext above.
+    fsGroup: 999
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  # PostgreSQL with pg_cron, in its own pod. pg_cron is loaded at startup
+  # (shared_preload_libraries) and scoped to the app database — required by
+  # SplitPro's recurrence migration (CREATE EXTENSION pg_cron + FK onto cron.job).
+  postgres:
+    # RWO data PVC cannot be shared across a rolling update.
+    strategy: Recreate
+    containers:
+      postgres:
+        enabled: true
+        securityContext: {{ $pgSecurity | toYaml | nindent 10 }}
+        image:
+          repository: {{ .Values.postgres.image.repository }}
+          tag: {{ .Values.postgres.image.tag | quote }}
+        args:
+          - postgres
+          - -c
+          - shared_preload_libraries=pg_cron
+          - -c
+          - {{ printf "cron.database_name=%s" $db | quote }}
+          - -c
+          - cron.timezone=UTC
+        env:
+          POSTGRES_DB: {{ $db | quote }}
+          POSTGRES_USER: {{ $dbUser | quote }}
+          # PGDATA in a subdir of the mount so lost+found / mount root perms
+          # don't collide with initdb's empty-dir requirement.
+          PGDATA: /var/lib/postgresql/data/pgdata
+        envFrom:
+          # POSTGRES_PASSWORD, by identifier (chart Secret) or external name.
+{{- if .Values.postgres.createSecret }}
+          - secretRef:
+              identifier: db
+{{- else }}
+          - secretRef:
+              name: {{ .Values.postgres.passwordSecret.name | quote }}
+{{- end }}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        probes:
+          liveness: &pgprobe
+            enabled: true
+            custom: true
+            spec: &pgprobeSpec
+              exec:
+                command: ["pg_isready", "-U", {{ $dbUser | quote }}, "-d", {{ $db | quote }}]
+              initialDelaySeconds: 10
+              periodSeconds: 15
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 6
+          readiness: *pgprobe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *pgprobeSpec
+              initialDelaySeconds: 5
+              failureThreshold: 30
+  # SplitPro app (Next.js standalone). Runs Prisma migrations at boot then serves
+  # on :3000; connects to the postgres controller over the cluster Service.
+  main:
+    initContainers:
+      # The app image runs a Prisma instrumentation hook (a DB query) at startup
+      # with no retry, so it must not start before PostgreSQL accepts connections.
+      wait-for-db:
+        enabled: true
+        securityContext: {{ $appSecurity | toYaml | nindent 10 }}
+        image:
+          repository: {{ .Values.postgres.image.repository }}
+          tag: {{ .Values.postgres.image.tag | quote }}
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            until pg_isready -h {{ $dbHost }} -p 5432 -U {{ $dbUser }}; do
+              echo "waiting for postgres..."; sleep 2;
+            done
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+    containers:
+      main:
+        enabled: true
+        securityContext: {{ $appSecurity | toYaml | nindent 10 }}
+        image:
+          repository: ghcr.io/oss-apps/splitpro
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          PORT: "3000"
+          HOSTNAME: "0.0.0.0"
+          NEXTAUTH_URL: {{ $siteUrl | quote }}
+{{- range $k, $v := .Values.config }}
+          {{ $k }}: {{ $v | quote }}
+{{- end }}
+        envFrom:
+{{- if .Values.postgres.createSecret }}
+          - secretRef:
+              identifier: db
+{{- end }}
+{{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ .name }}
+{{- if .optional }}
+              optional: true
+{{- end }}
+{{- end }}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        probes:
+          liveness: &appprobe
+            enabled: true
+            custom: true
+            spec: &appprobeSpec
+              httpGet:
+                path: /
+                port: 3000
+              initialDelaySeconds: 20
+              periodSeconds: 15
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 5
+          readiness: *appprobe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              <<: *appprobeSpec
+              # Boot runs DB migrations before the server listens; allow time.
+              initialDelaySeconds: 15
+              failureThreshold: 40
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 3000
+        protocol: HTTP
+  postgres:
+    controller: postgres
+    ports:
+      postgres:
+        port: 5432
+        protocol: TCP
+
+{{- if .Values.postgres.createSecret }}
+{{- /*
+  Standalone/CI mode: the chart creates one Secret with the DB password plus the
+  app's required NEXTAUTH_SECRET and an assembled DATABASE_URL. In GitOps leave
+  createSecret off and supply these via external Secrets (envFromSecrets).
+*/}}
+secrets:
+  db:
+    enabled: true
+    stringData:
+      POSTGRES_PASSWORD: {{ .Values.postgres.password | quote }}
+      NEXTAUTH_SECRET: {{ .Values.nextauthSecret | quote }}
+      DATABASE_URL: {{ printf "postgresql://%s:%s@%s:5432/%s" $dbUser .Values.postgres.password $dbHost $db | quote }}
+{{- end }}
+
+persistence:
+  uploads:
+    enabled: {{ .Values.persistence.uploads.enabled }}
+    accessMode: {{ .Values.persistence.uploads.accessMode }}
+    size: {{ .Values.persistence.uploads.size }}
+{{- if .Values.persistence.uploads.storageClass }}
+    storageClass: {{ .Values.persistence.uploads.storageClass | quote }}
+{{- end }}
+{{- with .Values.persistence.uploads.labels }}
+    labels: {{ . | toYaml | nindent 6 }}
+{{- end }}
+    advancedMounts:
+      main:
+        main:
+          - path: /app/uploads
+  pgdata:
+    enabled: {{ .Values.persistence.pgdata.enabled }}
+    accessMode: {{ .Values.persistence.pgdata.accessMode }}
+    size: {{ .Values.persistence.pgdata.size }}
+{{- if .Values.persistence.pgdata.storageClass }}
+    storageClass: {{ .Values.persistence.pgdata.storageClass | quote }}
+{{- end }}
+{{- with .Values.persistence.pgdata.labels }}
+    labels: {{ . | toYaml | nindent 6 }}
+{{- end }}
+    advancedMounts:
+      postgres:
+        postgres:
+          - path: /var/lib/postgresql/data
+  # Writable runtime dir for the postgres unix socket / lock files (root fs is RO).
+  pg-run:
+    type: emptyDir
+    advancedMounts:
+      postgres:
+        postgres:
+          - path: /var/run/postgresql
+  # /tmp (read-only root filesystem) for each controller's container.
+  app-tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /tmp
+  pg-tmp:
+    type: emptyDir
+    advancedMounts:
+      postgres:
+        postgres:
+          - path: /tmp
+
+{{- if .Values.networkPolicy.enabled }}
+networkpolicies:
+  main:
+    controller: main
+    policyTypes:
+      - Ingress
+      - Egress
+    rules:
+      ingress:
+        # Gateway -> app (3000). Selecting the pod implicitly denies other ingress.
+        - ports:
+            - port: 3000
+              protocol: TCP
+          from:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: {{ .Values.networkPolicy.gatewayNamespace | quote }}
+      egress:
+        # DNS
+        - ports:
+            - port: 53
+              protocol: UDP
+            - port: 53
+              protocol: TCP
+          to:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: kube-system
+        # PostgreSQL — the in-namespace postgres controller pod.
+        - ports:
+            - port: 5432
+              protocol: TCP
+          to:
+            - podSelector:
+                matchLabels:
+                  app.kubernetes.io/name: {{ .Chart.Name }}
+                  app.kubernetes.io/controller: postgres
+        # Outbound HTTP(S): OIDC discovery/token, currency rate providers.
+        - ports:
+            - port: 443
+              protocol: TCP
+            - port: 80
+              protocol: TCP
+  postgres:
+    controller: postgres
+    policyTypes:
+      - Ingress
+      - Egress
+    rules:
+      ingress:
+        # Only the app controller pod may reach PostgreSQL.
+        - ports:
+            - port: 5432
+              protocol: TCP
+          from:
+            - podSelector:
+                matchLabels:
+                  app.kubernetes.io/name: {{ .Chart.Name }}
+                  app.kubernetes.io/controller: main
+      egress:
+        # DNS only.
+        - ports:
+            - port: 53
+              protocol: UDP
+            - port: 53
+              protocol: TCP
+          to:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: kube-system
+{{- end }}
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

@@ -1,0 +1,80 @@
+# -- Public URL of the instance, used by NextAuth for callbacks and absolute URLs.
+#    MUST match the browser URL. Example: https://splitpro.example.com
+siteUrl: "CHANGEME"
+
+# Non-secret application environment. Merged verbatim into the app container env.
+# Secrets (NEXTAUTH_SECRET, DATABASE_URL, OIDC client id/secret) come from
+# envFromSecrets, never from here.
+config:
+  # Landing page route (/home is the blog page; /balances is the app).
+  DEFAULT_HOMEPAGE: "/balances"
+  # Disable magic-link / email signup for new users. Recommended when using
+  # an external IdP (OIDC/OAuth) as the sole login method.
+  DISABLE_EMAIL_SIGNUP: "true"
+  # Auto-redirect to the single configured OAuth/OIDC provider.
+  OAUTH_AUTO_REDIRECT: "true"
+  # Maximum receipt upload size (MB).
+  UPLOAD_MAX_FILE_SIZE_MB: "10"
+  # pg_cron cache-cleanup schedule (UTC). pg_cron does not support ranges/lists.
+  CLEAR_CACHE_CRON_RULE: "0 2 * * 0"
+  CACHE_RETENTION_INTERVAL: "2 days"
+  # Currency rate provider: frankfurter (default), openexchangerates, or nbp.
+  CURRENCY_RATE_PROVIDER: "frankfurter"
+
+# Extra secrets (as `- name: <secret>`) mounted into the app container via envFrom.
+# Wire NEXTAUTH_SECRET, DATABASE_URL and OIDC credentials here.
+envFromSecrets: []
+
+# Bundled PostgreSQL. SplitPro requires the pg_cron extension (recurring
+# transactions + cache cleanup migration), which is NOT present in generic
+# postgres/CNPG images — so the upstream-maintained ossapps/postgres image
+# (pg_cron baked in) is used as a plain in-chart database.
+postgres:
+  image:
+    repository: ossapps/postgres
+    # renovate: image=ossapps/postgres
+    tag: "17.7-trixie"
+  # Database name / user. The app connects to this DB; pg_cron is scoped to it.
+  database: splitpro
+  user: splitpro
+  # POSTGRES_PASSWORD source. In GitOps, name an external Secret (with a
+  # POSTGRES_PASSWORD key). For CI/standalone, set createSecret: true to use the
+  # chart-managed Secret built from `password`.
+  passwordSecret:
+    name: ""
+  createSecret: false
+  password: "CHANGEME"
+
+# Used only when postgres.createSecret is true (standalone/CI): the app's
+# NextAuth signing secret. In GitOps supply this via an external Secret.
+nextauthSecret: "CHANGEME"
+
+persistence:
+  # Receipt uploads (/app/uploads in the app container).
+  uploads:
+    enabled: true
+    size: 5Gi
+    accessMode: ReadWriteOnce
+    # storageClass: ""
+  # PostgreSQL data directory.
+  pgdata:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    # storageClass: ""
+
+# HTTPRoute (Gateway API). Disabled by default; enable + configure in the overlay.
+route:
+  main:
+    enabled: false
+
+# Legacy Ingress (disabled; use route).
+ingress:
+  main:
+    enabled: false
+
+# Optional NetworkPolicy (ingress from the gateway namespace, egress to DNS +
+# HTTP(S) for OIDC/currency rates; the DB is in-pod so needs no egress rule).
+networkPolicy:
+  enabled: false
+  gatewayNamespace: envoy-gateway-system
