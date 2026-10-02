@@ -1,0 +1,32 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+
+- Single stateless pod — all data stored in PostgreSQL (no PVC required for app data)
+- SAML authentication support (e.g. authentik) via mounted XML files
+- Optional SMTP mailer
+- Hardened security context: read-only root FS, non-root UID, dropped capabilities
+
+## Database
+
+Joplin Server requires a PostgreSQL database. Provision one externally (e.g. via
+CloudNativePG) and supply the connection details via `envFromSecrets`.
+
+The secret must provide: `POSTGRES_USER`, `POSTGRES_PASSWORD`.
+Set `postgres.host` and `postgres.database` in values.
+
+## SAML
+
+Set `saml.enabled: true` and provide:
+
+- A Secret named `joplin-saml-idp` (key `idp.xml`) with the IdP metadata XML
+- A ConfigMap named `joplin-saml-sp` (key `sp.xml`) with the SP configuration XML
+
+Both are mounted at `/saml/` inside the container.
+
+Set `saml.localAuthEnabled: false` to disable password login and force SSO-only.
+
+{{ template "chart.valuesSection" . }}

@@ -1,0 +1,200 @@
+{{- define "hardcoded" -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: docker.io/joplin/server
+          tag: {{ .Chart.AppVersion | quote }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 22300
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 22300
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              failureThreshold: 5
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 22300
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              failureThreshold: 30
+        env:
+          APP_PORT: "22300"
+          APP_BASE_URL: {{ .Values.appBaseUrl | quote }}
+          # When SAML is active Joplin requires APP_BASE_URL == API_BASE_URL
+          API_BASE_URL: {{ .Values.appBaseUrl | quote }}
+          # Store all note data in PostgreSQL (no filesystem PVC needed)
+          STORAGE_DRIVER: "Type=Database"
+          SIGNUP_ENABLED: "false"
+          COOKIES_SECURE: "false"
+          DB_CLIENT: "pg"
+          POSTGRES_PORT: "5432"
+          POSTGRES_HOST:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                key: host
+          POSTGRES_DATABASE:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                key: dbname
+          POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                key: username
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-app" .Values.cnpg.clusterName | quote }}
+                key: password
+          {{- if .Values.saml.enabled }}
+          SAML_ENABLED: "true"
+          SAML_IDP_CONFIG_FILE: {{ .Values.saml.idpConfigFile | quote }}
+          SAML_SP_CONFIG_FILE: {{ .Values.saml.spConfigFile | quote }}
+          LOCAL_AUTH_ENABLED: {{ .Values.saml.localAuthEnabled | toString | quote }}
+          {{- end }}
+          {{- if .Values.mailer.enabled }}
+          MAILER_ENABLED: "true"
+          MAILER_HOST: {{ .Values.mailer.host | quote }}
+          MAILER_PORT: {{ .Values.mailer.port | quote }}
+          MAILER_SECURITY: {{ .Values.mailer.security | quote }}
+          MAILER_NOREPLY_NAME: {{ .Values.mailer.noreplyName | quote }}
+          MAILER_NOREPLY_EMAIL: {{ .Values.mailer.noreplyEmail | quote }}
+          {{- end }}
+        envFrom:
+          {{- range .Values.envFromSecrets }}
+          - secretRef:
+              name: {{ . | quote }}
+              optional: false
+          {{- end }}
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 22300
+        protocol: TCP
+
+ingress:
+  main:
+    enabled: false
+
+# route is fully user-configurable; set hostnames, parentRefs and backendRefs
+# in the cluster overlay. Example:
+#   route:
+#     main:
+#       enabled: true
+#       hostnames: [joplin.example.com]
+#       parentRefs: [{namespace: envoy-gateway-system, name: envoy-public}]
+#       rules: [{backendRefs: [{name: joplin-main, port: 22300}]}]
+
+persistence:
+  # Yarn, PM2, and Joplin server all need writable directories at startup.
+  # rootDir = /home/joplin/packages/server; temp/logs/resource are created there at runtime.
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /tmp
+  yarn-cache:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /home/node/.cache
+  pm2-log:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /opt/pm2
+  server-logs:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /home/joplin/packages/server/logs
+  server-temp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /home/joplin/packages/server/temp
+  server-resource:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /home/joplin/packages/server/resource
+  {{- if .Values.saml.enabled }}
+  saml-idp:
+    type: secret
+    name: {{ .Values.saml.idpSecretName | quote }}
+    advancedMounts:
+      main:
+        main:
+          - path: /saml/idp.xml
+            subPath: idp.xml
+            readOnly: true
+  saml-sp:
+    type: configMap
+    name: {{ .Values.saml.spConfigMapName | quote }}
+    advancedMounts:
+      main:
+        main:
+          - path: /saml/sp.xml
+            subPath: sp.xml
+            readOnly: true
+  {{- end }}
+
+{{- end -}}
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+{{ include "bjw-s.common.loader.all" $ctx }}

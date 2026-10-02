@@ -1,0 +1,36 @@
+# Public base URL that clients connect to (required).
+# Must match APP_BASE_URL and API_BASE_URL when SAML is enabled.
+appBaseUrl: "https://joplin.example.com"
+
+# CloudNativePG cluster name. The CNPG operator creates a Secret named
+# <clusterName>-app automatically with connection details (host, dbname,
+# username, password). The chart reads credentials directly from that Secret.
+cnpg:
+  clusterName: "joplin-db"
+
+# Names of Secrets whose keys are injected as env vars into the main container.
+# Optional — for extra secrets (e.g. mailer credentials).
+envFromSecrets: []
+
+# SAML configuration (disabled by default; enable in the cluster overlay).
+saml:
+  enabled: false
+  # When enabled, set localAuthEnabled=false to force SSO-only.
+  localAuthEnabled: true
+  # Path inside the container to the IdP metadata XML (mounted from a Secret).
+  idpConfigFile: "/saml/idp.xml"
+  # Path inside the container to the SP config XML (mounted from a ConfigMap).
+  spConfigFile: "/saml/sp.xml"
+  # Name of the Secret holding the IdP XML under key `idp.xml`
+  idpSecretName: "joplin-saml-idp"
+  # Name of the ConfigMap holding the SP XML under key `sp.xml`
+  spConfigMapName: "joplin-saml-sp"
+
+# Mail (SMTP) — disabled by default; enable in the cluster overlay.
+mailer:
+  enabled: false
+  host: ""
+  port: "587"
+  security: "starttls"
+  noreplyName: "Joplin"
+  noreplyEmail: ""

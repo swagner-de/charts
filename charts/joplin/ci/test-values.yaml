@@ -1,0 +1,12 @@
+# Values used by `ct install` in CI.
+# Uses a minimal no-op postgres config; the chart doesn't bundle its own DB.
+appBaseUrl: "http://joplin.ci.local"
+
+postgres:
+  host: "joplin-db-rw"
+  database: "app"
+
+envFromSecrets: []
+
+saml:
+  enabled: false
