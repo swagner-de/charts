@@ -2,7 +2,7 @@ apiVersion: v2
 name: joplin
 description: Self-hosted sync server for the Joplin note-taking app
 type: application
-version: 0.1.0
+version: 0.2.0
 home: https://joplinapp.org/
 sources:
   - https://github.com/swagner-de/charts
@@ -10,7 +10,7 @@ sources:
 appVersion: '3.7.2'
 dependencies:
   - name: common
-    version: 5.1.0
+    version: 5.2.1
     repository: https://bjw-s-labs.github.io/helm-charts/
 maintainers:
   - name: swagner-de
