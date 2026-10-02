@@ -2,7 +2,7 @@ apiVersion: v2
 name: splitpro
 description: SplitPro — self-hosted open source alternative to Splitwise for sharing expenses
 type: application
-version: 0.1.0
+version: 0.2.0
 # renovate: image=ghcr.io/oss-apps/splitpro
 appVersion: "v2.1.5"
 sources:
@@ -13,5 +13,5 @@ maintainers:
     email: swagner-de@users.noreply.github.com
 dependencies:
   - name: common
-    version: 5.1.0
+    version: 5.2.1
     repository: https://bjw-s-labs.github.io/helm-charts/
