@@ -1,0 +1,71 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+- Single hardened pod: the SplitPro app (Next.js) plus a bundled PostgreSQL
+  container, both fully non-root with read-only root filesystems
+- PostgreSQL image ships the `pg_cron` extension, required by SplitPro's
+  recurring-transactions and cache-cleanup database migration
+- Receipt uploads and database data on separate PVCs
+- Secrets (`NEXTAUTH_SECRET`, `DATABASE_URL`, OIDC/OAuth credentials) injected
+  via `envFromSecrets`; the DB password via an external Secret (or, for
+  CI/standalone, a chart-managed one)
+
+## Why a bundled database
+SplitPro's schema hard-depends on `pg_cron`: the recurrence migration runs
+`CREATE EXTENSION pg_cron` and adds a foreign key onto `cron.job`, and the app
+runs `prisma migrate deploy` on every boot — so a database without `pg_cron`
+fails the migration and the app never starts. The generic PostgreSQL and
+CloudNativePG operand images do **not** include `pg_cron`, so this chart bundles
+the upstream-maintained `ossapps/postgres` image (which does) as a plain in-pod
+database rather than delegating to an external operator.
+
+The database container is started with:
+
+```
+postgres -c shared_preload_libraries=pg_cron \
+         -c cron.database_name=<postgres.database> \
+         -c cron.timezone=UTC
+```
+
+## Database password
+The `postgres` container reads `POSTGRES_PASSWORD` from a Secret. In GitOps,
+create that Secret externally (e.g. via an operator) and point
+`postgres.passwordSecret.name` at it, and supply the app's `DATABASE_URL` from
+the same source through `envFromSecrets`. For CI/standalone use, set
+`postgres.createSecret: true` and `postgres.password` to have the chart emit the
+Secret itself.
+
+## Authentication
+SplitPro uses NextAuth and requires at least one provider (it has no
+username/password login). Provide the provider's credentials through
+`envFromSecrets` using the variable names from SplitPro's own configuration
+docs (it supports email, Google, and generic OIDC providers). Set `siteUrl` to
+the external URL; the OAuth callback is `<siteUrl>/api/auth/callback/<provider>`.
+Set `config.DISABLE_EMAIL_SIGNUP: "true"` and `config.OAUTH_AUTO_REDIRECT:
+"true"` to make an external provider the sole login path.
+
+## Routing
+The app is the single entrypoint on port `3000`. Enable `route.main` (Gateway
+API `HTTPRoute`) or an external Ingress and point it at `<release>-main:3000`.
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+Both containers run `runAsNonRoot: true`, `readOnlyRootFilesystem: true`,
+`allowPrivilegeEscalation: false`, all capabilities dropped, and seccomp
+`RuntimeDefault`. The app runs as UID 1000 (the image's `node` user, which owns
+`/app/uploads`); PostgreSQL runs as UID 999. Writable paths (`/tmp`, the uploads
+and data PVCs, and `/var/run/postgresql`) are backed by emptyDir/PVC volumes.
+
+{{ template "chart.maintainersSection" . }}

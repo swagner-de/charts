@@ -1,0 +1,17 @@
+# Values for `ct install` on KinD. Not real secrets — createSecret makes the
+# chart emit the DB password plus the app's NEXTAUTH_SECRET and DATABASE_URL so
+# the app can boot without external Secrets. The bundled ossapps/postgres image
+# provides pg_cron.
+siteUrl: "http://localhost:8015"
+
+postgres:
+  createSecret: true
+  password: ci-test-password-not-secret
+
+nextauthSecret: ci-test-nextauth-secret-not-secret
+
+persistence:
+  uploads:
+    size: 1Gi
+  pgdata:
+    size: 1Gi
