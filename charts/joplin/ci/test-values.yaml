@@ -1,12 +1,21 @@
-# Values used by `ct install` in CI.
-# Uses a minimal no-op postgres config; the chart doesn't bundle its own DB.
 appBaseUrl: "http://joplin.ci.local"
 
-postgres:
-  host: "joplin-db-rw"
-  database: "app"
+# clusterName matches the Cluster manifest name below so the chart reads from
+# the correct `joplin-db-app` secret created by the CNPG operator.
+cnpg:
+  clusterName: joplin-db
 
-envFromSecrets: []
-
-saml:
-  enabled: false
+# Deploy a minimal CNPG cluster in CI so the operator creates the `joplin-db-app`
+# secret that the chart reads credentials from.
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      metadata:
+        name: joplin-db
+      spec:
+        instances: 1
+        storage:
+          size: 1Gi
