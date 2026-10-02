@@ -1,0 +1,16 @@
+appBaseUrl: "http://joplin.ci.local"
+
+cnpg:
+  clusterName: db
+  prependReleaseName: true
+
+rawResources:
+  db:
+    enabled: true
+    manifest:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      spec:
+        instances: 1
+        storage:
+          size: 1Gi
