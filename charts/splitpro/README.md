@@ -1,6 +1,6 @@
 # splitpro
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.1.5](https://img.shields.io/badge/AppVersion-v2.1.5-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.1.5](https://img.shields.io/badge/AppVersion-v2.1.5-informational?style=flat-square)
 SplitPro — self-hosted open source alternative to Splitwise for sharing expenses
 
 ## Features
@@ -61,7 +61,7 @@ helm install splitpro oci://ghcr.io/swagner-de/charts/splitpro
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
 
 ## Values
 
