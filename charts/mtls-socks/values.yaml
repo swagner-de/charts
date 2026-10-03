@@ -1,0 +1,73 @@
+# -- bjw-s common global options
+global:
+  createDefaultServiceAccount: false
+
+# -- Number of proxy replicas
+replicas: 1
+
+ghostunnel:
+  # -- Port the mTLS tunnel listens on (exposed by the Service)
+  listenPort: 8443
+
+socks:
+  image:
+    # -- SOCKS5 server image (distroless, non-root, statically compiled)
+    repository: serjs/go-socks5-proxy
+    # -- SOCKS5 server image tag
+    tag: v0.0.4
+  # -- Loopback port the SOCKS5 server listens on inside the pod
+  port: 1080
+
+# -- cert-manager PKI. The chart creates a fresh self-signed CA and a CA issuer
+# that signs the server certificate and every per-user client certificate.
+pki:
+  # -- CA certificate validity
+  caDuration: 87600h  # 10y
+  # -- Renew the CA this long before expiry
+  caRenewBefore: 720h  # 30d
+  server:
+    # -- Server certificate validity
+    duration: 8760h  # 1y
+    # -- Renew the server certificate this long before expiry
+    renewBefore: 720h  # 30d
+    # -- DNS SANs for the server certificate (clients verify against these)
+    dnsNames:
+      - mtls-socks
+    # -- IP SANs for the server certificate. Add the LoadBalancer IP so external
+    # clients can verify the server identity.
+    ipAddresses: []
+
+# -- Enrolled users. Each entry produces one cert-manager client Certificate and
+# one ghostunnel `--allow-cn` allowlist entry. The client certificate is stored
+# in a Secret named `<release>-user-<name>` (keys tls.crt, tls.key, ca.crt).
+users: []
+# - name: alice          # k8s/secret name suffix (must be DNS-safe)
+#   commonName: alice     # certificate CN; also the CN ghostunnel admits
+#   duration: 2160h       # validity (90d); optional, defaults to 2160h
+#   renewBefore: 360h     # optional, defaults to 360h
+
+service:
+  main:
+    # -- Service type. Set to LoadBalancer (with annotations) to expose the tunnel externally.
+    type: ClusterIP
+    # annotations: {}
+
+networkPolicy:
+  # -- Create NetworkPolicies (default-deny, allow inbound mTLS + configured egress)
+  enabled: true
+  # -- Egress destination rules appended after the always-permitted DNS rule
+  # (port 53). Each entry is a Kubernetes NetworkPolicyEgressRule. The default
+  # allows the public IPv4 and IPv6 internet while blocking private, CGNAT,
+  # metadata, ULA, link-local, and loopback ranges.
+  egressRules:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 100.64.0.0/10
+              - 169.254.169.254/32
+        - ipBlock:
+            cidr: 2000::/3

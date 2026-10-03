@@ -1,0 +1,130 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Architecture
+
+A SOCKS5 proxy that is reachable **only** over mutually-authenticated TLS. Each
+client runs a local `ghostunnel client` that presents its certificate, connects
+to the exposed port, and gets a plaintext local SOCKS5 port.
+
+```
+┌────────────────┐   mTLS    ┌──────────────────────────────────────────┐
+│  client host   │──────────▶│  Service (LoadBalancer/ClusterIP) :8443    │
+│  ghostunnel    │  client   │                                            │
+│  client mode   │  cert     │   ┌─────────────┐   loopback  ┌─────────┐  │
+│  → local :1080 │           │   │ ghostunnel  │────────────▶│  socks  │  │
+└────────────────┘           │   │ server mode │ 127.0.0.1   │ :1080   │  │
+                             │   │  :8443 mTLS │             │ (loop)  │  │
+                             │   └─────────────┘             └────┬────┘  │
+                             └──────────────────────────────────── │ ─────┘
+                                                                    ▼
+                                                              public internet
+                                                       (private ranges blocked)
+```
+
+- **ghostunnel** (server mode) terminates client mTLS, verifies the client
+  certificate against the chart's CA, checks the CN against the `--allow-cn`
+  allowlist, and forwards the raw TCP stream to the loopback SOCKS server.
+- **socks** is a distroless SOCKS5 server bound to `127.0.0.1` inside the pod.
+  It runs with no SOCKS-level authentication — mTLS is the sole access gate and
+  the server is unreachable except via the in-pod ghostunnel.
+- **cert-manager** provisions a fresh self-signed CA, a CA issuer, the server
+  certificate, and one client certificate per enrolled user.
+- **NetworkPolicies** default-deny; inbound is limited to the mTLS port and
+  outbound to DNS + the public IPv4 and IPv6 internet.
+
+## Requirements
+
+- [cert-manager](https://cert-manager.io/) installed in the cluster.
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+## Enrolling users
+
+Each entry under `users` becomes a cert-manager `Certificate` (client auth) and
+a ghostunnel `--allow-cn` entry:
+
+```yaml
+users:
+  - name: alice
+    commonName: alice
+    duration: 2160h   # 90d
+```
+
+The client key material lands in a Secret named `<release>-user-<name>` (keys
+`tls.crt`, `tls.key`, `ca.crt`) — see [Using the proxy](#using-the-proxy-client)
+for how a client consumes it.
+
+## Using the proxy (client)
+
+Each client authenticates with its own certificate over an mTLS tunnel; there is
+no username/password. The steps below have been verified end-to-end.
+
+**1. Install ghostunnel locally** — the same tool runs in client mode:
+
+```bash
+brew install ghostunnel        # macOS; see ghostunnel.dev for other platforms
+```
+
+**2. Obtain your credential bundle** — three files: your client certificate,
+its private key, and the CA that signed the server. Whoever enrolled you either
+hands you these or, with cluster access, you export them from your user Secret:
+
+```bash
+kubectl -n <namespace> get secret <release>-user-<name> \
+  -o jsonpath='{.data.tls\.crt}' | base64 -d > client.crt
+kubectl -n <namespace> get secret <release>-user-<name> \
+  -o jsonpath='{.data.tls\.key}' | base64 -d > client.key   # keep this private
+kubectl -n <namespace> get secret <release>-user-<name> \
+  -o jsonpath='{.data.ca\.crt}'  | base64 -d > ca.crt
+```
+
+**3. Start the local tunnel** — this presents your certificate to the server and
+exposes a plaintext SOCKS5 port on loopback:
+
+```bash
+ghostunnel client \
+  --listen 127.0.0.1:1080 \
+  --target <proxy-host>:<proxy-port> \
+  --cert client.crt --key client.key --cacert ca.crt \
+  --override-server-name <server-name>
+```
+
+- `<proxy-host>:<proxy-port>` — the address the Service is exposed on (ask your
+  operator). The default listen port is `8443`.
+- `<server-name>` — must match one of the server certificate's `dnsNames`
+  (`pki.server.dnsNames`); ghostunnel verifies the server against it.
+
+**4. Point applications at the local SOCKS5 port** `127.0.0.1:1080`:
+
+```bash
+curl --socks5-hostname 127.0.0.1:1080 https://example.com
+# or a browser / app configured with SOCKS5 host 127.0.0.1 port 1080
+```
+
+Using `--socks5-hostname` (not `--socks5`) sends DNS resolution through the
+tunnel as well. Your certificate is valid for the `duration` set at enrollment;
+re-export the Secret after renewal to refresh it. Access is revoked by removing
+you from `users` — the server stops admitting your CN and your Secret is deleted.
+
+## Security
+
+- Both containers run distroless: `runAsNonRoot: true`, UID/GID 65532,
+  `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`, all
+  capabilities dropped, seccomp `RuntimeDefault`.
+- SOCKS server binds to loopback only; the sole entry point is ghostunnel mTLS.
+- Egress NetworkPolicy is value-driven (`networkPolicy.egressRules`); the
+  default permits IPv6 GUA and blocks private, CGNAT, and metadata IPv4 ranges.
+  DNS is always permitted.
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "chart.maintainersSection" . }}
