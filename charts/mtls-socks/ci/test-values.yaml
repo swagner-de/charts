@@ -1,0 +1,11 @@
+# Values used by `ct install` on KinD (requires cert-manager on the cluster).
+pki:
+  server:
+    dnsNames:
+      - mtls-socks
+      - localhost
+
+users:
+  - name: ci-user
+    commonName: ci-user
+    duration: 2160h

@@ -1,0 +1,17 @@
+apiVersion: v2
+name: mtls-socks
+description: SOCKS5 proxy exposed only over mutually-authenticated TLS via ghostunnel, with cert-manager-issued per-user client certificates
+type: application
+version: 0.1.0
+home: https://github.com/ghostunnel/ghostunnel
+sources:
+  - https://github.com/swagner-de/charts
+# renovate: image=docker.io/ghostunnel/ghostunnel
+appVersion: 'v1.11.2'
+dependencies:
+  - name: common
+    version: 5.1.0
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com

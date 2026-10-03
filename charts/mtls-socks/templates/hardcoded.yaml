@@ -1,0 +1,293 @@
+{{- /*
+mtls-socks — a SOCKS5 proxy reachable only through a mutually-authenticated
+TLS tunnel (ghostunnel). cert-manager provisions a fresh self-signed CA, a
+server certificate for ghostunnel, and one client certificate per enrolled
+user. ghostunnel only admits client certs whose CN is in the users list.
+*/ -}}
+
+{{- define "hardcoded" -}}
+{{- /* guards */ -}}
+{{- range $u := .Values.users -}}
+  {{- if not $u.commonName -}}
+    {{- fail (printf "users[%s]: 'commonName' is required" (default "?" $u.name)) -}}
+  {{- end -}}
+  {{- if not $u.name -}}
+    {{- fail (printf "users[cn=%s]: 'name' is required" $u.commonName) -}}
+  {{- end -}}
+{{- end -}}
+{{- /* bjw-s prefixes rawResource metadata.name with the chart fullname and, for
+       >1 item of a kind, appends "-<identifier>". Compute the same fullname so
+       our issuerRef/secretName cross-references match the generated names. */ -}}
+{{- $fullname := include "bjw-s.common.lib.chart.names.fullname" . -}}
+{{- $selfSignedIssuer := printf "%s-pki-selfsigned-issuer" $fullname -}}
+{{- $caCert := printf "%s-ca" $fullname -}}
+{{- $caIssuer := printf "%s-pki-ca-issuer" $fullname -}}
+{{- $serverSecret := printf "%s-server-tls" $fullname -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    fsGroup: 65532
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    type: deployment
+    replicas: {{ .Values.replicas | default 1 }}
+    containers:
+      # ---- mTLS front-end: terminates client mTLS, forwards plaintext to the
+      #      in-pod SOCKS server on loopback. Distroless, non-root, no shell. ----
+      ghostunnel:
+        image:
+          repository: docker.io/ghostunnel/ghostunnel
+          tag: {{ printf "%s-distroless" .Chart.AppVersion | quote }}
+        args:
+          - server
+          # [::] is the IPv6 wildcard; on Linux it is dual-stack (also accepts
+          # IPv4-mapped), so the proxy is reachable over both families. 0.0.0.0
+          # would bind IPv4 only and refuse every IPv6 connection.
+          - --listen=[::]:{{ .Values.ghostunnel.listenPort }}
+          - --target=127.0.0.1:{{ .Values.socks.port }}
+          - --cacert=/certs/ca.crt
+          - --cert=/certs/tls.crt
+          - --key=/certs/tls.key
+          - --shutdown-timeout=10s
+          # Silence handshake errors from the kubelet tcpSocket probes (which
+          # open a TCP connection to the mTLS port and close without a TLS
+          # handshake). Upstream recommends this for Kubernetes health checks.
+          - --quiet=handshake-errs
+{{- range $u := .Values.users }}
+          - --allow-cn={{ $u.commonName }}
+{{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+        probes:
+          liveness: &gtProbe
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: {{ .Values.ghostunnel.listenPort }}
+              initialDelaySeconds: 5
+              periodSeconds: 15
+              timeoutSeconds: 3
+              failureThreshold: 3
+          readiness: *gtProbe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: {{ .Values.ghostunnel.listenPort }}
+              initialDelaySeconds: 2
+              periodSeconds: 3
+              failureThreshold: 20
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
+
+      # ---- SOCKS5 backend, bound to loopback only. Auth is defense-in-depth;
+      #      the real gate is ghostunnel mTLS. Distroless, non-root, no shell. ----
+      socks:
+        image:
+          repository: {{ .Values.socks.image.repository }}
+          tag: {{ .Values.socks.image.tag | quote }}
+        env:
+          # No SOCKS-level auth: ghostunnel mTLS is the sole access gate and the
+          # server binds to loopback, reachable only by the in-pod ghostunnel.
+          REQUIRE_AUTH: "false"
+          PROXY_LISTEN_IP: "127.0.0.1"
+          PROXY_PORT: {{ .Values.socks.port | quote }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
+
+service:
+  main:
+    controller: main
+    ports:
+      socks-mtls:
+        port: {{ .Values.ghostunnel.listenPort }}
+        primary: true
+        protocol: TCP
+
+ingress:
+  main:
+    enabled: false
+
+persistence:
+  server-tls:
+    type: secret
+    name: {{ $serverSecret }}
+    advancedMounts:
+      main:
+        ghostunnel:
+          - path: /certs
+            readOnly: true
+
+{{- if .Values.networkPolicy.enabled }}
+networkpolicies:
+  main:
+    controller: main
+    policyTypes:
+      - Ingress
+      - Egress
+    rules:
+      ingress:
+        # Accept the mTLS tunnel from anywhere (LoadBalancer / external clients).
+        - ports:
+            - port: {{ .Values.ghostunnel.listenPort }}
+              protocol: TCP
+      egress:
+        # DNS resolution (kube-dns and upstream) is always permitted.
+        - ports:
+            - port: 53
+              protocol: UDP
+            - port: 53
+              protocol: TCP
+{{- /* Destination rules are value-driven so deployments can tailor which
+       networks the proxy may reach (LAN carve-outs, IPv6, etc). */ -}}
+{{- with .Values.networkPolicy.egressRules }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- end }}
+
+# ---- cert-manager PKI: fresh self-signed CA -> CA issuer -> server + clients ----
+rawResources:
+  pki-selfsigned-issuer:
+    enabled: true
+    manifest:
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+      metadata:
+        name: {{ $selfSignedIssuer }}
+      spec:
+        selfSigned: {}
+
+  pki-ca-cert:
+    enabled: true
+    manifest:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: {{ $caCert }}
+      spec:
+        isCA: true
+        commonName: {{ printf "%s CA" $fullname | quote }}
+        secretName: {{ $caCert }}
+        duration: {{ .Values.pki.caDuration | quote }}
+        renewBefore: {{ .Values.pki.caRenewBefore | quote }}
+        privateKey:
+          algorithm: ECDSA
+          size: 256
+        issuerRef:
+          name: {{ $selfSignedIssuer }}
+          kind: Issuer
+          group: cert-manager.io
+
+  pki-ca-issuer:
+    enabled: true
+    manifest:
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+      metadata:
+        name: {{ $caIssuer }}
+      spec:
+        ca:
+          secretName: {{ $caCert }}
+
+  pki-server-cert:
+    enabled: true
+    manifest:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: {{ $fullname }}-server
+      spec:
+        secretName: {{ $serverSecret }}
+        duration: {{ .Values.pki.server.duration | quote }}
+        renewBefore: {{ .Values.pki.server.renewBefore | quote }}
+        commonName: {{ printf "%s-server" $fullname | quote }}
+        privateKey:
+          algorithm: ECDSA
+          size: 256
+        usages:
+          - server auth
+        dnsNames:
+{{- range .Values.pki.server.dnsNames }}
+          - {{ . | quote }}
+{{- end }}
+{{- if .Values.pki.server.ipAddresses }}
+        ipAddresses:
+{{- range .Values.pki.server.ipAddresses }}
+          - {{ . | quote }}
+{{- end }}
+{{- end }}
+        issuerRef:
+          name: {{ $caIssuer }}
+          kind: Issuer
+          group: cert-manager.io
+
+{{- range $u := .Values.users }}
+  pki-user-{{ $u.name }}:
+    enabled: true
+    manifest:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: {{ printf "%s-user-%s" $fullname $u.name }}
+      spec:
+        secretName: {{ printf "%s-user-%s" $fullname $u.name }}
+        duration: {{ $u.duration | default "2160h" | quote }}
+        renewBefore: {{ $u.renewBefore | default "360h" | quote }}
+        commonName: {{ $u.commonName | quote }}
+        privateKey:
+          algorithm: ECDSA
+          size: 256
+        usages:
+          - client auth
+        issuerRef:
+          name: {{ $caIssuer }}
+          kind: Issuer
+          group: cert-manager.io
+{{- end }}
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
