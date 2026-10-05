@@ -1,6 +1,6 @@
 # immich-public-proxy
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.4.0](https://img.shields.io/badge/AppVersion-3.4.0-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.4.1](https://img.shields.io/badge/AppVersion-3.4.1-informational?style=flat-square)
 Public sharing proxy for Immich
 **Homepage:** <https://github.com/alangrainger/immich-public-proxy>
 
