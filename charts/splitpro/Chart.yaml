@@ -2,7 +2,7 @@ apiVersion: v2
 name: splitpro
 description: SplitPro — self-hosted open source alternative to Splitwise for sharing expenses
 type: application
-version: 0.2.0
+version: 0.3.0
 # renovate: image=ghcr.io/oss-apps/splitpro
 appVersion: "v2.1.5"
 sources:
