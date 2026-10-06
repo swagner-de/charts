@@ -12,7 +12,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [akvorado](charts/akvorado) | `0.6.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.11.1` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
 | [carconnectivity](charts/carconnectivity) | `0.4.0` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
-| [dawarich](charts/dawarich) | `0.5.7` | Self-hosted location history tracker and Google Timeline alternative |
+| [dawarich](charts/dawarich) | `0.5.9` | Self-hosted location history tracker and Google Timeline alternative |
 | [emby](charts/emby) | `0.3.1` | Emby media server for streaming movies, TV, music, and more |
 | [flowcus](charts/flowcus) | `0.4.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.3.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
@@ -39,7 +39,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [searxng](charts/searxng) | `0.2.0` | Privacy-respecting metasearch engine |
 | [skel](charts/skel) | `0.4.0` | Skeleton chart template for creating new charts |
 | [splitpro](charts/splitpro) | `0.2.0` | SplitPro — self-hosted open source alternative to Splitwise for sharing expenses |
-| [vikunja](charts/vikunja) | `0.5.0` | Self-hosted to-do list and task management application |
+| [vikunja](charts/vikunja) | `0.5.2` | Self-hosted to-do list and task management application |
 | [wanderer](charts/wanderer) | `0.9.2` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
 | [zigbee2mqtt](charts/zigbee2mqtt) | `0.15.1` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
