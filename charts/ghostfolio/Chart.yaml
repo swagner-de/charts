@@ -2,12 +2,12 @@ apiVersion: v2
 name: ghostfolio
 description: Open source wealth management software
 type: application
-version: 0.54.2
+version: 0.55.0
 home: https://ghostfol.io/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=docker.io/ghostfolio/ghostfolio
-appVersion: '3.80.2'
+appVersion: '3.81.0'
 dependencies:
   - name: common
     version: 5.2.1
