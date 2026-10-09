@@ -1,6 +1,6 @@
 # music-assistant
 
-![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.10.5](https://img.shields.io/badge/AppVersion-2.10.5-informational?style=flat-square)
+![Version: 0.5.2](https://img.shields.io/badge/Version-0.5.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.10.6](https://img.shields.io/badge/AppVersion-2.10.6-informational?style=flat-square)
 Music Assistant - free, opensource Media player for your local music and online music providers
 **Homepage:** <https://www.music-assistant.io/>
 
