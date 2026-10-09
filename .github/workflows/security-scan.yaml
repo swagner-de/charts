@@ -23,7 +23,7 @@ jobs:
           version: v4.3.0
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.8.0
+        uses: helm/chart-testing-action@v2.9.0
 
       - name: Find changed charts
         id: list-changed
