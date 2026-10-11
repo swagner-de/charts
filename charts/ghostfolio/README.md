@@ -20,7 +20,7 @@ helm install ghostfolio oci://ghcr.io/swagner-de/charts/ghostfolio
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.3.0 |
 | oci://registry-1.docker.io/cloudpirates | redis | 0.37.2 |
 
 ## Values
