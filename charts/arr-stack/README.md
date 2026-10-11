@@ -1,6 +1,6 @@
 # arr-stack
 
-![Version: 0.11.1](https://img.shields.io/badge/Version-0.11.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.12.0](https://img.shields.io/badge/Version-0.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr
 **Homepage:** <https://wiki.servarr.com/>
 
@@ -20,7 +20,7 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.3.0 |
 
 ## Values
 

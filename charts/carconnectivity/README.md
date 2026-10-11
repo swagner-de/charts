@@ -1,6 +1,6 @@
 # carconnectivity
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.11.11](https://img.shields.io/badge/AppVersion-0.11.11-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.11.11](https://img.shields.io/badge/AppVersion-0.11.11-informational?style=flat-square)
 
 Car telemetry data retrieval with plugin support (VW, ABRP, WebUI)
 
@@ -20,7 +20,7 @@ Car telemetry data retrieval with plugin support (VW, ABRP, WebUI)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.3.0 |
 
 ## Values
 
