@@ -1,6 +1,6 @@
 # immich-public-proxy
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.4.1](https://img.shields.io/badge/AppVersion-3.4.1-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.4.1](https://img.shields.io/badge/AppVersion-3.4.1-informational?style=flat-square)
 Public sharing proxy for Immich
 **Homepage:** <https://github.com/alangrainger/immich-public-proxy>
 
@@ -20,7 +20,7 @@ helm install immich-public-proxy oci://ghcr.io/swagner-de/charts/immich-public-p
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.2.1 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.3.0 |
 
 ## Values
 
