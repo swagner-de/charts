@@ -22,7 +22,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [homepage](charts/homepage) | `0.15.0` | Customizable application dashboard for your homelab |
 | [immich-public-proxy](charts/immich-public-proxy) | `0.3.0` | Public sharing proxy for Immich |
 | [immich](charts/immich) | `0.25.0` | Self-hosted photo and video backup solution with machine learning |
-| [invidious](charts/invidious) | `0.13.4` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
+| [invidious](charts/invidious) | `0.14.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.5.0` | Free software media server for streaming movies, TV, music, and more |
 | [joplin](charts/joplin) | `0.2.0` | Self-hosted sync server for the Joplin note-taking app |
 | [linkwarden](charts/linkwarden) | `0.7.0` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
