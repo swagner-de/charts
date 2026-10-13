@@ -1,9 +1,9 @@
 dependencies:
 - name: common
   repository: https://bjw-s-labs.github.io/helm-charts
-  version: 5.2.1
+  version: 5.3.0
 - name: postgres
   repository: oci://registry-1.docker.io/cloudpirates
   version: 0.21.2
-digest: sha256:47b0f7cc6de10fb65d5c5c02c8ad8d960cacad32336f9d18901ee87f6c70bc89
-generated: "2026-10-08T11:06:42.744502789Z"
+digest: sha256:a3dba62e78b59b510111f456a78c9ae0133bb237db641e70cb5df23149a13ed6
+generated: "2026-10-13T04:26:56.714940534Z"
