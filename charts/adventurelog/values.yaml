@@ -63,7 +63,7 @@ nginx:
     repository: docker.io/nginxinc/nginx-unprivileged
     # renovate: image=docker.io/nginxinc/nginx-unprivileged
     # -- nginx image tag
-    tag: 1.31.6-alpine
+    tag: 1.31.7-alpine
 
 # -- Nightly maintenance CronJob that syncs visited regions/cities from user
 # locations (replaces the in-image root cron).
