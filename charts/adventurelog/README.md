@@ -1,6 +1,6 @@
 # adventurelog
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.13.0](https://img.shields.io/badge/AppVersion-v0.13.0-informational?style=flat-square)
+![Version: 1.2.1](https://img.shields.io/badge/Version-1.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.13.0](https://img.shields.io/badge/AppVersion-v0.13.0-informational?style=flat-square)
 Self-hosted travel companion to log trips, plan itineraries, and map your adventures
 **Homepage:** <https://adventurelog.app/>
 
@@ -106,9 +106,9 @@ helm install adventurelog oci://ghcr.io/swagner-de/charts/adventurelog
 | networkPolicy | object | `{"enabled":true,"gatewayNamespace":"envoy-gateway-system"}` | NetworkPolicy configuration. When enabled, restricts the pod to: ingress from the gateway namespace (to the frontend/backend ports), and egress to DNS, the CNPG database, and outbound HTTP(S) (first-run country data, geocoding, OIDC, email). |
 | networkPolicy.enabled | bool | `true` | Create a NetworkPolicy for the app pod |
 | networkPolicy.gatewayNamespace | string | `"envoy-gateway-system"` | Namespace of the Gateway/ingress controller allowed to reach the app |
-| nginx | object | `{"image":{"repository":"docker.io/nginxinc/nginx-unprivileged","tag":"1.31.6-alpine"}}` | Rootless nginx sidecar (nginxinc/nginx-unprivileged) that serves protected media via X-Accel-Redirect and proxies the rest to gunicorn. Listens on :8080. |
+| nginx | object | `{"image":{"repository":"docker.io/nginxinc/nginx-unprivileged","tag":"1.31.7-alpine"}}` | Rootless nginx sidecar (nginxinc/nginx-unprivileged) that serves protected media via X-Accel-Redirect and proxies the rest to gunicorn. Listens on :8080. |
 | nginx.image.repository | string | `"docker.io/nginxinc/nginx-unprivileged"` | nginx image repository |
-| nginx.image.tag | string | `"1.31.6-alpine"` | nginx image tag |
+| nginx.image.tag | string | `"1.31.7-alpine"` | nginx image tag |
 | persistence | object | `{"media":{"accessMode":"ReadWriteOnce","enabled":true,"size":"10Gi"}}` | Persistent storage configuration |
 | persistence.media | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"10Gi"}` | Backend media volume (uploaded photos, GPX tracks, generated images) mounted at /code/media |
 | persistence.media.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
