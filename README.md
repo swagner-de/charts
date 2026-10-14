@@ -36,7 +36,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [powerdns-recursor](charts/powerdns-recursor) | `0.5.0` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.7.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
 | [samba](charts/samba) | `0.5.0` | Multi-user Samba SMB file server with per-share encryption and Time Machine support |
-| [searxng](charts/searxng) | `0.2.0` | Privacy-respecting metasearch engine |
+| [searxng](charts/searxng) | `0.3.0` | Privacy-respecting metasearch engine |
 | [skel](charts/skel) | `0.4.0` | Skeleton chart template for creating new charts |
 | [splitpro](charts/splitpro) | `0.2.0` | SplitPro — self-hosted open source alternative to Splitwise for sharing expenses |
 | [vikunja](charts/vikunja) | `0.5.4` | Self-hosted to-do list and task management application |
