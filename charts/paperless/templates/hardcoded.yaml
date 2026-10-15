@@ -206,7 +206,7 @@ controllers:
             - ALL
         image:
           repository: docker.io/gotenberg/gotenberg
-          tag: 8.37
+          tag: 8.38
         command:
           - gotenberg
         args:
