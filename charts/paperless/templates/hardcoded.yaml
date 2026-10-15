@@ -150,8 +150,7 @@ controllers:
 {{- end }}
 {{- end }}
           PAPERLESS_DBENGINE: postgresql
-          PAPERLESS_DBSSLMODE: verify-full
-          PAPERLESS_DBSSLROOTCERT: "/dbcerts/ca.crt"
+          PAPERLESS_DB_OPTIONS: "sslmode=verify-full,sslrootcert=/dbcerts/ca.crt"
           PAPERLESS_DBHOST:
             valueFrom:
               secretKeyRef:
