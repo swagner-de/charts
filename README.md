@@ -41,7 +41,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [splitpro](charts/splitpro) | `0.3.0` | SplitPro — self-hosted open source alternative to Splitwise for sharing expenses |
 | [vikunja](charts/vikunja) | `0.6.0` | Self-hosted to-do list and task management application |
 | [wanderer](charts/wanderer) | `0.11.0` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
-| [zigbee2mqtt](charts/zigbee2mqtt) | `0.15.1` | Zigbee-to-MQTT bridge for smart home devices |
+| [zigbee2mqtt](charts/zigbee2mqtt) | `0.16.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
 ## Usage
