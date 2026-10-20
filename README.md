@@ -21,7 +21,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [homeassistant](charts/homeassistant) | `1.27.3` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.15.0` | Customizable application dashboard for your homelab |
 | [immich-public-proxy](charts/immich-public-proxy) | `0.3.0` | Public sharing proxy for Immich |
-| [immich](charts/immich) | `0.25.3` | Self-hosted photo and video backup solution with machine learning |
+| [immich](charts/immich) | `0.25.4` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.14.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.5.0` | Free software media server for streaming movies, TV, music, and more |
 | [joplin](charts/joplin) | `0.3.0` | Self-hosted sync server for the Joplin note-taking app |
