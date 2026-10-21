@@ -17,7 +17,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [flowcus](charts/flowcus) | `0.5.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.4.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.63.4` | Open source wealth management software |
-| [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.4.0` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
+| [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.4.1` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.27.3` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.15.0` | Customizable application dashboard for your homelab |
 | [immich-public-proxy](charts/immich-public-proxy) | `0.3.0` | Public sharing proxy for Immich |
