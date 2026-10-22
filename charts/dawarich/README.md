@@ -1,6 +1,6 @@
 # dawarich
 
-![Version: 0.9.4](https://img.shields.io/badge/Version-0.9.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.16.0](https://img.shields.io/badge/AppVersion-1.16.0-informational?style=flat-square)
+![Version: 0.9.6](https://img.shields.io/badge/Version-0.9.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.16.0](https://img.shields.io/badge/AppVersion-1.16.0-informational?style=flat-square)
 Self-hosted location history tracker and Google Timeline alternative
 **Homepage:** <https://dawarich.app/>
 
@@ -65,7 +65,7 @@ helm install dawarich oci://ghcr.io/swagner-de/charts/dawarich
 | Repository | Name | Version |
 |------------|------|---------|
 | https://bjw-s-labs.github.io/helm-charts/ | common | 5.3.0 |
-| oci://registry-1.docker.io/cloudpirates | redis | 0.37.4 |
+| oci://registry-1.docker.io/cloudpirates | redis | 0.37.8 |
 
 ## Values
 
