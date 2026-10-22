@@ -16,7 +16,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [emby](charts/emby) | `0.4.1` | Emby media server for streaming movies, TV, music, and more |
 | [flowcus](charts/flowcus) | `0.5.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.4.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
-| [ghostfolio](charts/ghostfolio) | `0.63.4` | Open source wealth management software |
+| [ghostfolio](charts/ghostfolio) | `0.63.6` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.4.1` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.27.4` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.15.0` | Customizable application dashboard for your homelab |
@@ -40,7 +40,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [skel](charts/skel) | `0.5.0` | Skeleton chart template for creating new charts |
 | [splitpro](charts/splitpro) | `0.3.0` | SplitPro — self-hosted open source alternative to Splitwise for sharing expenses |
 | [vikunja](charts/vikunja) | `0.6.1` | Self-hosted to-do list and task management application |
-| [wanderer](charts/wanderer) | `0.12.0` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
+| [wanderer](charts/wanderer) | `0.12.1` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
 | [zigbee2mqtt](charts/zigbee2mqtt) | `0.16.0` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
