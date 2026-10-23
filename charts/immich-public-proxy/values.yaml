@@ -12,3 +12,13 @@ controllers:
           readiness:
             # -- Enable the upstream-aware readiness probe
             enabled: true
+
+# -- Upload service configuration
+upload:
+  # -- Deploy the visitor-upload container alongside the gallery.
+  # Lets visitors send photos back into a share without an API key.
+  # See https://docs.ipp.nz/visitor-uploads
+  enabled: false
+  # -- Enable the upstream-aware readiness probe on the upload container.
+  # Disable this in environments without a reachable Immich server.
+  readiness: true
