@@ -2,7 +2,7 @@ apiVersion: v2
 name: immich-public-proxy
 description: Public sharing proxy for Immich
 type: application
-version: 0.4.0
+version: 0.5.0
 # renovate: image=docker.io/alangrainger/immich-public-proxy
 appVersion: '4.1.1'
 home: https://github.com/alangrainger/immich-public-proxy
