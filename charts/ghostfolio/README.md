@@ -1,6 +1,6 @@
 # ghostfolio
 
-![Version: 0.63.6](https://img.shields.io/badge/Version-0.63.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.88.0](https://img.shields.io/badge/AppVersion-3.88.0-informational?style=flat-square)
+![Version: 0.64.0](https://img.shields.io/badge/Version-0.64.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.90.0](https://img.shields.io/badge/AppVersion-3.90.0-informational?style=flat-square)
 Open source wealth management software
 **Homepage:** <https://ghostfol.io/>
 
