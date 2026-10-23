@@ -2,6 +2,9 @@
 
 global:
   createDefaultServiceAccount: false
+{{- if .Values.upload.enabled }}
+  alwaysAppendIdentifierToResourceName: true
+{{- end }}
 
 defaultPodOptions:
   securityContext:
@@ -66,6 +69,64 @@ controllers:
               periodSeconds: 5
               timeoutSeconds: 2
               failureThreshold: 30
+{{- if .Values.upload.enabled }}
+  upload:
+    containers:
+      main:
+        enabled: true
+        image:
+          # renovate: image=docker.io/alangrainger/immich-public-proxy-upload
+          repository: docker.io/alangrainger/immich-public-proxy-upload
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          IMMICH_URL: {{ .Values.immichUrl | quote }}
+          PUBLIC_BASE_URL: {{ .Values.publicBaseUrl | quote }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 3000
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 2
+              failureThreshold: 3
+          readiness:
+            enabled: {{ .Values.upload.readiness }}
+            custom: true
+            spec:
+              httpGet:
+                path: /healthcheck
+                port: 3000
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 2
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 3000
+              periodSeconds: 5
+              timeoutSeconds: 2
+              failureThreshold: 30
+{{- end }}
 
 service:
   main:
@@ -75,6 +136,14 @@ service:
       http:
         port: 3000
         protocol: HTTP
+{{- if .Values.upload.enabled }}
+  upload:
+    controller: upload
+    ports:
+      http:
+        port: 3000
+        protocol: HTTP
+{{- end }}
 
 ingress:
   main:

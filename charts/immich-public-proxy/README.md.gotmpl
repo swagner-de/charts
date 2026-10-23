@@ -6,8 +6,9 @@
 ## Features
 - Proxies public Immich shares without exposing the Immich server directly
 - Configurable Immich and public-facing URLs
-- TCP liveness/startup probes and HTTP readiness check on `/share/healthcheck`
-- Stateless deployment with a temporary writable `/tmp` volume
+- Optional visitor-upload service that lets visitors send photos back into a share
+- TCP liveness/startup probes and HTTP readiness checks
+- Stateless deployments with temporary writable `/tmp` volumes
 
 ## Install
 
@@ -18,6 +19,19 @@ helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ te
 {{ template "chart.requirementsSection" . }}
 
 {{ template "chart.valuesSection" . }}
+
+## Upload Service
+
+Set `upload.enabled: true` to deploy the visitor-upload container alongside the gallery.
+See [IPP docs — Visitor Uploads](https://docs.ipp.nz/visitor-uploads) for full details.
+
+The upload service:
+- Streams files to Immich with the share's own key (no API key needed)
+- Stores nothing and writes nothing to disk
+- Exposes `/healthcheck` (returns `ok` or 503) so IPP auto-hides the upload button when Immich is unreachable
+
+When enabled the chart creates a second Deployment and Service (`<release>-upload`) on port 3000.
+Route `/upload/*` traffic to it through your ingress or Gateway API HTTPRoute.
 
 ## Security
 This chart runs with restrictive security defaults:
