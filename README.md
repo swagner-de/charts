@@ -12,11 +12,11 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [akvorado](charts/akvorado) | `0.7.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.13.5` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
 | [carconnectivity](charts/carconnectivity) | `0.5.0` | Car telemetry data retrieval with plugin support (VW, ABRP, WebUI) |
-| [dawarich](charts/dawarich) | `0.9.8` | Self-hosted location history tracker and Google Timeline alternative |
+| [dawarich](charts/dawarich) | `0.10.0` | Self-hosted location history tracker and Google Timeline alternative |
 | [emby](charts/emby) | `0.4.1` | Emby media server for streaming movies, TV, music, and more |
 | [flowcus](charts/flowcus) | `0.5.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.4.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
-| [ghostfolio](charts/ghostfolio) | `0.64.2` | Open source wealth management software |
+| [ghostfolio](charts/ghostfolio) | `0.65.0` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.4.1` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.27.5` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.15.0` | Customizable application dashboard for your homelab |
