@@ -16,12 +16,12 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [emby](charts/emby) | `0.4.1` | Emby media server for streaming movies, TV, music, and more |
 | [flowcus](charts/flowcus) | `0.5.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.4.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
-| [ghostfolio](charts/ghostfolio) | `0.65.0` | Open source wealth management software |
+| [ghostfolio](charts/ghostfolio) | `0.65.2` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.4.1` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.28.0` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.15.0` | Customizable application dashboard for your homelab |
 | [immich-public-proxy](charts/immich-public-proxy) | `0.4.1` | Public sharing proxy for Immich |
-| [immich](charts/immich) | `0.25.12` | Self-hosted photo and video backup solution with machine learning |
+| [immich](charts/immich) | `0.25.14` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.15.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.5.0` | Free software media server for streaming movies, TV, music, and more |
 | [joplin](charts/joplin) | `0.3.1` | Self-hosted sync server for the Joplin note-taking app |
