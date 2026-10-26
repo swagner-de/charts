@@ -33,7 +33,7 @@ postgres:
   image:
     repository: ossapps/postgres
     # renovate: image=ossapps/postgres
-    tag: "17.7-trixie"
+    tag: "18.3-trixie"
   # Database name / user. The app connects to this DB; pg_cron is scoped to it.
   database: splitpro
   user: splitpro
