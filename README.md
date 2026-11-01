@@ -26,7 +26,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [jellyfin](charts/jellyfin) | `0.5.0` | Free software media server for streaming movies, TV, music, and more |
 | [joplin](charts/joplin) | `0.3.1` | Self-hosted sync server for the Joplin note-taking app |
 | [linkwarden](charts/linkwarden) | `0.9.0` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
-| [mealie](charts/mealie) | `0.35.0` | Self-hosted recipe manager and meal planner |
+| [mealie](charts/mealie) | `0.36.0` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.5.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [mtls-socks](charts/mtls-socks) | `0.3.2` | SOCKS5 proxy exposed only over mutually-authenticated TLS via ghostunnel, with cert-manager-issued per-user client certificates |
 | [music-assistant](charts/music-assistant) | `0.6.3` | Music Assistant - free, opensource Media player for your local music and online music providers |
