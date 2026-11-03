@@ -16,7 +16,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [emby](charts/emby) | `0.4.1` | Emby media server for streaming movies, TV, music, and more |
 | [flowcus](charts/flowcus) | `0.5.0` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
 | [freeradius](charts/freeradius) | `0.4.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
-| [ghostfolio](charts/ghostfolio) | `0.70.2` | Open source wealth management software |
+| [ghostfolio](charts/ghostfolio) | `0.71.0` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.4.1` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.28.2` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.15.0` | Customizable application dashboard for your homelab |
@@ -31,7 +31,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [mtls-socks](charts/mtls-socks) | `0.3.2` | SOCKS5 proxy exposed only over mutually-authenticated TLS via ghostunnel, with cert-manager-issued per-user client certificates |
 | [music-assistant](charts/music-assistant) | `0.6.3` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.5.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.70.1` | Document management system with OCR and full-text search |
+| [paperless](charts/paperless) | `0.70.3` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.11.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.5.3` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.8.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
