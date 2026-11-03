@@ -59,7 +59,7 @@ prowlarr:
     # -- Image repository
     repository: ghcr.io/home-operations/prowlarr
     # -- Image tag
-    tag: '2.7.0.5723'
+    tag: '3.0.0.5737'
   persistence:
     config:
       # -- Volume type
