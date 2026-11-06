@@ -7,7 +7,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 <!-- charts-table-start -->
 | Chart | Version | Description |
 |-------|---------|-------------|
-| [adguard-home](charts/adguard-home) | `0.11.1` | DNS-level ad and tracker blocking with optional Prometheus exporter |
+| [adguard-home](charts/adguard-home) | `0.11.2` | DNS-level ad and tracker blocking with optional Prometheus exporter |
 | [adventurelog](charts/adventurelog) | `1.2.2` | Self-hosted travel companion to log trips, plan itineraries, and map your adventures |
 | [akvorado](charts/akvorado) | `0.7.0` | NetFlow/IPFIX/sFlow collector with ClickHouse analytics |
 | [arr-stack](charts/arr-stack) | `0.15.5` | Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr |
