@@ -1,6 +1,6 @@
 # homepage
 
-![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.5.0](https://img.shields.io/badge/AppVersion-v2.5.0-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.7.0](https://img.shields.io/badge/AppVersion-v2.7.0-informational?style=flat-square)
 Customizable application dashboard for your homelab
 **Homepage:** <https://gethomepage.dev/>
 
@@ -27,8 +27,8 @@ helm install homepage oci://ghcr.io/swagner-de/charts/homepage
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalSecrets | list | `[]` | Additional external secrets to mount as environment variables A list of external secrets to be passed as environment variables to the container. |
-| config | object | `{"bookmarks":[{"Section 1":[{"Scanner":[{"href":"scanner.local","icon":"mdi-scanner"}]}]}],"kubernetes":{"gateway":true,"mode":"cluster"},"services":[],"settings":{"language":"de","title":"Home Infra"},"widgets":[{"kubernetes":{"cluster":{"cpu":true,"label":"cluster","memory":true,"show":true,"showLabel":true},"nodes":{"cpu":true,"memory":true,"show":true,"showLabel":true}}},{"openmeteo":{"cache":5,"format":{"maximumFractionDigits":1},"latitude":49.488888,"longitude":8.469167,"timezone":"Europe/Berlin","units":"metric"}}]}` | Homepage application configuration |
-| config.bookmarks | list | `[{"Section 1":[{"Scanner":[{"href":"scanner.local","icon":"mdi-scanner"}]}]}]` | Bookmark definitions |
+| config | object | `{"bookmarks":[{"Section 1":[{"Scanner":[{"href":"https://scanner.local","icon":"mdi-scanner"}]}]}],"kubernetes":{"gateway":true,"mode":"cluster"},"services":[],"settings":{"language":"de","title":"Home Infra"},"widgets":[{"kubernetes":{"cluster":{"cpu":true,"label":"cluster","memory":true,"show":true,"showLabel":true},"nodes":{"cpu":true,"memory":true,"show":true,"showLabel":true}}},{"openmeteo":{"cache":5,"format":{"maximumFractionDigits":1},"latitude":49.488888,"longitude":8.469167,"timezone":"Europe/Berlin","units":"metric"}}]}` | Homepage application configuration |
+| config.bookmarks | list | `[{"Section 1":[{"Scanner":[{"href":"https://scanner.local","icon":"mdi-scanner"}]}]}]` | Bookmark definitions |
 | config.kubernetes | object | `{"gateway":true,"mode":"cluster"}` | Kubernetes service discovery configuration |
 | config.kubernetes.gateway | bool | `true` | Enable Gateway API discovery |
 | config.kubernetes.mode | string | `"cluster"` | Discovery mode (cluster or disabled) |
