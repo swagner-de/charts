@@ -4,7 +4,7 @@ description: Privacy-focused alternative YouTube frontend with companion service
 maintainers:
   - name: swagner-de
     email: swagner-de@users.noreply.github.com
-version: 0.16.0
+version: 0.17.0
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=quay.io/invidious/invidious
@@ -20,5 +20,5 @@ dependencies:
     version: 5.3.0
   - name: postgres
     repository: oci://registry-1.docker.io/cloudpirates
-    version: 0.21.2
+    version: 0.22.0
     condition: postgres.enabled
