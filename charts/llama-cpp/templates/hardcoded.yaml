@@ -1,0 +1,226 @@
+{{- define "hardcoded" -}}
+{{- if not .Values.models -}}
+  {{- fail "at least one model must be configured" -}}
+{{- end -}}
+{{- range $model := .Values.models -}}
+  {{- if or (not $model.url) (eq $model.url "https://example.invalid/model.gguf") -}}
+    {{- fail "each models entry must have a configured url" -}}
+  {{- end -}}
+  {{- if not (hasPrefix "https://" $model.url) -}}
+    {{- fail "each models url must use HTTPS" -}}
+  {{- end -}}
+  {{- if not $model.filename -}}
+    {{- fail "each models entry must have a filename" -}}
+  {{- end -}}
+  {{- if contains "/" $model.filename -}}
+    {{- fail "model filenames must not contain path separators" -}}
+  {{- end -}}
+  {{- if or (not $model.sha256) (eq $model.sha256 "CHANGEME") -}}
+    {{- fail "each models entry must have a configured sha256" -}}
+  {{- end -}}
+  {{- if not (regexMatch "^[a-fA-F0-9]{64}$" $model.sha256) -}}
+    {{- fail "each models sha256 must be a 64-character hexadecimal digest" -}}
+  {{- end -}}
+{{- end -}}
+{{- if and .Values.serviceMonitor.enabled (not .Values.server.metrics) -}}
+  {{- fail "server.metrics must be enabled when serviceMonitor.enabled is true" -}}
+{{- end -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    strategy: Recreate
+    initContainers:
+      download-models:
+        image:
+          repository: {{ .Values.modelDownloader.repository }}
+          tag: {{ .Values.modelDownloader.tag | quote }}
+          pullPolicy: {{ .Values.modelDownloader.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - |
+            set -eu
+            if [ "{{ .Values.modelDownloader.prune }}" = "true" ]; then
+              for cached in {{ .Values.persistence.models.mountPath }}/*.gguf; do
+                [ -e "$cached" ] || continue
+                case "$(basename "$cached")" in
+{{- range $model := .Values.models }}
+                  {{ $model.filename }}) ;;
+{{- end }}
+                  *) echo "Removing unconfigured model $(basename "$cached")"; rm -f "$cached" ;;
+                esac
+              done
+            fi
+{{- range $model := .Values.models }}
+            model="{{ $.Values.persistence.models.mountPath }}/{{ $model.filename }}"
+            expected="{{ lower $model.sha256 }}"
+            if [ -f "$model" ] && echo "$expected  $model" | sha256sum -c -; then
+              echo "Model {{ $model.filename }} already cached and verified"
+            else
+              rm -f "$model" "$model.part"
+              curl --fail --location --retry 3 --output "$model.part" {{ $model.url | quote }}
+              echo "$expected  $model.part" | sha256sum -c -
+              mv "$model.part" "$model"
+            fi
+{{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+    containers:
+      main:
+        image:
+          repository: {{ .Values.image.repository }}
+          tag: {{ printf "%s-%s" .Values.image.variant (.Values.image.tag | default .Chart.AppVersion) | quote }}
+          pullPolicy: {{ .Values.image.pullPolicy }}
+        args:
+          - --models-dir
+          - {{ .Values.persistence.models.mountPath | quote }}
+          - --models-max
+          - {{ .Values.server.router.maxModels | quote }}
+          {{- if .Values.server.router.autoload }}
+          - --models-autoload
+          {{- else }}
+          - --no-models-autoload
+          {{- end }}
+          - --host
+          - 0.0.0.0
+          - --port
+          - {{ .Values.server.port | quote }}
+          - --ctx-size
+          - {{ .Values.server.contextSize | quote }}
+          - --threads
+          - {{ .Values.server.threads | quote }}
+          - --threads-batch
+          - {{ .Values.server.threadsBatch | quote }}
+          - --parallel
+          - {{ .Values.server.parallel | quote }}
+          - --n-gpu-layers
+          - {{ .Values.server.gpuLayers | quote }}
+          {{- if .Values.server.metrics }}
+          - --metrics
+          {{- end }}
+          {{- with .Values.server.extraArgs }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: {{ .Values.server.port }}
+              periodSeconds: 30
+              timeoutSeconds: 5
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: {{ .Values.server.port }}
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: {{ .Values.server.port }}
+              periodSeconds: 5
+              timeoutSeconds: 5
+              failureThreshold: 120
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: {{ .Values.server.port }}
+        protocol: TCP
+
+{{- if .Values.serviceMonitor.enabled }}
+serviceMonitor:
+  main:
+    service:
+      identifier: main
+    endpoints:
+      - port: http
+        scheme: http
+        path: /metrics
+        interval: {{ .Values.serviceMonitor.interval }}
+        scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
+{{- end }}
+
+persistence:
+  models:
+    enabled: true
+    {{- if .Values.persistence.models.enabled }}
+    type: persistentVolumeClaim
+    accessMode: {{ .Values.persistence.models.accessMode }}
+    size: {{ .Values.persistence.models.size }}
+    {{- with .Values.persistence.models.storageClass }}
+    storageClass: {{ . | quote }}
+    {{- end }}
+    {{- else }}
+    type: emptyDir
+    {{- end }}
+    advancedMounts:
+      main:
+        download-models:
+          - path: {{ .Values.persistence.models.mountPath }}
+        main:
+          - path: {{ .Values.persistence.models.mountPath }}
+            readOnly: true
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        download-models:
+          - path: /tmp
+        main:
+          - path: /tmp
+
+{{- end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
