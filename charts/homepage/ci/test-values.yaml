@@ -1,9 +1,9 @@
 config:
   bookmarks:
-    - group: Test
-      bookmarks:
-        - name: Example
-          url: https://example.com
+    - Test:
+        - Example:
+            - abbr: EX
+              href: https://example.com
 
 secretReplacements:
   TEST_API_KEY: test-secret-value
