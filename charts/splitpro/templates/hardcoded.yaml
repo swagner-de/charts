@@ -1,7 +1,19 @@
 {{- define "hardcoded" -}}
 
+{{- if and .Values.postgres.enabled .Values.cnpg.enabled }}
+{{- fail "splitpro: postgres.enabled and cnpg.enabled are mutually exclusive — pick one database backend" }}
+{{- end }}
+{{- if and (not .Values.postgres.enabled) (not .Values.cnpg.enabled) }}
+{{- fail "splitpro: a database backend is required — set postgres.enabled or cnpg.enabled" }}
+{{- end }}
+
 global:
   createDefaultServiceAccount: false
+  # Keep resource names stable (e.g. service splitpro-main) regardless of how
+  # many controllers render. Without this, disabling the bundled postgres
+  # controller (cnpg mode) would drop the -main suffix and rename the Service,
+  # breaking the HTTPRoute backendRef.
+  alwaysAppendIdentifierToResourceName: true
 
 {{- $siteUrl := .Values.siteUrl | trimSuffix "/" }}
 {{- $db := .Values.postgres.database }}
@@ -18,6 +30,26 @@ global:
 {{- end }}
 {{- $fullname = $fullname | trunc 63 | trimSuffix "-" }}
 {{- $dbHost := printf "%s-postgres" $fullname }}
+
+{{- /*
+  CNPG mode: the app's DB credentials come from the CNPG cluster's auto-created
+  `<cnpgName>-app` Secret (which carries a ready-made `uri`). $cnpgName follows
+  the same rule joplin/mealie use so a rawResources-deployed Cluster lines up;
+  $dbHost/$dbUser then point at the CNPG RW endpoint for the wait-for-db probe.
+*/}}
+{{- $cnpgName := .Values.cnpg.clusterName }}
+{{- if and .Values.cnpg.enabled .Values.cnpg.prependReleaseName }}
+{{- if contains .Chart.Name .Release.Name }}
+{{- $cnpgName = printf "%s-%s" .Release.Name .Values.cnpg.clusterName }}
+{{- else }}
+{{- $cnpgName = printf "%s-%s-%s" .Release.Name .Chart.Name .Values.cnpg.clusterName }}
+{{- end }}
+{{- end }}
+{{- $cnpgAppSecret := printf "%s-app" $cnpgName }}
+{{- if .Values.cnpg.enabled }}
+{{- $dbUser = printf "%s-rw" $cnpgName }}
+{{- $dbHost = printf "%s-rw" $cnpgName }}
+{{- end }}
 
 {{- /*
   Hardened security context for the SplitPro app container (Next.js standalone).
@@ -57,9 +89,12 @@ defaultPodOptions:
     fsGroupChangePolicy: OnRootMismatch
 
 controllers:
+{{- if .Values.postgres.enabled }}
   # PostgreSQL with pg_cron, in its own pod. pg_cron is loaded at startup
   # (shared_preload_libraries) and scoped to the app database — required by
   # SplitPro's recurrence migration (CREATE EXTENSION pg_cron + FK onto cron.job).
+  # In CNPG mode this controller is dropped; the Cluster provides pg_cron via an
+  # ImageVolume extension + shared_preload_libraries.
   postgres:
     # RWO data PVC cannot be shared across a rolling update.
     strategy: Recreate
@@ -117,6 +152,7 @@ controllers:
               <<: *pgprobeSpec
               initialDelaySeconds: 5
               failureThreshold: 30
+{{- end }}
   # SplitPro app (Next.js standalone). Runs Prisma migrations at boot then serves
   # on :3000; connects to the postgres controller over the cluster Service.
   main:
@@ -150,6 +186,16 @@ controllers:
           PORT: "3000"
           HOSTNAME: "0.0.0.0"
           NEXTAUTH_URL: {{ $siteUrl | quote }}
+{{- if .Values.cnpg.enabled }}
+          # CNPG mode: DATABASE_URL is the ready-made connection string from the
+          # cluster's auto-created `<cnpgName>-app` Secret. NEXTAUTH_SECRET still
+          # comes from an envFromSecrets entry.
+          DATABASE_URL:
+            valueFrom:
+              secretKeyRef:
+                name: {{ $cnpgAppSecret | quote }}
+                key: uri
+{{- end }}
 {{- range $k, $v := .Values.config }}
           {{ $k }}: {{ $v | quote }}
 {{- end }}
@@ -200,12 +246,14 @@ service:
       http:
         port: 3000
         protocol: HTTP
+{{- if .Values.postgres.enabled }}
   postgres:
     controller: postgres
     ports:
       postgres:
         port: 5432
         protocol: TCP
+{{- end }}
 
 {{- if .Values.postgres.createSecret }}
 {{- /*
@@ -238,6 +286,7 @@ persistence:
         main:
           - path: /app/uploads
   pgdata:
+{{- if .Values.postgres.enabled }}
     enabled: {{ .Values.persistence.pgdata.enabled }}
     accessMode: {{ .Values.persistence.pgdata.accessMode }}
     size: {{ .Values.persistence.pgdata.size }}
@@ -251,6 +300,11 @@ persistence:
       postgres:
         postgres:
           - path: /var/lib/postgresql/data
+{{- else }}
+    # CNPG mode: no in-pod postgres, so the data PVC is not created.
+    enabled: false
+{{- end }}
+{{- if .Values.postgres.enabled }}
   # Writable runtime dir for the postgres unix socket / lock files (root fs is RO).
   pg-run:
     type: emptyDir
@@ -258,6 +312,7 @@ persistence:
       postgres:
         postgres:
           - path: /var/run/postgresql
+{{- end }}
   # /tmp (read-only root filesystem) for each controller's container.
   app-tmp:
     type: emptyDir
@@ -265,12 +320,14 @@ persistence:
       main:
         main:
           - path: /tmp
+{{- if .Values.postgres.enabled }}
   pg-tmp:
     type: emptyDir
     advancedMounts:
       postgres:
         postgres:
           - path: /tmp
+{{- end }}
 
 {{- if .Values.networkPolicy.enabled }}
 networkpolicies:
@@ -300,21 +357,27 @@ networkpolicies:
             - namespaceSelector:
                 matchLabels:
                   kubernetes.io/metadata.name: kube-system
-        # PostgreSQL — the in-namespace postgres controller pod.
+        # PostgreSQL egress. In bundled mode this is the in-pod postgres
+        # controller; in CNPG mode it is the CNPG cluster's pods.
         - ports:
             - port: 5432
               protocol: TCP
           to:
             - podSelector:
                 matchLabels:
+{{- if .Values.cnpg.enabled }}
+                  cnpg.io/cluster: {{ $cnpgName | quote }}
+{{- else }}
                   app.kubernetes.io/name: {{ .Chart.Name }}
                   app.kubernetes.io/controller: postgres
+{{- end }}
         # Outbound HTTP(S): OIDC discovery/token, currency rate providers.
         - ports:
             - port: 443
               protocol: TCP
             - port: 80
               protocol: TCP
+{{- if .Values.postgres.enabled }}
   postgres:
     controller: postgres
     policyTypes:
@@ -342,6 +405,7 @@ networkpolicies:
             - namespaceSelector:
                 matchLabels:
                   kubernetes.io/metadata.name: kube-system
+{{- end }}
 {{- end }}
 
 {{ end }}

@@ -1,34 +1,46 @@
 # splitpro
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.1.5](https://img.shields.io/badge/AppVersion-v2.1.5-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.1.5](https://img.shields.io/badge/AppVersion-v2.1.5-informational?style=flat-square)
 SplitPro — self-hosted open source alternative to Splitwise for sharing expenses
 
 ## Features
-- Single hardened pod: the SplitPro app (Next.js) plus a bundled PostgreSQL
-  container, both fully non-root with read-only root filesystems
-- PostgreSQL image ships the `pg_cron` extension, required by SplitPro's
-  recurring-transactions and cache-cleanup database migration
-- Receipt uploads and database data on separate PVCs
-- Secrets (`NEXTAUTH_SECRET`, `DATABASE_URL`, OIDC/OAuth credentials) injected
-  via `envFromSecrets`; the DB password via an external Secret (or, for
-  CI/standalone, a chart-managed one)
+- Hardened SplitPro app (Next.js) pod, fully non-root with a read-only root
+  filesystem
+- Two mutually exclusive database backends (a fail guard enforces exactly one):
+  - `postgres.enabled` — a bundled PostgreSQL container with `pg_cron` baked in
+  - `cnpg.enabled` — an externally-defined CloudNativePG `Cluster`
+- Receipt uploads (and, in bundled mode, database data) on PVCs
+- Secrets (`NEXTAUTH_SECRET`, OIDC/OAuth credentials) injected via
+  `envFromSecrets`; `DATABASE_URL` from the bundled DB's Secret or, in CNPG mode,
+  straight from the cluster's `<clusterName>-app` Secret
 
-## Why a bundled database
+## Database and pg_cron
 SplitPro's schema hard-depends on `pg_cron`: the recurrence migration runs
 `CREATE EXTENSION pg_cron` and adds a foreign key onto `cron.job`, and the app
 runs `prisma migrate deploy` on every boot — so a database without `pg_cron`
-fails the migration and the app never starts. The generic PostgreSQL and
-CloudNativePG operand images do **not** include `pg_cron`, so this chart bundles
-the upstream-maintained `ossapps/postgres` image (which does) as a plain in-pod
-database rather than delegating to an external operator.
+fails the migration and the app never starts. Generic PostgreSQL and the stock
+CloudNativePG operand images do **not** include `pg_cron`.
 
-The database container is started with:
+### Bundled PostgreSQL (`postgres.enabled: true`, default)
+The chart runs the upstream-maintained `ossapps/postgres` image (which ships
+`pg_cron`) as a plain in-pod database, started with:
 
 ```
 postgres -c shared_preload_libraries=pg_cron \
          -c cron.database_name=<postgres.database> \
          -c cron.timezone=UTC
 ```
+
+### CloudNativePG (`cnpg.enabled: true`)
+Set `postgres.enabled: false` and `cnpg.enabled: true`. The bundled container is
+dropped and the app reads `DATABASE_URL` from the cluster's auto-created
+`<clusterName>-app` Secret. The `Cluster` itself is provided out-of-chart (e.g.
+fleet `rawResources`) and must supply `pg_cron` — mount the
+[`pg-cron` ImageVolume extension](https://ghcr.io/swagner-de/containers/pg-cron),
+set `shared_preload_libraries: [pg_cron]`, `cron.database_name: <app-db>`,
+`cron.use_background_workers: "on"` (CNPG's `pg_hba` rejects pg_cron's default
+TCP connection), and run `CREATE EXTENSION pg_cron` via
+`bootstrap.initdb.postInitApplicationSQL` — no `kind: Database` required.
 
 ## Database password
 The `postgres` container reads `POSTGRES_PASSWORD` from a Secret. In GitOps,
@@ -67,6 +79,9 @@ helm install splitpro oci://ghcr.io/swagner-de/charts/splitpro
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| cnpg.clusterName | string | `"splitpro-db"` | CNPG cluster name; the app reads the `<clusterName>-app` Secret |
+| cnpg.enabled | bool | `false` | Enable CloudNativePG (consume an externally-defined CNPG Cluster) |
+| cnpg.prependReleaseName | bool | `false` | Prepend release and chart name to clusterName (use when the CNPG Cluster    is deployed via rawResources that also prepend the release name) |
 | config.CACHE_RETENTION_INTERVAL | string | `"2 days"` |  |
 | config.CLEAR_CACHE_CRON_RULE | string | `"0 2 * * 0"` |  |
 | config.CURRENCY_RATE_PROVIDER | string | `"frankfurter"` |  |
@@ -87,6 +102,7 @@ helm install splitpro oci://ghcr.io/swagner-de/charts/splitpro
 | persistence.uploads.size | string | `"5Gi"` |  |
 | postgres.createSecret | bool | `false` |  |
 | postgres.database | string | `"splitpro"` |  |
+| postgres.enabled | bool | `true` | Enable the bundled PostgreSQL container |
 | postgres.image.repository | string | `"ossapps/postgres"` |  |
 | postgres.image.tag | string | `"17.7-trixie"` |  |
 | postgres.password | string | `"CHANGEME"` |  |
@@ -96,11 +112,12 @@ helm install splitpro oci://ghcr.io/swagner-de/charts/splitpro
 | siteUrl | string | `"CHANGEME"` | Public URL of the instance, used by NextAuth for callbacks and absolute URLs.    MUST match the browser URL. Example: https://splitpro.example.com |
 
 ## Security
-Both containers run `runAsNonRoot: true`, `readOnlyRootFilesystem: true`,
+All containers run `runAsNonRoot: true`, `readOnlyRootFilesystem: true`,
 `allowPrivilegeEscalation: false`, all capabilities dropped, and seccomp
 `RuntimeDefault`. The app runs as UID 1000 (the image's `node` user, which owns
-`/app/uploads`); PostgreSQL runs as UID 999. Writable paths (`/tmp`, the uploads
-and data PVCs, and `/var/run/postgresql`) are backed by emptyDir/PVC volumes.
+`/app/uploads`); the bundled PostgreSQL runs as UID 999. Writable paths (`/tmp`,
+the uploads and data PVCs, and `/var/run/postgresql`) are backed by
+emptyDir/PVC volumes.
 
 ## Maintainers
 
