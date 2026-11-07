@@ -1,0 +1,67 @@
+whisper:
+  # -- Enable the Whisper speech-to-text service
+  enabled: true
+  image:
+    # -- Whisper image repository
+    repository: docker.io/rhasspy/wyoming-whisper
+    # -- Whisper image tag
+    # renovate: datasource=docker depName=rhasspy/wyoming-whisper
+    tag: 3.8.1
+  # -- Whisper model name
+  model: small-int8
+  # -- Language code. Set to an empty string for automatic detection.
+  language: en
+  # -- Wyoming TCP port
+  port: 10300
+  # -- Additional arguments appended to the generated Whisper arguments
+  extraArgs: []
+  persistence:
+    # -- Persist downloaded Whisper models
+    enabled: true
+    # -- Model data mount path
+    mountPath: /data
+    # -- PVC access mode
+    accessMode: ReadWriteOnce
+    # -- PVC size
+    size: 10Gi
+    # -- StorageClass; empty uses the cluster default
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      memory: 4Gi
+
+piper:
+  # -- Enable the Piper text-to-speech service
+  enabled: true
+  image:
+    # -- Piper image repository
+    repository: docker.io/rhasspy/wyoming-piper
+    # -- Piper image tag
+    # renovate: datasource=docker depName=rhasspy/wyoming-piper
+    tag: 2.5.2
+  # -- Piper voice name
+  voice: en_US-lessac-medium
+  # -- Wyoming TCP port
+  port: 10200
+  # -- Additional arguments appended to the generated Piper arguments
+  extraArgs: []
+  persistence:
+    # -- Persist downloaded Piper voices
+    enabled: true
+    # -- Voice data mount path
+    mountPath: /data
+    # -- PVC access mode
+    accessMode: ReadWriteOnce
+    # -- PVC size
+    size: 2Gi
+    # -- StorageClass; empty uses the cluster default
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi

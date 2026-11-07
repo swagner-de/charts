@@ -1,0 +1,17 @@
+apiVersion: v2
+name: wyoming
+description: Wyoming speech services for Home Assistant Assist
+type: application
+version: 0.1.0
+appVersion: "whisper-3.8.1_piper-2.5.2"
+home: https://www.home-assistant.io/voice_control/
+sources:
+  - https://github.com/OHF-Voice/wyoming-faster-whisper
+  - https://github.com/OHF-Voice/wyoming-piper
+dependencies:
+  - name: common
+    version: 5.1.0
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com
