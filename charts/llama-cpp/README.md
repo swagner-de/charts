@@ -1,6 +1,6 @@
 # llama-cpp
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: b11561](https://img.shields.io/badge/AppVersion-b11561-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: b11561](https://img.shields.io/badge/AppVersion-b11561-informational?style=flat-square)
 Run a llama.cpp server with a cached GGUF model
 **Homepage:** <https://github.com/ggml-org/llama.cpp>
 
@@ -25,7 +25,7 @@ helm install llama-cpp oci://ghcr.io/swagner-de/charts/llama-cpp \
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s-labs.github.io/helm-charts/ | common | 5.1.0 |
+| https://bjw-s-labs.github.io/helm-charts/ | common | 5.3.0 |
 
 ## Values
 
