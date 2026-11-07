@@ -1,0 +1,196 @@
+{{- define "hardcoded" -}}
+{{- if and (not .Values.whisper.enabled) (not .Values.piper.enabled) -}}
+  {{- fail "at least one of whisper.enabled or piper.enabled must be true" -}}
+{{- end -}}
+
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  whisper:
+    enabled: {{ .Values.whisper.enabled }}
+    type: deployment
+    replicas: 1
+    containers:
+      main:
+        image:
+          repository: {{ .Values.whisper.image.repository }}
+          tag: {{ .Values.whisper.image.tag | quote }}
+        args:
+          - --uri
+          - tcp://0.0.0.0:{{ .Values.whisper.port }}
+          - --model
+          - {{ .Values.whisper.model | quote }}
+          {{- if .Values.whisper.language }}
+          - --language
+          - {{ .Values.whisper.language | quote }}
+          {{- end }}
+          - --data-dir
+          - {{ .Values.whisper.persistence.mountPath | quote }}
+          - --download-dir
+          - {{ .Values.whisper.persistence.mountPath | quote }}
+          {{- with .Values.whisper.extraArgs }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+        resources: {{- toYaml .Values.whisper.resources | nindent 10 }}
+        probes:
+          liveness: &whisperProbe
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: {{ .Values.whisper.port }}
+              periodSeconds: 15
+              timeoutSeconds: 3
+              failureThreshold: 3
+          readiness: *whisperProbe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: {{ .Values.whisper.port }}
+              periodSeconds: 5
+              timeoutSeconds: 3
+              failureThreshold: 120
+  piper:
+    enabled: {{ .Values.piper.enabled }}
+    type: deployment
+    replicas: 1
+    containers:
+      main:
+        image:
+          repository: {{ .Values.piper.image.repository }}
+          tag: {{ .Values.piper.image.tag | quote }}
+        args:
+          - --uri
+          - tcp://0.0.0.0:{{ .Values.piper.port }}
+          - --voice
+          - {{ .Values.piper.voice | quote }}
+          - --data-dir
+          - {{ .Values.piper.persistence.mountPath | quote }}
+          - --download-dir
+          - {{ .Values.piper.persistence.mountPath | quote }}
+          {{- with .Values.piper.extraArgs }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+        resources: {{- toYaml .Values.piper.resources | nindent 10 }}
+        probes:
+          liveness: &piperProbe
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: {{ .Values.piper.port }}
+              periodSeconds: 15
+              timeoutSeconds: 3
+              failureThreshold: 3
+          readiness: *piperProbe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: {{ .Values.piper.port }}
+              periodSeconds: 5
+              timeoutSeconds: 3
+              failureThreshold: 120
+
+service:
+  whisper:
+    enabled: {{ .Values.whisper.enabled }}
+    controller: whisper
+    primary: true
+    ports:
+      wyoming:
+        port: {{ .Values.whisper.port }}
+        protocol: TCP
+  piper:
+    enabled: {{ .Values.piper.enabled }}
+    controller: piper
+    primary: true
+    ports:
+      wyoming:
+        port: {{ .Values.piper.port }}
+        protocol: TCP
+
+persistence:
+  whisper-data:
+    enabled: {{ .Values.whisper.enabled }}
+    {{- if .Values.whisper.persistence.enabled }}
+    type: persistentVolumeClaim
+    accessMode: {{ .Values.whisper.persistence.accessMode }}
+    size: {{ .Values.whisper.persistence.size }}
+    {{- with .Values.whisper.persistence.storageClass }}
+    storageClass: {{ . | quote }}
+    {{- end }}
+    {{- else }}
+    type: emptyDir
+    {{- end }}
+    advancedMounts:
+      whisper:
+        main:
+          - path: {{ .Values.whisper.persistence.mountPath }}
+  piper-data:
+    enabled: {{ .Values.piper.enabled }}
+    {{- if .Values.piper.persistence.enabled }}
+    type: persistentVolumeClaim
+    accessMode: {{ .Values.piper.persistence.accessMode }}
+    size: {{ .Values.piper.persistence.size }}
+    {{- with .Values.piper.persistence.storageClass }}
+    storageClass: {{ . | quote }}
+    {{- end }}
+    {{- else }}
+    type: emptyDir
+    {{- end }}
+    advancedMounts:
+      piper:
+        main:
+          - path: {{ .Values.piper.persistence.mountPath }}
+  whisper-tmp:
+    enabled: {{ .Values.whisper.enabled }}
+    type: emptyDir
+    advancedMounts:
+      whisper:
+        main:
+          - path: /tmp
+  piper-tmp:
+    enabled: {{ .Values.piper.enabled }}
+    type: emptyDir
+    advancedMounts:
+      piper:
+        main:
+          - path: /tmp
+
+{{- end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}
