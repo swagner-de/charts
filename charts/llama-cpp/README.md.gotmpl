@@ -1,0 +1,35 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+
+## Features
+
+- Official llama.cpp server image with configurable CPU or accelerator variant
+- Checksum-verified GGUF downloads into persistent or ephemeral model storage
+- Router mode with a configurable cap on simultaneously resident models
+- OpenAI-compatible HTTP API with health probes and optional Prometheus metrics
+- No external ingress by default
+
+## Install
+
+```bash
+helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ template "chart.name" . }} \
+  --set models[0].url=https://example.com/model.gguf \
+  --set models[0].filename=model.gguf \
+  --set models[0].sha256=<sha256>
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+
+- Runs as non-root UID/GID 65534
+- Read-only root filesystems with writable model and temporary volumes
+- Service account token automount disabled
+- Privilege escalation disabled and all capabilities dropped
+- Seccomp profile: `RuntimeDefault`
+
+{{ template "chart.maintainersSection" . }}

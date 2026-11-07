@@ -1,0 +1,17 @@
+apiVersion: v2
+name: llama-cpp
+description: Run a llama.cpp server with a cached GGUF model
+type: application
+version: 0.1.0
+# renovate: image=ghcr.io/ggml-org/llama.cpp
+appVersion: "b11561"
+home: https://github.com/ggml-org/llama.cpp
+sources:
+  - https://github.com/ggml-org/llama.cpp
+dependencies:
+  - name: common
+    version: 5.1.0
+    repository: https://bjw-s-labs.github.io/helm-charts/
+maintainers:
+  - name: swagner-de
+    email: swagner-de@users.noreply.github.com

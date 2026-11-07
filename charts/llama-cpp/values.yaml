@@ -1,0 +1,77 @@
+image:
+  # -- llama.cpp image repository
+  repository: ghcr.io/ggml-org/llama.cpp
+  # -- Image variant. The default is the CPU-only server image.
+  variant: server
+  # -- Image tag; defaults to the chart appVersion
+  tag: ""
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+
+# -- GGUF models downloaded into the router model directory
+models:
+  - url: https://example.invalid/model.gguf
+    filename: model.gguf
+    sha256: CHANGEME
+
+modelDownloader:
+  # -- Model downloader image repository
+  repository: docker.io/curlimages/curl
+  # -- Model downloader image tag
+  # renovate: datasource=docker depName=curlimages/curl
+  tag: 8.16.0
+  # -- Model downloader image pull policy
+  pullPolicy: IfNotPresent
+  # -- Remove cached GGUF files that are not present in models
+  prune: true
+
+server:
+  # -- HTTP listen port
+  port: 8080
+  # -- Model context size
+  contextSize: 8192
+  # -- Generation thread count
+  threads: 4
+  # -- Prompt processing thread count
+  threadsBatch: 4
+  # -- Number of parallel request slots
+  parallel: 1
+  # -- Number of model layers offloaded to a GPU; zero is CPU-only
+  gpuLayers: 0
+  # -- Enable the Prometheus metrics endpoint
+  metrics: true
+  # -- Extra llama-server arguments
+  extraArgs: []
+  router:
+    # -- Maximum number of models kept resident simultaneously
+    maxModels: 1
+    # -- Automatically load the model selected by an API request
+    autoload: true
+
+persistence:
+  models:
+    # -- Persist downloaded models across pod restarts
+    enabled: true
+    # -- Model cache mount path
+    mountPath: /models
+    # -- PVC access mode
+    accessMode: ReadWriteOnce
+    # -- PVC size
+    size: 5Gi
+    # -- StorageClass; empty uses the cluster default
+    storageClass: ""
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    memory: 4Gi
+
+serviceMonitor:
+  # -- Create a Prometheus Operator ServiceMonitor
+  enabled: false
+  # -- Metrics scrape interval
+  interval: 1m
+  # -- Metrics scrape timeout
+  scrapeTimeout: 10s
