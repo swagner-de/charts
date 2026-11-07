@@ -1,0 +1,52 @@
+# -- Configure devices in the web UI (persisted in SQLite) or supply optional YAML.
+config:
+  enabled: false
+  # -- Non-secret evcc.yaml contents. File-defined settings are not editable in the UI.
+  content: ""
+  # -- Use an existing Secret instead of a generated ConfigMap (key: evcc.yaml).
+  existingSecret: ""
+
+# -- Extra environment variables, including secretKeyRef entries.
+env: {}
+# -- Secrets to consume as environment variables. Never store credentials in values.
+envFromSecrets: []
+# -- Extra command-line arguments.
+extraArgs: []
+
+ocpp:
+  enabled: true
+
+controllers:
+  main:
+    containers:
+      main:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+persistence:
+  data:
+    enabled: true
+    size: 2Gi
+    accessMode: ReadWriteOnce
+    # storageClass: ""
+
+# -- Standard bjw-s ingress configuration (disabled by default).
+ingress:
+  main:
+    enabled: false
+# -- Standard bjw-s Gateway API HTTPRoute configuration (disabled by default).
+route:
+  main:
+    enabled: false
+    parentRefs: []
+    hostnames: []
+
+service:
+  main:
+    type: ClusterIP
+  ocpp:
+    type: ClusterIP

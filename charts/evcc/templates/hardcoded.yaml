@@ -1,0 +1,146 @@
+{{- define "hardcoded" -}}
+global:
+  alwaysAppendIdentifierToResourceName: true
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    strategy: Recreate
+    containers:
+      main:
+        image:
+          repository: evcc/evcc
+          tag: {{ .Chart.AppVersion | quote }}
+        command: ["evcc"]
+        args:
+          - --database
+          - /data/evcc.db
+          {{- if or .Values.config.enabled .Values.config.existingSecret }}
+          - --config
+          - /etc/evcc/evcc.yaml
+          {{- end }}
+          {{- with .Values.extraArgs }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        env:
+          HOME: /data
+          {{- with .Values.env }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- with .Values.envFromSecrets }}
+        envFrom:
+          {{- range . }}
+          - secretRef:
+              name: {{ . | quote }}
+          {{- end }}
+        {{- end }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 7070
+              periodSeconds: 15
+              timeoutSeconds: 3
+              failureThreshold: 3
+          readiness: *probe
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 7070
+              periodSeconds: 5
+              timeoutSeconds: 3
+              failureThreshold: 60
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: 7070
+        protocol: TCP
+  ocpp:
+    enabled: {{ .Values.ocpp.enabled }}
+    controller: main
+    ports:
+      ocpp:
+        port: 8887
+        protocol: TCP
+
+ingress:
+  main:
+    hosts:
+      - host: {{ (dig "hosts" (list (dict "host" "evcc.example.com")) .Values.ingress.main | first).host | quote }}
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+route:
+  main:
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        backendRefs:
+          - identifier: main
+            port: http
+
+configMaps:
+  config:
+    enabled: {{ and .Values.config.enabled (not .Values.config.existingSecret) }}
+    data:
+      evcc.yaml: |
+{{ .Values.config.content | indent 8 }}
+
+persistence:
+  data:
+    globalMounts:
+      - path: /data
+  tmp:
+    type: emptyDir
+    globalMounts:
+      - path: /tmp
+  config:
+    enabled: {{ or .Values.config.enabled (not (empty .Values.config.existingSecret)) }}
+    {{- if .Values.config.existingSecret }}
+    type: secret
+    name: {{ .Values.config.existingSecret | quote }}
+    {{- else }}
+    type: configMap
+    identifier: config
+    {{- end }}
+    globalMounts:
+      - path: /etc/evcc
+        readOnly: true
+{{- end -}}
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+{{ include "bjw-s.common.loader.all" $ctx }}

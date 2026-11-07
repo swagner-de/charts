@@ -1,0 +1,37 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+## Configuration
+
+The default installation starts the setup UI without a YAML configuration. Devices,
+the sponsor token, administrator password, and charging sessions persist on the
+`/data` PVC (SQLite, including WAL/SHM files). Use a local filesystem-backed PVC,
+not NFS/SMB. A single replica and Recreate strategy avoid concurrent database writers.
+
+For declarative configuration, enable `config.enabled` and provide `config.content`.
+For credentials in a configuration file, use `config.existingSecret` with an
+`evcc.yaml` key. File-defined settings are not editable in the web UI. Secrets can
+also be provided through `env` secretKeyRefs or `envFromSecrets`.
+
+The web/API service listens on TCP 7070. The optional OCPP service listens on TCP
+8887. Both are ClusterIP by default. Configure `route.main` for Gateway API or
+`ingress.main` for an Ingress controller.
+
+## Security
+
+evcc protects administration with its own password, but normal charging controls
+are not authentication-gated. Protect the web/API service with a trusted reverse
+proxy or VPN. The OCPP listener has no native TLS or credential validation:
+terminate WSS at a reverse proxy and enforce charger authentication there. Do not
+expose plain port 8887 to an untrusted network. The OCPP route must not redirect to
+interactive SSO. Preserve WebSocket upgrades and the `ocpp1.6` subprotocol.
+
+## Validation
+
+```sh
+helm dependency build charts/evcc
+helm template test charts/evcc > rendered.yaml
+trivy config --severity HIGH,CRITICAL --exit-code 1 rendered.yaml
+```
+
+{{ template "chart.valuesSection" . }}
