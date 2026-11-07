@@ -29,7 +29,12 @@ envFromSecrets: []
 # transactions + cache cleanup migration), which is NOT present in generic
 # postgres/CNPG images — so the upstream-maintained ossapps/postgres image
 # (pg_cron baked in) is used as a plain in-chart database.
+#
+# Mutually exclusive with cnpg.enabled below (a fail guard enforces this). Use
+# this path for standalone/CI; use cnpg for GitOps on a CNPG-managed cluster.
 postgres:
+  # -- Enable the bundled PostgreSQL container
+  enabled: true
   image:
     repository: ossapps/postgres
     # renovate: image=ossapps/postgres
@@ -44,6 +49,25 @@ postgres:
     name: ""
   createSecret: false
   password: "CHANGEME"
+
+# CloudNativePG database (mutually exclusive with postgres.enabled). When
+# enabled, the bundled postgres container is dropped and the app's DATABASE_URL
+# is sourced from the CNPG cluster's `<clusterName>-app` Secret (`uri` key).
+#
+# SplitPro's pg_cron requirement is satisfied on the CNPG side: deploy the
+# Cluster with the pg_cron ImageVolume extension
+# (ghcr.io/swagner-de/containers/pg-cron), shared_preload_libraries=pg_cron,
+# cron.database_name=<app-db>, and run CREATE EXTENSION pg_cron via
+# bootstrap.initdb.postInitApplicationSQL — no kind: Database needed. The
+# Cluster itself is provided out-of-chart (e.g. fleet rawResources).
+cnpg:
+  # -- Enable CloudNativePG (consume an externally-defined CNPG Cluster)
+  enabled: false
+  # -- CNPG cluster name; the app reads the `<clusterName>-app` Secret
+  clusterName: splitpro-db
+  # -- Prepend release and chart name to clusterName (use when the CNPG Cluster
+  #    is deployed via rawResources that also prepend the release name)
+  prependReleaseName: false
 
 # Used only when postgres.createSecret is true (standalone/CI): the app's
 # NextAuth signing secret. In GitOps supply this via an external Secret.

@@ -4,31 +4,43 @@
 {{ template "chart.homepageLine" . }}
 
 ## Features
-- Single hardened pod: the SplitPro app (Next.js) plus a bundled PostgreSQL
-  container, both fully non-root with read-only root filesystems
-- PostgreSQL image ships the `pg_cron` extension, required by SplitPro's
-  recurring-transactions and cache-cleanup database migration
-- Receipt uploads and database data on separate PVCs
-- Secrets (`NEXTAUTH_SECRET`, `DATABASE_URL`, OIDC/OAuth credentials) injected
-  via `envFromSecrets`; the DB password via an external Secret (or, for
-  CI/standalone, a chart-managed one)
+- Hardened SplitPro app (Next.js) pod, fully non-root with a read-only root
+  filesystem
+- Two mutually exclusive database backends (a fail guard enforces exactly one):
+  - `postgres.enabled` — a bundled PostgreSQL container with `pg_cron` baked in
+  - `cnpg.enabled` — an externally-defined CloudNativePG `Cluster`
+- Receipt uploads (and, in bundled mode, database data) on PVCs
+- Secrets (`NEXTAUTH_SECRET`, OIDC/OAuth credentials) injected via
+  `envFromSecrets`; `DATABASE_URL` from the bundled DB's Secret or, in CNPG mode,
+  straight from the cluster's `<clusterName>-app` Secret
 
-## Why a bundled database
+## Database and pg_cron
 SplitPro's schema hard-depends on `pg_cron`: the recurrence migration runs
 `CREATE EXTENSION pg_cron` and adds a foreign key onto `cron.job`, and the app
 runs `prisma migrate deploy` on every boot — so a database without `pg_cron`
-fails the migration and the app never starts. The generic PostgreSQL and
-CloudNativePG operand images do **not** include `pg_cron`, so this chart bundles
-the upstream-maintained `ossapps/postgres` image (which does) as a plain in-pod
-database rather than delegating to an external operator.
+fails the migration and the app never starts. Generic PostgreSQL and the stock
+CloudNativePG operand images do **not** include `pg_cron`.
 
-The database container is started with:
+### Bundled PostgreSQL (`postgres.enabled: true`, default)
+The chart runs the upstream-maintained `ossapps/postgres` image (which ships
+`pg_cron`) as a plain in-pod database, started with:
 
 ```
 postgres -c shared_preload_libraries=pg_cron \
          -c cron.database_name=<postgres.database> \
          -c cron.timezone=UTC
 ```
+
+### CloudNativePG (`cnpg.enabled: true`)
+Set `postgres.enabled: false` and `cnpg.enabled: true`. The bundled container is
+dropped and the app reads `DATABASE_URL` from the cluster's auto-created
+`<clusterName>-app` Secret. The `Cluster` itself is provided out-of-chart (e.g.
+fleet `rawResources`) and must supply `pg_cron` — mount the
+[`pg-cron` ImageVolume extension](https://ghcr.io/swagner-de/containers/pg-cron),
+set `shared_preload_libraries: [pg_cron]`, `cron.database_name: <app-db>`,
+`cron.use_background_workers: "on"` (CNPG's `pg_hba` rejects pg_cron's default
+TCP connection), and run `CREATE EXTENSION pg_cron` via
+`bootstrap.initdb.postInitApplicationSQL` — no `kind: Database` required.
 
 ## Database password
 The `postgres` container reads `POSTGRES_PASSWORD` from a Secret. In GitOps,
@@ -62,10 +74,11 @@ helm install {{ template "chart.name" . }} oci://ghcr.io/swagner-de/charts/{{ te
 {{ template "chart.valuesSection" . }}
 
 ## Security
-Both containers run `runAsNonRoot: true`, `readOnlyRootFilesystem: true`,
+All containers run `runAsNonRoot: true`, `readOnlyRootFilesystem: true`,
 `allowPrivilegeEscalation: false`, all capabilities dropped, and seccomp
 `RuntimeDefault`. The app runs as UID 1000 (the image's `node` user, which owns
-`/app/uploads`); PostgreSQL runs as UID 999. Writable paths (`/tmp`, the uploads
-and data PVCs, and `/var/run/postgresql`) are backed by emptyDir/PVC volumes.
+`/app/uploads`); the bundled PostgreSQL runs as UID 999. Writable paths (`/tmp`,
+the uploads and data PVCs, and `/var/run/postgresql`) are backed by
+emptyDir/PVC volumes.
 
 {{ template "chart.maintainersSection" . }}
