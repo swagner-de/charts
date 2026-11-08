@@ -34,7 +34,7 @@ radarr:
     # -- Image repository
     repository: ghcr.io/home-operations/radarr
     # -- Image tag
-    tag: '7.0.1'
+    tag: '7.0.2'
   # -- Persistence configuration
   persistence:
     config:
@@ -59,7 +59,7 @@ prowlarr:
     # -- Image repository
     repository: ghcr.io/home-operations/prowlarr
     # -- Image tag
-    tag: '3.0.0.5737'
+    tag: '3.0.1.5752'
   persistence:
     config:
       # -- Volume type
