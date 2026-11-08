@@ -104,7 +104,7 @@ helm install splitpro oci://ghcr.io/swagner-de/charts/splitpro
 | postgres.database | string | `"splitpro"` |  |
 | postgres.enabled | bool | `true` | Enable the bundled PostgreSQL container |
 | postgres.image.repository | string | `"ossapps/postgres"` |  |
-| postgres.image.tag | string | `"17.7-trixie"` |  |
+| postgres.image.tag | string | `"18.3-trixie"` |  |
 | postgres.password | string | `"CHANGEME"` |  |
 | postgres.passwordSecret.name | string | `""` |  |
 | postgres.user | string | `"splitpro"` |  |
