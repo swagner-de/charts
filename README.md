@@ -26,7 +26,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [invidious](charts/invidious) | `0.17.0` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.5.0` | Free software media server for streaming movies, TV, music, and more |
 | [joplin](charts/joplin) | `0.3.2` | Self-hosted sync server for the Joplin note-taking app |
-| [linkwarden](charts/linkwarden) | `0.10.0` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
+| [linkwarden](charts/linkwarden) | `0.10.1` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
 | [llama-cpp](charts/llama-cpp) | `0.2.0` | Run a llama.cpp server with a cached GGUF model |
 | [mealie](charts/mealie) | `0.37.0` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.5.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
