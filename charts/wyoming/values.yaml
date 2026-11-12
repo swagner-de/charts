@@ -41,7 +41,7 @@ piper:
     repository: docker.io/rhasspy/wyoming-piper
     # -- Piper image tag
     # renovate: datasource=docker depName=rhasspy/wyoming-piper
-    tag: 2.5.2
+    tag: 2.5.3
   # -- Piper voice name
   voice: en_US-lessac-medium
   # -- Wyoming TCP port

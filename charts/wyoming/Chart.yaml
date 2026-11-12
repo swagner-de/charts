@@ -2,7 +2,7 @@ apiVersion: v2
 name: wyoming
 description: Wyoming speech services for Home Assistant Assist
 type: application
-version: 0.2.0
+version: 0.2.1
 appVersion: "whisper-3.8.1_piper-2.5.2"
 home: https://www.home-assistant.io/voice_control/
 sources:
