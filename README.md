@@ -19,7 +19,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [freeradius](charts/freeradius) | `0.4.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.74.2` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.4.1` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
-| [homeassistant](charts/homeassistant) | `1.29.3` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
+| [homeassistant](charts/homeassistant) | `1.29.4` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.17.0` | Customizable application dashboard for your homelab |
 | [immich-public-proxy](charts/immich-public-proxy) | `0.5.0` | Public sharing proxy for Immich |
 | [immich](charts/immich) | `0.27.3` | Self-hosted photo and video backup solution with machine learning |
@@ -28,7 +28,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [joplin](charts/joplin) | `0.3.3` | Self-hosted sync server for the Joplin note-taking app |
 | [linkwarden](charts/linkwarden) | `0.11.0` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
 | [llama-cpp](charts/llama-cpp) | `0.2.0` | Run a llama.cpp server with a cached GGUF model |
-| [mealie](charts/mealie) | `0.37.0` | Self-hosted recipe manager and meal planner |
+| [mealie](charts/mealie) | `0.38.0` | Self-hosted recipe manager and meal planner |
 | [mosquitto](charts/mosquitto) | `0.5.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [mtls-socks](charts/mtls-socks) | `0.3.2` | SOCKS5 proxy exposed only over mutually-authenticated TLS via ghostunnel, with cert-manager-issued per-user client certificates |
 | [music-assistant](charts/music-assistant) | `0.6.3` | Music Assistant - free, opensource Media player for your local music and online music providers |
