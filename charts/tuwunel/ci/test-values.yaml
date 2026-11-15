@@ -1,0 +1,4 @@
+# CI install values: the shipped default server_name is a placeholder that
+# tuwunel refuses to start with, so provide a valid one for ct install.
+config:
+  server_name: "example.com"
