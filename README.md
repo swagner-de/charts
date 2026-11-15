@@ -41,6 +41,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [searxng](charts/searxng) | `0.3.0` | Privacy-respecting metasearch engine |
 | [skel](charts/skel) | `0.5.0` | Skeleton chart template for creating new charts |
 | [splitpro](charts/splitpro) | `0.4.0` | SplitPro — self-hosted open source alternative to Splitwise for sharing expenses |
+| [tuwunel](charts/tuwunel) | `0.1.0` | Tuwunel Matrix homeserver (successor to conduwuit), hardened and configured via TOML |
 | [vikunja](charts/vikunja) | `0.8.0` | Self-hosted to-do list and task management application |
 | [wanderer](charts/wanderer) | `0.13.2` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
 | [wyoming](charts/wyoming) | `0.2.1` | Wyoming speech services for Home Assistant Assist |
