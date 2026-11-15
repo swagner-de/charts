@@ -1,0 +1,158 @@
+{{- define "hardcoded" -}}
+
+global:
+  createDefaultServiceAccount: false
+
+defaultPodOptions:
+  # Raised so a one-time database migration on the first boot after an
+  # upgrade is never killed part way through. See the upstream note:
+  # https://matrix-construct.github.io/tuwunel/deploying/kubernetes.html
+  terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: {{ .Values.runAsUser }}
+    runAsGroup: {{ .Values.runAsUser }}
+    fsGroup: {{ .Values.runAsUser }}
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    type: statefulset
+    containers:
+      main:
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+        image:
+          repository: ghcr.io/matrix-construct/tuwunel
+          tag: {{ .Chart.AppVersion | quote }}
+        env:
+          # tuwunel reads no config file by default; name the base TOML here.
+          TUWUNEL_CONFIG: "/config/tuwunel.toml"
+        {{- if .Values.oidc.enabled }}
+        # Additional config files are passed as repeatable -c args, loaded after
+        # TUWUNEL_CONFIG with later files winning, so the OIDC fragment's
+        # [[global.identity_provider]] block layers on top of the base config.
+        args:
+        - -c
+        - /config/oidc.toml
+        {{- end }}
+        probes:
+          # A migrating server does not answer --health-check, so a startup
+          # probe with a long budget shields the liveness/readiness probes
+          # while migrations run (kubelet suspends them until startup passes).
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command: ["tuwunel", "--health-check"]
+              periodSeconds: 10
+              failureThreshold: {{ .Values.migrationProbe.failureThreshold }}
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command: ["tuwunel", "--health-check"]
+              periodSeconds: 10
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command: ["tuwunel", "--health-check"]
+              periodSeconds: 10
+              failureThreshold: 3
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+
+service:
+  main:
+    controller: main
+    primary: true
+    ports:
+      http:
+        port: {{ .Values.config.port }}
+        protocol: HTTP
+
+persistence:
+  data:
+    advancedMounts:
+      main:
+        main:
+        - path: /var/lib/tuwunel
+
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+        - path: /tmp
+
+  config:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        main:
+        - path: /config/tuwunel.toml
+          subPath: tuwunel.toml
+
+  {{- if .Values.oidc.enabled }}
+  oidc:
+    type: secret
+    name: {{ .Values.oidc.secretName | quote }}
+    advancedMounts:
+      main:
+        main:
+        - path: /config/oidc.toml
+          subPath: {{ .Values.oidc.secretKey | quote }}
+          readOnly: true
+  {{- end }}
+
+configMaps:
+  config:
+    enabled: true
+    data:
+      tuwunel.toml: |
+        [global]
+        server_name = {{ .Values.config.server_name | quote }}
+        database_path = "/var/lib/tuwunel"
+        allow_federation = {{ .Values.config.allow_federation }}
+        allow_registration = {{ .Values.config.allow_registration }}
+        {{- if .Values.config.trusted_servers }}
+        trusted_servers = {{ .Values.config.trusted_servers | toJson }}
+        {{- end }}
+        max_request_size = {{ .Values.config.max_request_size | int64 }}
+
+        address = ["0.0.0.0"]
+        port = {{ .Values.config.port }}
+        ip_source = {{ .Values.config.ip_source | quote }}
+
+        {{- if .Values.wellKnown.enabled }}
+        [global.well_known]
+        client = {{ .Values.wellKnown.client | quote }}
+        server = {{ .Values.wellKnown.server | quote }}
+        {{- if .Values.wellKnown.supportPage }}
+        support_page = {{ .Values.wellKnown.supportPage | quote }}
+        {{- end }}
+        {{- end }}
+        {{- with .Values.config.extraConfig }}
+
+        {{ . | nindent 8 }}
+        {{- end }}
+
+{{ end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "hardcoded" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{ include "bjw-s.common.loader.all" $ctx }}

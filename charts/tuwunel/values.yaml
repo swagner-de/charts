@@ -1,0 +1,64 @@
+# UID/GID the tuwunel process and its data volume run as.
+runAsUser: 1000
+
+# Give a one-time database migration on the first boot after an upgrade
+# enough time to finish before Kubernetes kills the pod.
+terminationGracePeriodSeconds: 1800
+
+# Startup-probe budget covering the longest expected migration.
+# failureThreshold * periodSeconds (10s) = total budget. 180 => 30 minutes.
+migrationProbe:
+  failureThreshold: 180
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+config:
+  # The Matrix server_name: the suffix in @user:<server_name>. It is recorded
+  # in the database on first boot and CANNOT be changed afterwards.
+  server_name: "your.server.name"
+  # Port the in-container listener binds. Front it with a reverse proxy / Gateway.
+  port: 8008
+  allow_federation: true
+  allow_registration: false
+  # Servers to trust when federating (e.g. ["matrix.org"]).
+  trusted_servers: []
+  max_request_size: 20000000
+  # How the client IP is derived. Direct TCP peer: "connect_info". Behind a
+  # reverse proxy, select the header it sets (rightmost value), e.g.
+  # "rightmost_x_forwarded_for" for nginx/Caddy/Envoy, "cf_connecting_ip" for
+  # Cloudflare. See the tuwunel [global.http] docs for the full list.
+  ip_source: "connect_info"
+  # Arbitrary extra TOML appended under [global], for options not exposed above.
+  extraConfig: ""
+
+# .well-known delegation served by tuwunel itself. When server_name differs
+# from the host tuwunel is reached on, this points clients and other servers
+# at the real host. The reverse proxy must forward /.well-known/* to tuwunel.
+wellKnown:
+  enabled: false
+  # Homeserver base URL clients connect to.
+  client: "https://matrix.your.server.name"
+  # Federation host:port other servers connect to.
+  server: "matrix.your.server.name:443"
+  supportPage: ""
+
+# OIDC / SSO via an external identity provider. When enabled, a TOML fragment
+# containing the full [[global.identity_provider]] block is mounted from a
+# Secret and layered on top of the base config. Populate that Secret however
+# you like (a static Secret, an ExternalSecret, etc.).
+oidc:
+  enabled: false
+  secretName: "CHANGEME-oidc"
+  secretKey: "oidc.toml"
+
+persistence:
+  data:
+    enabled: true
+    size: 10Gi
+    # storageClass: "gp2"
+    accessMode: ReadWriteOnce
