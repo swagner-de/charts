@@ -2,13 +2,13 @@ apiVersion: v2
 name: tuwunel
 description: Tuwunel Matrix homeserver (successor to conduwuit), hardened and configured via TOML
 type: application
-version: 0.1.0
+version: 0.2.0
 home: https://tuwunel.chat/
 sources:
   - https://github.com/swagner-de/charts
   - https://github.com/matrix-construct/tuwunel
 # renovate: image=ghcr.io/matrix-construct/tuwunel
-appVersion: 'v1.9.4'
+appVersion: 'v2.0.0'
 dependencies:
   - name: common
     version: 5.3.0
