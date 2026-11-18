@@ -29,7 +29,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [linkwarden](charts/linkwarden) | `0.11.2` | Self-hosted collaborative bookmark manager to collect, organize and archive webpages |
 | [llama-cpp](charts/llama-cpp) | `0.2.0` | Run a llama.cpp server with a cached GGUF model |
 | [mealie](charts/mealie) | `0.38.2` | Self-hosted recipe manager and meal planner |
-| [mosquitto](charts/mosquitto) | `0.5.0` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
+| [mosquitto](charts/mosquitto) | `0.5.1` | Eclipse Mosquitto MQTT broker with TLS and password authentication |
 | [mtls-socks](charts/mtls-socks) | `0.3.2` | SOCKS5 proxy exposed only over mutually-authenticated TLS via ghostunnel, with cert-manager-issued per-user client certificates |
 | [music-assistant](charts/music-assistant) | `0.6.5` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.5.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
