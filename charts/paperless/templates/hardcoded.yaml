@@ -186,6 +186,15 @@ controllers:
               httpGet:
                 path: /
                 port: 8000
+                # Paperless-ngx (Django) validates the Host header against
+                # ALLOWED_HOSTS. Kubelet HTTP probes connect to the pod IP and would
+                # otherwise send Host: <podIP>, which Django rejects with 400
+                # DisallowedHost unless the user sets ALLOWED_HOSTS to a wildcard.
+                # Send a loopback Host, which Django always permits, so probes pass
+                # regardless of the configured PAPERLESS_ALLOWED_HOSTS / PAPERLESS_URL.
+                httpHeaders:
+                  - name: Host
+                    value: localhost
               initialDelaySeconds: 20
               failureThreshold: 5
               periodSeconds: 10
