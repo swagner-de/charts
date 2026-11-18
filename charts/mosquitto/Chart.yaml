@@ -2,12 +2,12 @@ apiVersion: v2
 name: mosquitto
 description: Eclipse Mosquitto MQTT broker with TLS and password authentication
 type: application
-version: 0.5.0
+version: 0.5.1
 home: https://mosquitto.org/
 sources:
   - https://github.com/swagner-de/charts
 # renovate: image=eclipse-mosquitto
-appVersion: '2.0.22'
+appVersion: '2.0.23'
 dependencies:
   - name: common
     version: 5.3.0
