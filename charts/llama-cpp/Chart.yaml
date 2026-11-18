@@ -4,7 +4,7 @@ description: Run a llama.cpp server with a cached GGUF model
 type: application
 version: 0.2.0
 # renovate: image=ghcr.io/ggml-org/llama.cpp
-appVersion: "b11561"
+appVersion: 'b11561'
 home: https://github.com/ggml-org/llama.cpp
 sources:
   - https://github.com/ggml-org/llama.cpp
