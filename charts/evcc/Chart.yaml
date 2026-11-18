@@ -2,9 +2,9 @@ apiVersion: v2
 name: evcc
 description: Local EV charging and home energy management
 type: application
-version: 0.1.0
+version: 0.2.0
 # renovate: image=evcc/evcc
-appVersion: '0.318.2'
+appVersion: '0.319.1'
 sources:
   - https://github.com/evcc-io/evcc
   - https://github.com/swagner-de/charts
