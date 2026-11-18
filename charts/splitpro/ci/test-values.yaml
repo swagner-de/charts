@@ -4,6 +4,10 @@
 # provides pg_cron.
 siteUrl: "http://localhost:8015"
 
+config:
+  EMAIL_SERVER_HOST: "localhost"
+  OAUTH_AUTO_REDIRECT: "false"
+
 postgres:
   createSecret: true
   password: ci-test-password-not-secret
