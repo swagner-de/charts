@@ -6,7 +6,7 @@ whisper:
     repository: docker.io/rhasspy/wyoming-whisper
     # -- Whisper image tag
     # renovate: datasource=docker depName=rhasspy/wyoming-whisper
-    tag: 3.8.1
+    tag: 3.9.0
   # -- Whisper model name
   model: small-int8
   # -- Language code. Set to an empty string for automatic detection.
@@ -41,7 +41,7 @@ piper:
     repository: docker.io/rhasspy/wyoming-piper
     # -- Piper image tag
     # renovate: datasource=docker depName=rhasspy/wyoming-piper
-    tag: 2.5.3
+    tag: 2.5.4
   # -- Piper voice name
   voice: en_US-lessac-medium
   # -- Wyoming TCP port
