@@ -1,6 +1,6 @@
 # wyoming
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: whisper-3.8.1_piper-2.5.2](https://img.shields.io/badge/AppVersion-whisper--3.8.1_piper--2.5.2-informational?style=flat-square)
+![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: whisper-3.8.1_piper-2.5.2](https://img.shields.io/badge/AppVersion-whisper--3.8.1_piper--2.5.2-informational?style=flat-square)
 Wyoming speech services for Home Assistant Assist
 **Homepage:** <https://www.home-assistant.io/voice_control/>
 
@@ -29,7 +29,7 @@ helm install wyoming oci://ghcr.io/swagner-de/charts/wyoming
 | piper.enabled | bool | `true` | Enable the Piper text-to-speech service |
 | piper.extraArgs | list | `[]` | Additional arguments appended to the generated Piper arguments |
 | piper.image.repository | string | `"docker.io/rhasspy/wyoming-piper"` | Piper image repository |
-| piper.image.tag | string | `"2.5.3"` | Piper image tag renovate: datasource=docker depName=rhasspy/wyoming-piper |
+| piper.image.tag | string | `"2.5.4"` | Piper image tag renovate: datasource=docker depName=rhasspy/wyoming-piper |
 | piper.persistence.accessMode | string | `"ReadWriteOnce"` | PVC access mode |
 | piper.persistence.enabled | bool | `true` | Persist downloaded Piper voices |
 | piper.persistence.mountPath | string | `"/data"` | Voice data mount path |
@@ -43,7 +43,7 @@ helm install wyoming oci://ghcr.io/swagner-de/charts/wyoming
 | whisper.enabled | bool | `true` | Enable the Whisper speech-to-text service |
 | whisper.extraArgs | list | `[]` | Additional arguments appended to the generated Whisper arguments |
 | whisper.image.repository | string | `"docker.io/rhasspy/wyoming-whisper"` | Whisper image repository |
-| whisper.image.tag | string | `"3.8.1"` | Whisper image tag renovate: datasource=docker depName=rhasspy/wyoming-whisper |
+| whisper.image.tag | string | `"3.9.0"` | Whisper image tag renovate: datasource=docker depName=rhasspy/wyoming-whisper |
 | whisper.language | string | `"en"` | Language code. Set to an empty string for automatic detection. |
 | whisper.model | string | `"small-int8"` | Whisper model name |
 | whisper.persistence.accessMode | string | `"ReadWriteOnce"` | PVC access mode |

@@ -44,7 +44,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [tuwunel](charts/tuwunel) | `0.1.0` | Tuwunel Matrix homeserver (successor to conduwuit), hardened and configured via TOML |
 | [vikunja](charts/vikunja) | `0.8.0` | Self-hosted to-do list and task management application |
 | [wanderer](charts/wanderer) | `0.13.2` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
-| [wyoming](charts/wyoming) | `0.2.1` | Wyoming speech services for Home Assistant Assist |
+| [wyoming](charts/wyoming) | `0.2.2` | Wyoming speech services for Home Assistant Assist |
 | [zigbee2mqtt](charts/zigbee2mqtt) | `0.16.1` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
 
