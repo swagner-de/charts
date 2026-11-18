@@ -104,10 +104,15 @@ jobs:
 
             echo "Running helm diff for $chart_name..."
 
+            base_vals=""
+            [[ -f "base-repo/$chart/ci/test-values.yaml" ]] && base_vals="-f base-repo/$chart/ci/test-values.yaml"
+            pr_vals=""
+            [[ -f "$chart/ci/test-values.yaml" ]] && pr_vals="-f $chart/ci/test-values.yaml"
+
             base_ok=true
             pr_ok=true
-            helm template "$release_name" "base-repo/$chart" --namespace "$namespace" > base_templates_raw.yaml 2>/dev/null || base_ok=false
-            helm template "$release_name" "$chart" --namespace "$namespace" > pr_templates_raw.yaml 2>/dev/null || pr_ok=false
+            helm template "$release_name" "base-repo/$chart" --namespace "$namespace" $base_vals > base_templates_raw.yaml 2>/dev/null || base_ok=false
+            helm template "$release_name" "$chart" --namespace "$namespace" $pr_vals > pr_templates_raw.yaml 2>/dev/null || pr_ok=false
 
             if [[ "$base_ok" == true && "$pr_ok" == true ]]; then
               sort_manifests base_templates_raw.yaml base_templates.yaml
