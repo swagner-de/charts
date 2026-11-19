@@ -6,7 +6,7 @@ whisper:
     repository: docker.io/rhasspy/wyoming-whisper
     # -- Whisper image tag
     # renovate: datasource=docker depName=rhasspy/wyoming-whisper
-    tag: 3.9.0
+    tag: 3.9.1
   # -- Whisper model name
   model: small-int8
   # -- Language code. Set to an empty string for automatic detection.
