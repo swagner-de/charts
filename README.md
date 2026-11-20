@@ -22,7 +22,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [homeassistant](charts/homeassistant) | `1.29.5` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
 | [homepage](charts/homepage) | `0.17.0` | Customizable application dashboard for your homelab |
 | [immich-public-proxy](charts/immich-public-proxy) | `0.6.0` | Public sharing proxy for Immich |
-| [immich](charts/immich) | `0.28.3` | Self-hosted photo and video backup solution with machine learning |
+| [immich](charts/immich) | `0.29.0` | Self-hosted photo and video backup solution with machine learning |
 | [invidious](charts/invidious) | `0.19.2` | Privacy-focused alternative YouTube frontend with companion service and PostgreSQL |
 | [jellyfin](charts/jellyfin) | `0.5.0` | Free software media server for streaming movies, TV, music, and more |
 | [joplin](charts/joplin) | `0.3.4` | Self-hosted sync server for the Joplin note-taking app |
@@ -33,7 +33,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [mtls-socks](charts/mtls-socks) | `0.3.2` | SOCKS5 proxy exposed only over mutually-authenticated TLS via ghostunnel, with cert-manager-issued per-user client certificates |
 | [music-assistant](charts/music-assistant) | `0.6.5` | Music Assistant - free, opensource Media player for your local music and online music providers |
 | [netra](charts/netra) | `0.5.0` | ASN traffic analysis dashboard for NetFlow/IPFIX flow data |
-| [paperless](charts/paperless) | `0.81.0` | Document management system with OCR and full-text search |
+| [paperless](charts/paperless) | `0.82.0` | Document management system with OCR and full-text search |
 | [powerdns-auth](charts/powerdns-auth) | `0.11.0` | PowerDNS authoritative DNS server with LMDB backend and external-dns support |
 | [powerdns-recursor](charts/powerdns-recursor) | `0.5.3` | PowerDNS recursive DNS resolver with DNSSEC validation |
 | [qbittorrent](charts/qbittorrent) | `0.8.0` | BitTorrent client with web UI and optional VPN (gluetun) sidecar |
