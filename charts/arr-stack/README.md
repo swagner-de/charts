@@ -1,6 +1,6 @@
 # arr-stack
 
-![Version: 0.16.5](https://img.shields.io/badge/Version-0.16.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.17.0](https://img.shields.io/badge/Version-0.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 Media automation stack with Sonarr, Radarr, Prowlarr, Bazarr, Flaresolverr, Configarr, and UmlautAdaptarr
 **Homepage:** <https://wiki.servarr.com/>
 
@@ -53,32 +53,32 @@ helm install arr-stack oci://ghcr.io/swagner-de/charts/arr-stack
 | flaresolverr.image.repository | string | `"ghcr.io/flaresolverr/flaresolverr"` | Image repository |
 | flaresolverr.image.tag | string | `"v3.5.2"` | Image tag |
 | flaresolverr.port | int | `8191` | Service port |
-| prowlarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/prowlarr","tag":"3.0.2.5780"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":9696}` | Prowlarr indexer management configuration |
+| prowlarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/prowlarr","tag":"3.1.0.5799"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":9696}` | Prowlarr indexer management configuration |
 | prowlarr.enabled | bool | `true` | Enable Prowlarr |
-| prowlarr.image | object | `{"repository":"ghcr.io/home-operations/prowlarr","tag":"3.0.2.5780"}` | Container image configuration |
+| prowlarr.image | object | `{"repository":"ghcr.io/home-operations/prowlarr","tag":"3.1.0.5799"}` | Container image configuration |
 | prowlarr.image.repository | string | `"ghcr.io/home-operations/prowlarr"` | Image repository |
-| prowlarr.image.tag | string | `"3.0.2.5780"` | Image tag |
+| prowlarr.image.tag | string | `"3.1.0.5799"` | Image tag |
 | prowlarr.persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
 | prowlarr.persistence.config.mountPath | string | `"/config"` | Mount path inside the container |
 | prowlarr.persistence.config.size | string | `"100Mi"` | Volume size |
 | prowlarr.persistence.config.type | string | `"persistentVolumeClaim"` | Volume type |
 | prowlarr.port | int | `9696` | Service port |
-| radarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/radarr","tag":"7.0.3"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":7878}` | Radarr movie management configuration |
+| radarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/radarr","tag":"7.1.0"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":7878}` | Radarr movie management configuration |
 | radarr.enabled | bool | `true` | Enable Radarr |
-| radarr.image | object | `{"repository":"ghcr.io/home-operations/radarr","tag":"7.0.3"}` | Container image configuration |
+| radarr.image | object | `{"repository":"ghcr.io/home-operations/radarr","tag":"7.1.0"}` | Container image configuration |
 | radarr.image.repository | string | `"ghcr.io/home-operations/radarr"` | Image repository |
-| radarr.image.tag | string | `"7.0.3"` | Image tag |
+| radarr.image.tag | string | `"7.1.0"` | Image tag |
 | radarr.persistence | object | `{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}}` | Persistence configuration |
 | radarr.persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
 | radarr.persistence.config.mountPath | string | `"/config"` | Mount path inside the container |
 | radarr.persistence.config.size | string | `"100Mi"` | Volume size |
 | radarr.persistence.config.type | string | `"persistentVolumeClaim"` | Volume type |
 | radarr.port | int | `7878` | Service port |
-| sonarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/sonarr","tag":"5.0.0.2997"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":8989}` | Sonarr TV series management configuration |
+| sonarr | object | `{"enabled":true,"image":{"repository":"ghcr.io/home-operations/sonarr","tag":"5.0.0.3041"},"persistence":{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}},"port":8989}` | Sonarr TV series management configuration |
 | sonarr.enabled | bool | `true` | Enable Sonarr |
-| sonarr.image | object | `{"repository":"ghcr.io/home-operations/sonarr","tag":"5.0.0.2997"}` | Container image configuration |
+| sonarr.image | object | `{"repository":"ghcr.io/home-operations/sonarr","tag":"5.0.0.3041"}` | Container image configuration |
 | sonarr.image.repository | string | `"ghcr.io/home-operations/sonarr"` | Image repository |
-| sonarr.image.tag | string | `"5.0.0.2997"` | Image tag |
+| sonarr.image.tag | string | `"5.0.0.3041"` | Image tag |
 | sonarr.persistence | object | `{"config":{"accessMode":"ReadWriteOnce","mountPath":"/config","size":"100Mi","type":"persistentVolumeClaim"}}` | Persistence configuration |
 | sonarr.persistence.config.accessMode | string | `"ReadWriteOnce"` | Storage access mode |
 | sonarr.persistence.config.mountPath | string | `"/config"` | Mount path inside the container |
