@@ -16,7 +16,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [emby](charts/emby) | `0.4.1` | Emby media server for streaming movies, TV, music, and more |
 | [evcc](charts/evcc) | `0.2.0` | Local EV charging and home energy management |
 | [flowcus](charts/flowcus) | `0.5.1` | Lightweight NetFlow/IPFIX collector with embedded web UI and columnar storage |
-| [freeradius](charts/freeradius) | `0.4.0` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
+| [freeradius](charts/freeradius) | `0.4.1` | FreeRADIUS server with LDAP backend for WPA Enterprise and MAC authentication |
 | [ghostfolio](charts/ghostfolio) | `0.77.0` | Open source wealth management software |
 | [home-assistant-matter-hub](charts/home-assistant-matter-hub) | `0.4.2` | Matter bridge for Home Assistant with mDNS support via Layer 2 network attachment |
 | [homeassistant](charts/homeassistant) | `1.29.7` | Home automation platform with optional LDAP, Matter bridge, and CNPG database support |
