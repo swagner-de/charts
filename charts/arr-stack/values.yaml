@@ -9,7 +9,7 @@ sonarr:
     # -- Image repository
     repository: ghcr.io/home-operations/sonarr
     # -- Image tag
-    tag: '5.0.0.2997'
+    tag: '5.0.0.3041'
   # -- Persistence configuration
   persistence:
     config:
@@ -34,7 +34,7 @@ radarr:
     # -- Image repository
     repository: ghcr.io/home-operations/radarr
     # -- Image tag
-    tag: '7.0.3'
+    tag: '7.1.0'
   # -- Persistence configuration
   persistence:
     config:
@@ -59,7 +59,7 @@ prowlarr:
     # -- Image repository
     repository: ghcr.io/home-operations/prowlarr
     # -- Image tag
-    tag: '3.0.2.5780'
+    tag: '3.1.0.5799'
   persistence:
     config:
       # -- Volume type
