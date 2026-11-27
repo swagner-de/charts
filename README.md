@@ -43,7 +43,7 @@ A collection of Helm charts for self-hosted applications, built on the [bjw-s co
 | [splitpro](charts/splitpro) | `0.4.1` | SplitPro — self-hosted open source alternative to Splitwise for sharing expenses |
 | [tuwunel](charts/tuwunel) | `0.2.0` | Tuwunel Matrix homeserver (successor to conduwuit), hardened and configured via TOML |
 | [vikunja](charts/vikunja) | `0.8.2` | Self-hosted to-do list and task management application |
-| [wanderer](charts/wanderer) | `0.14.0` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
+| [wanderer](charts/wanderer) | `0.15.0` | Self-hosted trail database and route planner for hiking, biking and other outdoor activities |
 | [wyoming](charts/wyoming) | `0.2.3` | Wyoming speech services for Home Assistant Assist |
 | [zigbee2mqtt](charts/zigbee2mqtt) | `0.16.1` | Zigbee-to-MQTT bridge for smart home devices |
 <!-- charts-table-end -->
